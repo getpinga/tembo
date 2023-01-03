@@ -1,0 +1,19 @@
+{
+    "name": "pinga\tembo",
+    "description": "A simple PHP EPP client",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Taras Kondratyuk",
+            "email": "tk@gepinga.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pinga\\Tembo\\": "src/"
+        }
+    }
+}
