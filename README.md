@@ -28,12 +28,12 @@ To install the Pinga Tembo EPP client, follow these steps:
 
 2. In your PHP code, include the Composer autoloader and use the Epp class from the Pinga Tembo package:
 
-```<?php
-
+```
 // Include the Composer autoloader
 require_once 'vendor/autoload.php';
 
 // Use the Epp class from the Pinga Tembo package
-use Pinga\Tembo\Epp;```
+use Pinga\Tembo\Epp;
+```
 
-3. You can now use the Epp class and its functions in your code. You can refer to the ```test.php``` file for examples of how the package can be used. Additional EPP functions will be added to the package on a weekly basis.
+3. You can now use the Epp class and its functions in your code. You can refer to the **test.php** file for examples of how the package can be used. Additional EPP functions will be added to the package on a weekly basis.
