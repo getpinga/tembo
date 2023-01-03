@@ -1,5 +1,5 @@
 {
-    "name": "pinga\tembo",
+    "name": "pinga/tembo",
     "description": "A simple PHP EPP client",
     "type": "library",
     "authors": [
