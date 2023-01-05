@@ -88,13 +88,21 @@ use Pinga\Tembo\Epp;
     }
 
 
-echo '<pre>';
+//echo '<pre>';
 //print_r($domainCheck);
 //print_r($domainInfo);
 //print_r($domainCreate);
 //print_r($domainTransfer);
-print_r($domainRenew);
-echo '</pre>';
+//print_r($domainRenew);
+//echo '</pre>';
 
-    //...
+foreach ($domainCheck['domains'] as $domain) {
+    // Check if the domain is available
+    if ($domain['avail'] === 1) {
+        echo "The domain " . $domain['name'] . " is available." . PHP_EOL;
+    } else {
+        echo "The domain " . $domain['name'] . " is not available. Reason: " . $domain['reason'] . PHP_EOL;
+    }
+}
+
 ?>
