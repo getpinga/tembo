@@ -36,7 +36,7 @@ use Pinga\Tembo\Epp;
         $epp->login(array(
             'clID' => 'testregistrar1',
             'pw' => 'testpassword1',
-            'prefix' => 'TESTR1'
+            'prefix' => 'TESTR1',
             'ext' => 'iis.se'
         ));
 		
