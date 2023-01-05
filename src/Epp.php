@@ -8,7 +8,9 @@
  * @license MIT
  */
  
-namespace Pinga\Tembo;
+namespace Pinga\Tembo; 
+use Pinga\Tembo\Exception\EppException;
+use Pinga\Tembo\Exception\EppNotConnectedException;
  
 class Epp
 {
