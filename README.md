@@ -49,9 +49,9 @@ use Pinga\Tembo\Epp;
 | updateNS | ✅ |❌  | ❌| |
 | updateContact | ✅ | ❌ | ❌| |
 | updateStatus | 🚧 | ❌ | ❌| |
-| updateDNSSEC | 🚧 | ❌ | ❌| |
-| renew | ✅ | ❌ | ❌| |
-| delete | ✅ | 🚧 | 🚧 |  |
+| updateDNSSEC | 🚧 |  | | |
+| renew | ✅ |  | | |
+| delete | ✅ | ✅ | ✅ |  |
 | transferRequest | ✅ | ❌ | ❌ | |
 
 ## Registry Support
