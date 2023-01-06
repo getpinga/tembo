@@ -229,6 +229,70 @@ class Epp
     }
 	
     /**
+     * hostCheck
+     */
+    function hostCheck($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+			$to[] = htmlspecialchars($params['hostname']);
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-host-check-' . $microtime);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<check>
+	  <host:check
+		xmlns:host="urn:ietf:params:xml:ns:host-1.0"
+		xsi:schemaLocation="urn:ietf:params:xml:ns:host-1.0 host-1.0.xsd">
+		<host:name>{{ name }}</host:name>
+	  </host:check>
+	</check>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->chkData;
+            $i = 0;
+            foreach($r->cd as $cd) {
+                $i++;
+                $hosts[$i]['name'] = (string)$cd->name;
+                $hosts[$i]['avail'] = (int)$cd->name->attributes()->avail;
+            }
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'hosts' => $hosts
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
      * hostCreate
      */
     function hostCreate($params = array())
@@ -279,6 +343,72 @@ class Epp
                 'code' => $code,
                 'msg' => $msg,
                 'name' => $name
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * contactCheck
+     */
+    function contactCheck($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ id }}/';
+			$id = $params['contactid'];
+			$to[] = htmlspecialchars($id);
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-contact-check-' . $microtime);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<check>
+	  <contact:check
+		xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
+		xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+		<contact:id>{{ id }}</contact:id>
+	  </contact:check>
+	</check>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->chkData;
+            $i = 0;
+            foreach($r->cd as $cd) {
+                $i++;
+                $contacts[$i]['id'] = (string)$cd->id;
+                $contacts[$i]['avail'] = (int)$cd->name->attributes()->avail;
+                $contacts[$i]['reason'] = (string)$cd->reason;
+            }
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'contacts' => $contacts
             );
         }
 
