@@ -42,7 +42,7 @@ use Pinga\Tembo\Epp;
 
 | | domain | contact | host | others |
 |----------|----------|----------|----------|----------|
-| check | ✅ | ❌  | ❌ | login |
+| check | ✅ | ✅  | ✅ | login |
 | info | ✅ | ❌ | ❌ | logout |
 | create | ✅ | ✅ | ✅ | |
 | updateNS | ✅ |❌  | ❌| |
