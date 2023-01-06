@@ -293,6 +293,81 @@ class Epp
     }
 	
     /**
+     * hostInfo
+     */
+    function hostInfo($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+			$to[] = htmlspecialchars($params['hostname']);
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-host-info-' . $microtime);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+   <info>
+     <host:info
+      xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+       <host:name>{{ name }}</host:name>
+     </host:info>
+   </info>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+			$r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
+			$name = (string)$r->name;
+			$status = (string)$r->status;
+			$addr = array();
+			foreach($r->addr as $ns) {
+				$addr[] = (string)$ns;
+			}
+            $clID = (string)$r->clID;
+            $crID = (string)$r->crID;
+            $crDate = (string)$r->crDate;
+            $upID = (string)$r->upID;
+            $upDate = (string)$r->upDate;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'status' => $status,
+                'addr' => $addr,
+                'clID' => $clID,
+                'crID' => $crID,
+                'crDate' => $crDate,
+                'upID' => $upID,
+                'upDate' => $upDate
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
      * hostCreate
      */
     function hostCreate($params = array())
@@ -374,7 +449,7 @@ class Epp
             $to[] = htmlspecialchars($params['hostname']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-host-delete-' . $clTRID);
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -462,6 +537,105 @@ class Epp
                 'code' => $code,
                 'msg' => $msg,
                 'contacts' => $contacts
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * contactInfo
+     */
+    function contactInfo($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+			$from[] = '/{{ id }}/';
+			$to[] = htmlspecialchars($id);
+            $from[] = '/{{ authInfo }}/';
+            $authInfo = (isset($params['authInfoPw']) ? "<contact:authInfo>\n<contact:pw><![CDATA[{$params['authInfoPw']}]]></contact:pw>\n</contact:authInfo>" : '');
+            $to[] = $authInfo;
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-contact-info-' . $microtime);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<info>
+	  <contact:info
+	   xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
+		<contact:id>{{ id }}</contact:id>
+        {{ authInfo }}
+	  </contact:info>
+	</info>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+			$r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->infData[0];
+			foreach($r->postalInfo as $e) {
+				$name = (string)$e->name;
+				$org = (string)$e->org;
+				$street1 = $street2 = $street3 = '';
+				for ($i = 0; $i <= 2; $i++) {
+					${'street' . ($i + 1)} = (string)$e->addr->street[$i];
+				}
+				$city = (string)$e->addr->city;
+				$state = (string)$e->addr->sp;
+				$postal = (string)$e->addr->pc;
+				$country = (string)$e->addr->cc;
+			}
+			$voice = (string)$r->voice;
+			$fax = (string)$r->fax;
+			$email = (string)$r->email;
+            $clID = (string)$r->clID;
+            $crID = (string)$r->crID;
+            $crDate = (string)$r->crDate;
+            $upID = (string)$r->upID;
+            $upDate = (string)$r->upDate;
+            $authInfo = (string)$r->authInfo->pw;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'org' => $org,
+                'street1' => $street1,
+                'street2' => $street2,
+                'street3' => $street3,
+                'city' => $city,
+                'state' => $state,
+                'postal' => $postal,
+                'country' => $country,
+                'voice' => $voice,
+                'fax' => $fax,
+                'email' => $email,
+                'clID' => $clID,
+                'crID' => $crID,
+                'crDate' => $crDate,
+                'upID' => $upID,
+                'upDate' => $upDate,
+                'authInfo' => $authInfo
             );
         }
 
@@ -664,7 +838,7 @@ class Epp
 			$to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);	
+            $to[] = htmlspecialchars($this->prefix . '-contact-createIIS-' . $microtime);	
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -745,7 +919,7 @@ class Epp
             $to[] = htmlspecialchars($params['contact']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-contact-delete-' . $clTRID);
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1079,7 +1253,7 @@ class Epp
 				$to[] = htmlspecialchars($params['domainname']);
 				$from[] = '/{{ clTRID }}/';
 				$clTRID = str_replace('.', '', round(microtime(1), 3));
-				$to[] = htmlspecialchars($this->prefix . '-domain-update-' . $clTRID);
+				$to[] = htmlspecialchars($this->prefix . '-domain-updateNS-' . $clTRID);
 				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1140,7 +1314,7 @@ class Epp
 			$to[] = "<domain:rem><domain:contact type=\"admin\">XXX</domain:contact><domain:contact type=\"tech\">XXX</domain:contact></domain:rem>\n"; */
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-update-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-domain-updateContactGR-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -1278,7 +1452,7 @@ class Epp
             $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-domain-transferGR-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -1487,7 +1661,7 @@ class Epp
             $to[] = htmlspecialchars($params['domainname']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -1578,7 +1752,7 @@ class Epp
             $to[] = htmlspecialchars($params['domainname']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-domain-renewTransferGR-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
