@@ -43,12 +43,14 @@ use Pinga\Tembo\Epp;
 | | domain | contact | host | others |
 |----------|----------|----------|----------|----------|
 | check | ✅ | ✅  | ✅ | login |
-| info | ✅ | ❌ | ❌ | logout |
+| info | ✅ | 🚧 | 🚧 | logout |
 | create | ✅ | ✅ | ✅ | |
 | updateNS | ✅ |❌  | ❌| |
 | updateContact | ✅ | ❌ | ❌| |
+| updateStatus | ❌ | ❌ | ❌| |
+| updateDNSSEC | ❌ | ❌ | ❌| |
 | renew | ✅ | ❌ | ❌| |
-| delete | ✅ | ❌ | ❌ |  |
+| delete | ✅ | 🚧 | 🚧 |  |
 | transferRequest | ✅ | ❌ | ❌ | |
 
 ## Registry Support
