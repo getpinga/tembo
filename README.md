@@ -37,3 +37,25 @@ use Pinga\Tembo\Epp;
 ```
 
 3. You can now use the Epp class and its functions in your code. You can refer to the **test.php** file for examples of how the package can be used. Additional EPP functions will be added to the package on a weekly basis.
+
+## Supported EPP Commands
+
+| domain | contact | host | others |
+|----------|----------|----------|----------|
+| check | create | create | login |
+| info |  |  | logout |
+| updateNS |  |  | |
+| updateContact |  | | |
+| transferRequest |  | | |
+| create |  |  |  |
+| renew |  |  | |
+| delete |  | | |
+
+## Registry Support
+
+| Registry | TLDs | Status |
+|----------|----------|----------|
+| IIS | .se, .nu | all above |
+| Registrio | X | all above |
+| NASK | .pl | all above |
+| FORTH-ICS | .gr, .ελ |  all above|
