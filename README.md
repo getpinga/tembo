@@ -40,16 +40,16 @@ use Pinga\Tembo\Epp;
 
 ## Supported EPP Commands
 
-| domain | contact | host | others |
-|----------|----------|----------|----------|
-| check | create | create | login |
-| info |  |  | logout |
-| updateNS |  |  | |
-| updateContact |  | | |
-| transferRequest |  | | |
-| create |  |  |  |
-| renew |  |  | |
-| delete |  | | |
+| | domain | contact | host | others |
+|----------|----------|----------|----------|----------|
+| check | ✅ | ❌  | ❌ | login |
+| info | ✅ | ❌ | ❌ | logout |
+| create | ✅ | ✅ | ✅ | |
+| updateNS | ✅ |❌  | ❌| |
+| updateContact | ✅ | ❌ | ❌| |
+| renew | ✅ | ❌ | ❌| |
+| delete | ✅ | ❌ | ❌ |  |
+| transfer | ✅ (request only) | ❌ | ❌ | |
 
 ## Registry Support
 
