@@ -9,6 +9,8 @@
  */
 
 namespace Pinga\Tembo; 
+use Pinga\Tembo\EppClient;
+use Pinga\Tembo\HttpsClient;
 use Pinga\Tembo\Exception\EppException;
 use Pinga\Tembo\Exception\EppNotConnectedException;
  
@@ -67,80 +69,6 @@ class Epp
     }
 
     /**
-     * connect
-     */
-    public function connect($params = array())
-    {
-        $host = (string)$params['host'];
-        $port = (int)$params['port'];
-        $timeout = (int)$params['timeout'];
-        $opts = array(
-            'ssl' => array(
-                'verify_peer' => (bool)$params['verify_peer'],
-				'verify_peer_name' => (bool)$params['verify_peer_name'],
-				'verify_host' => (bool)$params['verify_host'],
-                'cafile' => (string)$params['cafile'],
-                'local_cert' => (string)$params['local_cert'],
-                'local_pk' => (string)$params['local_pk'],
-                'passphrase' => (string)$params['passphrase'],
-                'allow_self_signed' => (bool)$params['allow_self_signed']
-            )
-        );
-        $context = stream_context_create($opts);
-        $this->resource = stream_socket_client("tlsv1.3://{$host}:{$port}", $errno, $errmsg, $timeout, STREAM_CLIENT_CONNECT, $context);
-        if (!$this->resource) {
-            throw new EppException("Cannot connect to server '{$host}': {$errmsg}");
-        }
-
-        return $this->readResponse();
-    }
-
-    /**
-     * readResponse
-     */
-    function readResponse()
-    {
-        if (feof($this->resource)) {
-            throw new EppException('Connection appears to have closed.');
-        }
-
-        $hdr = @fread($this->resource, 4);
-        if (empty($hdr)) {
-            throw new EppException("Error reading from server: $php_errormsg");
-        }
-
-        $unpacked = unpack('N', $hdr);
-        $xml = fread($this->resource, ($unpacked[1] - 4));
-        $xml = preg_replace('/></', ">\n<", $xml);
-        $this->_response_log($xml);        
-        return $xml;
-    }
-
-    /**
-     * writeRequest
-     */
-    function writeRequest($xml)
-    {
-        $this->_request_log($xml);
-        @fwrite($this->resource, pack('N', (strlen($xml) + 4)) . $xml);
-        $r = $this->readResponse();
-        $r = new \SimpleXMLElement($r);
-        if ($r->response->result->attributes()->code >= 2000) {
-            throw new EppException($r->response->result->msg);
-        }
-
-        return $r;
-    }
-
-    /**
-     * disconnect
-     */
-    function disconnect()
-    {
-        return @fclose($this->resource);
-    }
-
-    /**
      * login
      */
     function login($params = array())
@@ -162,6 +90,35 @@ class Epp
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($params['prefix'] . '-login-' . $microtime);
+			if ($params['ext'] == 'nask') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+    <login>
+      <clID>{{ clID }}</clID>
+      <pw>{{ pwd }}</pw>
+      <options>
+        <version>1.0</version>
+        <lang>en</lang>
+      </options>
+ <svcs>
+ <objURI>http://www.dns.pl/nask-epp-schema/contact-2.1</objURI>
+ <objURI>http://www.dns.pl/nask-epp-schema/host-2.1</objURI>
+ <objURI>http://www.dns.pl/nask-epp-schema/domain-2.1</objURI>
+ <objURI>http://www.dns.pl/nask-epp-schema/future-2.1</objURI>
+ <svcExtension>
+ <extURI>http://www.dns.pl/nask-epp-schema/extcon-2.1</extURI>
+ <extURI>http://www.dns.pl/nask-epp-schema/extdom-2.1</extURI>
+ </svcExtension>
+ </svcs>
+    </login>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -187,6 +144,7 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             if ($code == 1000) {
