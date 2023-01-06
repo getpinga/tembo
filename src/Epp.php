@@ -356,6 +356,59 @@ class Epp
     }
 	
     /**
+     * hostDelete
+     */
+    function hostDelete($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['hostname']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<delete>
+		  <host:delete
+		   xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+			<host:name>{{ name }}</host:name>
+		  </host:delete>
+		</delete>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
      * contactCheck
      */
     function contactCheck($params = array())
@@ -661,6 +714,60 @@ class Epp
                 'code' => $code,
                 'msg' => $msg,
                 'id' => $id
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * contactDelete
+     */
+    function contactDelete($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ id }}/';
+            $to[] = htmlspecialchars($params['contact']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0
+    epp-1.0.xsd">
+ <command>
+   <delete>
+     <contact:delete
+      xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
+       <contact:id>{{ id }}</contact:id>
+     </contact:delete>
+   </delete>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
             );
         }
 
