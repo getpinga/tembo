@@ -185,6 +185,18 @@ class Epp
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-logout-' . $microtime);
+			if ($params['ext'] == 'nask') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+    <logout/>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -194,6 +206,7 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             if ($code == 1500) {
@@ -320,11 +333,53 @@ class Epp
 			$to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ authInfo }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
+            $from[] = '/{{ extensions }}/';
+            $to[] = '<extension>
+ <extcon:create xmlns:extcon="http://www.dns.pl/nask-epp-schema/extcon-2.1" xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/extcon-2.1 
+  extcon-2.1.xsd">
+ <extcon:individual>1</extcon:individual>
+ </extcon:create>
+ </extension>';
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);	
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			if ($params['ext'] == 'nask') {
+			$xml = preg_replace($from, $to, '<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+	<create>
+	  <contact:create
+ xmlns:contact="http://www.dns.pl/nask-epp-schema/contact-2.1" xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/contact-2.1 contact-2.1.xsd">
+		<contact:id>{{ id }}</contact:id>
+		<contact:postalInfo type="int">
+		  <contact:name>{{ name }}</contact:name>
+		  <contact:org>{{ org }}</contact:org>
+		  <contact:addr>
+			<contact:street>{{ street1 }}</contact:street>
+			<contact:street>{{ street2 }}</contact:street>
+			<contact:street>{{ street3 }}</contact:street>
+			<contact:city>{{ city }}</contact:city>
+			<contact:sp>{{ state }}</contact:sp>
+			<contact:pc>{{ postcode }}</contact:pc>
+			<contact:cc>{{ country }}</contact:cc>
+		  </contact:addr>
+		</contact:postalInfo>
+		<contact:voice>{{ phonenumber }}</contact:voice>
+		<contact:fax></contact:fax>
+		<contact:email>{{ email }}</contact:email>
+		<contact:authInfo>
+		  <contact:pw>{{ authInfo }}</contact:pw>
+		</contact:authInfo>
+	  </contact:create>
+	</create>
+	{{ extensions }}
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -359,6 +414,7 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
@@ -511,6 +567,25 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-check-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			if ($params['ext'] == 'nask') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+    <check>
+      <domain:check
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
+        {{ names }}
+      </domain:check>
+    </check>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -526,9 +601,21 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($params['ext'] == 'nask') {
+			$namespaces = $r->getNamespaces(true);
+			$r = $r->response->resData->children($namespaces['domain'])->chkData;
+            $i = 0;
+            foreach($r->cd as $cd) {
+                $i++;
+                $domains[$i]['name'] = (string)$cd->name;
+                $domains[$i]['avail'] = $cd->name->attributes()->avail;
+                $domains[$i]['reason'] = (string)$cd->reason;
+            }
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->chkData;
             $i = 0;
             foreach($r->cd as $cd) {
@@ -537,6 +624,7 @@ class Epp
                 $domains[$i]['avail'] = (int)$cd->name->attributes()->avail;
                 $domains[$i]['reason'] = (string)$cd->reason;
             }
+			}
 
             $return = array(
                 'code' => $code,
@@ -763,12 +851,21 @@ class Epp
             $to[] = htmlspecialchars($params['domainname']);
             $from[] = '/{{ period }}/';
             $to[] = (int)($params['period']);
+			if ($params['ext'] == 'nask') {
+            $text = '';
+            foreach ($params['nss'] as $hostObj) {
+                $text .= '<domain:ns>' . $hostObj . '</domain:ns>' . "\n";
+            }
+            $from[] = '/{{ hostObjs }}/';
+            $to[] = $text;
+			} else {
             $text = '';
             foreach ($params['nss'] as $hostObj) {
                 $text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
             }
             $from[] = '/{{ hostObjs }}/';
             $to[] = $text;
+			}
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
 			if ($params['ext'] == 'iis.se') {
@@ -789,6 +886,32 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-create-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
+			if ($params['ext'] == 'nask') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+    <create>
+       <domain:create
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
+        <domain:name>{{ name }}</domain:name>
+        <domain:period unit="y">{{ period }}</domain:period>
+          {{ hostObjs }}
+        <domain:registrant>{{ registrant }}</domain:registrant>
+        {{ contacts }}
+        <domain:authInfo>
+          <domain:pw>{{ authInfoPw }}</domain:pw>
+        </domain:authInfo>
+      </domain:create>
+    </create>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -812,6 +935,7 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
