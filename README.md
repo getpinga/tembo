@@ -42,10 +42,10 @@ use Pinga\Tembo\Epp;
 
 | | domain | contact | host | others |
 |----------|----------|----------|----------|----------|
-| check | ✅ | ✅  | ✅ | login |
-| info | ✅ | 🚧 | 🚧 | logout |
+| check | ✅ | ✅ | ✅ | login |
+| info | ✅ | ✅ | ✅ | logout |
 | create | ✅ | ✅ | ✅ | |
-| update | N/A |🚧  | 🚧| |
+| update | N/A | 🚧 | 🚧 | |
 | updateNS | ✅ | N/A | N/A | |
 | updateContact | ✅ | N/A | N/A | |
 | updateStatus | 🚧 | ❌ | ❌| |
