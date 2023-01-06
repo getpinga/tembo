@@ -306,6 +306,8 @@ class Epp
         $return = array();
         try {
 			$from = $to = array();
+			$from[] = '/{{ type }}/';
+			$to[] = htmlspecialchars($params['type']);
 			$from[] = '/{{ id }}/';
 			$to[] = htmlspecialchars($params['id']);
 			$from[] = '/{{ name }}/';
@@ -334,12 +336,7 @@ class Epp
             $from[] = '/{{ authInfo }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ extensions }}/';
-            $to[] = '<extension>
- <extcon:create xmlns:extcon="http://www.dns.pl/nask-epp-schema/extcon-2.1" xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/extcon-2.1 
-  extcon-2.1.xsd">
- <extcon:individual>1</extcon:individual>
- </extcon:create>
- </extension>';
+            $to[] = '';
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);	
@@ -375,7 +372,12 @@ class Epp
 		</contact:authInfo>
 	  </contact:create>
 	</create>
-	{{ extensions }}
+<extension>
+ <extcon:create xmlns:extcon="http://www.dns.pl/nask-epp-schema/extcon-2.1" xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/extcon-2.1 
+  extcon-2.1.xsd">
+ <extcon:individual>1</extcon:individual>
+ </extcon:create>
+ </extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -389,7 +391,7 @@ class Epp
 	  <contact:create
 	   xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
 		<contact:id>{{ id }}</contact:id>
-		<contact:postalInfo type="int">
+		<contact:postalInfo type="{{ type }}">
 		  <contact:name>{{ name }}</contact:name>
 		  <contact:org>{{ org }}</contact:org>
 		  <contact:addr>
@@ -753,6 +755,192 @@ class Epp
 
         return $return;
     }
+	
+    /**
+     * domainUpdateNS
+     */
+    function domainUpdateNS($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+		
+		$return = array();
+		try {
+			$from = $to = array();
+			$from[] = '/{{ name }}/';
+			$to[] = htmlspecialchars($params['domainname']);
+			$from[] = '/{{ clTRID }}/';
+			$clTRID = str_replace('.', '', round(microtime(1), 3));
+			$to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<info>
+		  <domain:info
+		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+			<domain:name hosts="all">{{ name }}</domain:name>
+		  </domain:info>
+		</info>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+            $r = $this->writeRequest($xml);			
+			$r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+			$add = $rem = array();
+			$i = 0;
+			foreach($r->ns->hostObj as $ns) {
+				$i++;
+				$ns = (string)$ns;
+				if (!$ns) {
+					continue;
+				}
+
+				$rem["ns{$i}"] = $ns;
+			}
+
+			foreach($params as $k => $v) {
+				if (!$v) {
+					continue;
+				}
+
+				if (!preg_match("/^ns\d$/i", $k)) {
+					continue;
+				}
+
+				if ($k0 = array_search($v, $rem)) {
+					unset($rem[$k0]);
+				}
+				else {
+					$add[$k] = $v;
+				}
+			}
+
+			if (!empty($add) || !empty($rem)) {
+				$from = $to = array();
+				$text = '';
+				foreach($add as $k => $v) {
+					$text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
+				}
+
+				$from[] = '/{{ add }}/';
+				$to[] = (empty($text) ? '' : "<domain:add><domain:ns>\n{$text}</domain:ns></domain:add>\n");
+				$text = '';
+				foreach($rem as $k => $v) {
+					$text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
+				}
+
+				$from[] = '/{{ rem }}/';
+				$to[] = (empty($text) ? '' : "<domain:rem><domain:ns>\n{$text}</domain:ns></domain:rem>\n");
+				$from[] = '/{{ name }}/';
+				$to[] = htmlspecialchars($params['domainname']);
+				$from[] = '/{{ clTRID }}/';
+				$clTRID = str_replace('.', '', round(microtime(1), 3));
+				$to[] = htmlspecialchars($this->prefix . '-domain-update-' . $clTRID);
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<update>
+		  <domain:update
+		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+			<domain:name>{{ name }}</domain:name>
+		{{ add }}
+		{{ rem }}
+		  </domain:update>
+		</update>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+				$r = $this->writeRequest($xml);
+				$code = (int)$r->response->result->attributes()->code;
+				$msg = (string)$r->response->result->msg;
+
+				$return = array(
+					'code' => $code,
+					'msg' => $msg
+				);
+			}
+		}
+		
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * domainUpdateContactGR
+     */
+    function domainUpdateContactGR($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+		
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+			$from[] = '/{{ add }}/';
+			$to[] = "<domain:add><domain:contact type=\"admin\">XXX</domain:contact><domain:contact type=\"tech\">XXX</domain:contact></domain:add>\n"; 
+/* 			$from[] = '/{{ rem }}/';
+			$to[] = "<domain:rem><domain:contact type=\"admin\">XXX</domain:contact><domain:contact type=\"tech\">XXX</domain:contact></domain:rem>\n"; */
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-update-' . $clTRID);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<update>
+		  <domain:update
+		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+			<domain:name>{{ name }}</domain:name>
+	
+		{{ add }}
+		  </domain:update>
+		</update>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
 
     /**
      * domainTransfer
@@ -831,6 +1019,82 @@ class Epp
 
         return $return;
     }
+	
+    /**
+     * domainTransferGR
+     */
+    function domainTransferGR($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+		
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ authInfoPw }}/';
+            $to[] = htmlspecialchars($params['authInfoPw']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<transfer op="request">
+	  <domain:transfer
+	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+		<domain:name>{{ name }}</domain:name>
+		<domain:authInfo>
+		  <domain:pw>{{ authInfoPw }}</domain:pw>
+		</domain:authInfo>
+	  </domain:transfer>
+	</transfer>
+	<extension> <extdomain:transfer xmlns:extdomain="urn:ics-forth:params:xml:ns:extdomain-1.2" xsi:schemaLocation="urn:ics-forth:params:xml:ns:extdomain-1.2 extdomain-1.2.xsd"> <extdomain:registrantid>XXX</extdomain:registrantid> <extdomain:newPW>XXX</extdomain:newPW> </extdomain:transfer> </extension>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
+            $name = (string)$r->name;
+            $trStatus = (string)$r->trStatus;
+            $reID = (string)$r->reID;
+            $reDate = (string)$r->reDate;
+            $acID = (string)$r->acID;
+            $acDate = (string)$r->acDate;
+            $exDate = (string)$r->exDate;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'trStatus' => $trStatus,
+                'reID' => $reID,
+                'reDate' => $reDate,
+                'acID' => $acID,
+                'exDate' => $exDate,
+                'exDate' => $exDate
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
 
     /**
      * domainCreate
@@ -859,12 +1123,17 @@ class Epp
             $from[] = '/{{ hostObjs }}/';
             $to[] = $text;
 			} else {
-            $text = '';
-            foreach ($params['nss'] as $hostObj) {
-                $text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
-            }
-            $from[] = '/{{ hostObjs }}/';
-            $to[] = $text;
+				if (isset($params['nss'])) {
+				$text = '';
+				foreach ($params['nss'] as $hostObj) {
+					$text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
+				}
+				$from[] = '/{{ hostObjs }}/';
+				$to[] = $text;
+				} else {
+				$from[] = '/{{ hostObjs }}/';
+				$to[] = '';
+				}
 			}
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
@@ -1041,6 +1310,153 @@ class Epp
                 'msg' => $msg,
                 'name' => $name,
                 'exDate' => $exDate
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * domainRenewTransferGR
+     */
+    function domainRenewTransferGR($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<info>
+	  <domain:info
+	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+	   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+		<domain:name hosts="all">{{ name }}</domain:name>
+	  </domain:info>
+	</info>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+		    $expDate = (string)$r->exDate;
+		    $expDate = preg_replace("/^(\d+\-\d+\-\d+)\D.*$/", "$1", $expDate);
+            $from = $to = array();
+		    $from[] = '/{{ name }}/';
+		    $to[] = htmlspecialchars($params['domainname']);
+		    $from[] = '/{{ regperiod }}/';
+		    $to[] = htmlspecialchars($params['regperiod']);
+		    $from[] = '/{{ expDate }}/';
+		    $to[] = htmlspecialchars($expDate);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<renew>
+	  <domain:renew
+	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+		<domain:name>{{ name }}</domain:name>
+		<domain:curExpDate>{{ expDate }}</domain:curExpDate>
+		<domain:period unit="y">{{ regperiod }}</domain:period>
+	  </domain:renew>
+	</renew>
+	<extension> <extdomain:renew xsi:schemaLocation="urn:ics-forth:params:xml:ns:extdomain-1.2 extdomain-1.2.xsd" xmlns:extdomain="urn:ics-forth:params:xml:ns:extdomain-1.2"> <extdomain:registrantid>XXX</extdomain:registrantid> <extdomain:currentPW>XXX</extdomain:currentPW> <extdomain:newPW>XXX</extdomain:newPW> </extdomain:renew> </extension>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->renData;
+            $name = (string)$r->name;
+            $exDate = (string)$r->exDate;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'exDate' => $exDate
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * domainDelete
+     */
+    function domainDelete($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-delete-' . $clTRID);
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<delete>
+	  <domain:delete
+	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+		<domain:name>{{ name }}</domain:name>
+	  </domain:delete>
+	</delete>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
             );
         }
 
