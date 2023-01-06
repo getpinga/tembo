@@ -45,10 +45,11 @@ use Pinga\Tembo\Epp;
 | check | ✅ | ✅  | ✅ | login |
 | info | ✅ | 🚧 | 🚧 | logout |
 | create | ✅ | ✅ | ✅ | |
+| update | ❌ |🚧  | 🚧| |
 | updateNS | ✅ |❌  | ❌| |
 | updateContact | ✅ | ❌ | ❌| |
-| updateStatus | ❌ | ❌ | ❌| |
-| updateDNSSEC | ❌ | ❌ | ❌| |
+| updateStatus | 🚧 | ❌ | ❌| |
+| updateDNSSEC | 🚧 | ❌ | ❌| |
 | renew | ✅ | ❌ | ❌| |
 | delete | ✅ | 🚧 | 🚧 |  |
 | transferRequest | ✅ | ❌ | ❌ | |
