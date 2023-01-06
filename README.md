@@ -58,7 +58,7 @@ use Pinga\Tembo\Epp;
 
 | Registry | TLDs | Status |
 |----------|----------|----------|
-| IIS | .se, .nu | all above |
-| Registrio | X | all above |
-| NASK | .pl | all above |
-| FORTH-ICS | .gr, .ελ |  all above|
+| Generic RFC EPP | any | ✅ |
+| FORTH-ICS | .gr, .ελ | 🚧 |
+| IIS | .se, .nu | 🚧 |
+| NASK | .pl | 🚧 |
