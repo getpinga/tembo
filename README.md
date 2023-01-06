@@ -49,7 +49,7 @@ use Pinga\Tembo\Epp;
 | updateContact | ✅ | ❌ | ❌| |
 | renew | ✅ | ❌ | ❌| |
 | delete | ✅ | ❌ | ❌ |  |
-| transfer | ✅ (request only) | ❌ | ❌ | |
+| transferRequest | ✅ | ❌ | ❌ | |
 
 ## Registry Support
 
