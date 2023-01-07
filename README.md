@@ -64,9 +64,9 @@ use Pinga\Tembo\Epp;
 
 ## Registry Support
 
-| Registry | TLDs | Status |
-|----------|----------|----------|
-| Generic RFC EPP | any | ✅ |
-| FORTH-ICS | .gr, .ελ | 🚧 |
-| IIS | .se, .nu | 🚧 |
-| NASK | .pl | 🚧 |
+| Registry | TLDs | Status | Untested |
+|----------|----------|----------|----------|
+| Generic RFC EPP | any | ✅ | |
+| IIS | .se, .nu | ✅ | transfer and domain contact update |
+| FORTH-ICS | .gr, .ελ | 🚧 | |
+| NASK | .pl | 🚧 | |
