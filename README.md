@@ -70,3 +70,5 @@ use Pinga\Tembo\Epp;
 | IIS | .se, .nu | ✅ | transfer and domain contact update |
 | FORTH-ICS | .gr, .ελ | 🚧 | |
 | NASK | .pl | 🚧 | |
+| Hostmaster | .ua | 🚧 | |
+| CoCCA | .lviv.ua | 🚧 | |
