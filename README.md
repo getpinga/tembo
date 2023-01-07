@@ -72,6 +72,7 @@ use Pinga\Tembo\Epp;
 |----------|----------|----------|----------|
 | Generic RFC EPP | any | ✅ | |
 | IIS | .se, .nu | ✅ | transfer and domain contact update |
+| FRED | any | 🚧 | |
 | FORTH-ICS | .gr, .ελ | 🚧 | |
 | NASK | .pl | 🚧 | |
 | Hostmaster | .ua | 🚧 | |
