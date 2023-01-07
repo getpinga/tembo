@@ -10,7 +10,7 @@
 
 namespace Pinga\Tembo; 
 use Pinga\Tembo\EppClient;
-use Pinga\Tembo\HttpsClient;
+//use Pinga\Tembo\HttpsClient;
 use Pinga\Tembo\Exception\EppException;
 use Pinga\Tembo\Exception\EppNotConnectedException;
  
@@ -185,7 +185,8 @@ class Epp
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-logout-' . $microtime);
-			if ($params['ext'] == 'nask') {
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'nask') {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -499,7 +500,7 @@ class Epp
         try {
             $from = $to = array();
             $from[] = '/{{ id }}/';
-			$id = $params['contactid'];
+			$id = $params['contact'];
 			$to[] = htmlspecialchars($id);
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
@@ -565,7 +566,7 @@ class Epp
         try {
             $from = $to = array();
 			$from[] = '/{{ id }}/';
-			$to[] = htmlspecialchars($id);
+			$to[] = htmlspecialchars($params['contact']);
             $from[] = '/{{ authInfo }}/';
             $authInfo = (isset($params['authInfoPw']) ? "<contact:authInfo>\n<contact:pw><![CDATA[{$params['authInfoPw']}]]></contact:pw>\n</contact:authInfo>" : '');
             $to[] = $authInfo;
@@ -980,7 +981,8 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-check-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
-			if ($params['ext'] == 'nask') {
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'nask') {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1018,7 +1020,8 @@ class Epp
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-			if ($params['ext'] == 'nask') {
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'nask') {
 			$namespaces = $r->getNamespaces(true);
 			$r = $r->response->resData->children($namespaces['domain'])->chkData;
             $i = 0;
