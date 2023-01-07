@@ -68,11 +68,11 @@ use Pinga\Tembo\Epp;
 
 ## Registry Support
 
-| Registry | TLDs | Status | Untested |
+| Registry | TLDs | Status | TODO |
 |----------|----------|----------|----------|
 | Generic RFC EPP | any | ✅ | |
 | IIS | .se, .nu | ✅ | transfer and domain contact update |
-| FRED | any | 🚧 | |
+| FRED | any | 🚧 | all besides contact:create |
 | FORTH-ICS | .gr, .ελ | 🚧 | |
 | NASK | .pl | 🚧 | |
 | Hostmaster | .ua | 🚧 | |
