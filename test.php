@@ -17,7 +17,7 @@ use Pinga\Tembo\EppClient;
 //use Pinga\Tembo\HttpsClient;
 
     try {
-        $epp = new Epp();
+        $epp = new EppClient();
 
         $info = array(
             'host' => 'epp.example.com',
@@ -34,7 +34,7 @@ use Pinga\Tembo\EppClient;
         );
         $epp->connect($info);
 	    
-	//NASK
+	//.pl or .gr
 	/*$epp = new HttpsClient();
 
         $info = array(
@@ -85,6 +85,24 @@ use Pinga\Tembo\EppClient;
             'ip' => '54.6.7.8'
         );
         $hostCreate = $epp->hostCreate($hcreateparams);  */
+	    
+/* 		$hcheckparams = array(
+            'hostname' => 'ns3.google.com'
+        );
+        $hostCheck = $epp->hostCheck($hcheckparams);  
+		print_r($hostCheck);
+		
+		$hinfoparams = array(
+            'hostname' => 'ns3.google.com'
+        );
+        $hostInfo = $epp->hostInfo($hinfoparams);  
+		print_r($hostInfo); */
+	    
+/* 	$hdelparams = array(
+            'hostname' => 'ns2.google.com'
+        );
+        $hostDelete = $epp->hostDelete($hdelparams);  
+	print_r($hostDelete); */
 		
 /* 		
         $ccreateparams = array(
@@ -105,10 +123,19 @@ use Pinga\Tembo\EppClient;
         $contactCreate = $epp->contactCreate($ccreateparams); */
 
 
-/*         $checkparams = array(
-            'domains' => array('google123.test')
+/*        $checkparams = array(
+            'domains' => array('tembo3.test')
         );
-        $domainCheck = $epp->domainCheck($checkparams); */
+        $domainCheck = $epp->domainCheck($checkparams); 
+		
+	 foreach ($domainCheck['domains'] as $domain) {
+    // Check if the domain is available
+    if ($domain['avail'] === 1) {
+        echo "The domain " . $domain['name'] . " is available." . PHP_EOL;
+    } else {
+        echo "The domain " . $domain['name'] . " is not available. Reason: " . $domain['reason'] . PHP_EOL;
+    }
+}  */
 
 
 /*         $infoparams = array(
@@ -147,32 +174,26 @@ use Pinga\Tembo\EppClient;
             'regperiod' => 1
         );
         $domainRenew = $epp->domainRenew($renewparams); */
+	    
+/*  	$updparams = array(
+            'domainname' => 'tembo1.test',
+            'ns1' => 'ns1.google.com',
+            'ns2' => 'ns2.google.com'
+        );
+        $domainUpdateNS = $epp->domainUpdateNS($updparams); 
+		print_r($domainUpdateNS);  */
+		
+/*      $ccheckparams = array(
+            'contact' => 'tembo2'
+        );
+        $contactCheck = $epp->contactCheck($ccheckparams); 
+		print_r($contactCheck); */
+	    
+        $logout = $epp->logout();
+		print_r($logout);
     }
 
     catch (EppException $e) {
         echo 'Error: ', $e->getMessage();
     }
-
-//print_r($contactCreate);
-//print_r($hostCreate);
-//echo '<pre>';
-//print_r($domainCheck);
-//print_r($domainInfo);
-print_r($domainCreate);
-//print_r($domainTransfer);
-//print_r($domainRenew);
-//echo '</pre>';
-
-/* foreach ($domainCheck['domains'] as $domain) {
-    // Check if the domain is available
-    if ($domain['avail'] === 1) {
-        echo "The domain " . $domain['name'] . " is available." . PHP_EOL;
-    } else {
-        echo "The domain " . $domain['name'] . " is not available. Reason: " . $domain['reason'] . PHP_EOL;
-    }
-} */
-
-        $logout = $epp->logout();
-		print_r($logout);
-
 ?>
