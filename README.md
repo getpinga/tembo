@@ -54,6 +54,14 @@ use Pinga\Tembo\Epp;
 | delete | ✅ | ✅ | ✅ |  |
 | transferRequest | ✅ | ❌ | ❌ | |
 
+## Supported EPP Types
+
+| type | status |
+|----------|----------|
+| EPP over TLS/TCP | ✅ |
+| EPP over HTTPS | ✅ |
+| REGRR | ❌ |
+
 ## Registry Support
 
 | Registry | TLDs | Status |
