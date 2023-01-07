@@ -739,6 +739,38 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($params['ext'] == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<create>
+	  <contact:create xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
+		<contact:id>{{ id }}</contact:id>
+		<contact:postalInfo>
+		  <contact:name>{{ name }}</contact:name>
+		  <contact:org>{{ org }}</contact:org>
+		  <contact:addr>
+			<contact:street>{{ street1 }}</contact:street>
+			<contact:street>{{ street2 }}</contact:street>
+			<contact:street>{{ street3 }}</contact:street>
+			<contact:city>{{ city }}</contact:city>
+			<contact:sp>{{ state }}</contact:sp>
+			<contact:pc>{{ postcode }}</contact:pc>
+			<contact:cc>{{ country }}</contact:cc>
+		  </contact:addr>
+		</contact:postalInfo>
+		<contact:voice>{{ phonenumber }}</contact:voice>
+		<contact:fax></contact:fax>
+		<contact:email>{{ email }}</contact:email>
+	  </contact:create>
+	</create>
+	{{ extensions }}
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
