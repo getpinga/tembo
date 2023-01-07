@@ -42,11 +42,11 @@ use Pinga\Tembo\Epp;
 
 | | domain | contact | host | others |
 |----------|----------|----------|----------|----------|
-| check | ✅ | ✅ | ✅ | login |
-| info | ✅ | ✅ | ✅ | logout |
-| create | ✅ | ✅ | ✅ | |
-| update | N/A | 🚧 | 🚧 | |
-| updateNS | ✅ | N/A | N/A | |
+| check | ✅ | ✅ | ✅ | login ✅ |
+| info | ✅ | ✅ | ✅ | logout ✅ |
+| create | ✅ | ✅ | ✅ | poll 🚧 |
+| update | N/A | 🚧 | 🚧 | hello 🚧 |
+| updateNS | ✅ | N/A | N/A | keep-alive 🚧 |
 | updateContact | ✅ | N/A | N/A | |
 | updateStatus | 🚧 | ❌ | ❌| |
 | updateDNSSEC | 🚧 | N/A | N/A | |
