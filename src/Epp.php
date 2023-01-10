@@ -118,6 +118,35 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($params['ext'] == 'ua') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <login>
+      <clID>{{ clID }}</clID>
+      <pw>{{ pwd }}</pw>
+      <options>
+        <version>1.0</version>
+        <lang>en</lang>
+      </options>
+       <svcs>
+         <objURI>urn:ietf:params:xml:ns:epp-1.0</objURI>
+         <objURI>http://hostmaster.ua/epp/contact-1.1</objURI>
+         <objURI>http://hostmaster.ua/epp/domain-1.1</objURI>
+         <objURI>http://hostmaster.ua/epp/host-1.1</objURI>
+         <svcExtension>
+           <extURI>http://hostmaster.ua/epp/rgp-1.1</extURI>
+           <extURI>http://hostmaster.ua/epp/uaepp-1.1</extURI>
+           <extURI>http://hostmaster.ua/epp/balance-1.0</extURI>
+           <extURI>http://hostmaster.ua/epp/secDNS-1.1</extURI>
+         </svcExtension>
+       </svcs>
+    </login>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -251,6 +280,23 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-host-check-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<check>
+	  <host:check
+		xmlns:host="http://hostmaster.ua/epp/host-1.1">
+		<host:name>{{ name }}</host:name>
+	  </host:check>
+	</check>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -266,10 +312,15 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->chkData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->chkData;
+			}
             $i = 0;
             foreach($r->cd as $cd) {
                 $i++;
@@ -316,6 +367,8 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-host-info-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -330,10 +383,30 @@ class Epp
    <clTRID>{{ clTRID }}</clTRID>
  </command>
 </epp>');
+			} else {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+   <info>
+     <host:info
+      xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+       <host:name>{{ name }}</host:name>
+     </host:info>
+   </info>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+			$r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->infData[0];
+			} else {
 			$r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
+			}
 			$name = (string)$r->name;
             $status = array();
             $i = 0;
@@ -400,6 +473,23 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<create>
+	  <host:create xmlns:host="http://hostmaster.ua/epp/host-1.1">
+		<host:name>{{ name }}</host:name>
+		<host:addr ip="{{ v }}">{{ ip }}</host:addr>
+	  </host:create>
+	</create>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -415,10 +505,15 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->creData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->creData;
+			}
             $name = (string)$r->name;
 
             $return = array(
@@ -457,6 +552,22 @@ class Epp
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-host-delete-' . $clTRID);
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<delete>
+		  <host:delete xmlns:host="http://hostmaster.ua/epp/host-1.1">
+			<host:name>{{ name }}</host:name>
+		  </host:delete>
+		</delete>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -471,6 +582,7 @@ class Epp
 		<clTRID>{{ clTRID }}</clTRID>
 	  </command>
 	</epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
@@ -513,6 +625,23 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-contact-check-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<check>
+	  <contact:check
+        xmlns:contact="http://hostmaster.ua/epp/contact-1.1">
+		<contact:id>{{ id }}</contact:id>
+	  </contact:check>
+	</check>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -528,10 +657,15 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/contact-1.1')->chkData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->chkData;
+			}
             $i = 0;
             foreach($r->cd as $cd) {
                 $i++;
@@ -581,6 +715,24 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-contact-info-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<info>
+	  <contact:info
+	   xmlns:contact="http://hostmaster.ua/epp/contact-1.1">
+		<contact:id>{{ id }}</contact:id>
+        {{ authInfo }}
+	  </contact:info>
+	</info>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -596,10 +748,15 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+			$r = $r->response->resData->children('http://hostmaster.ua/epp/contact-1.1')->infData[0];
+			} else {
 			$r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->infData[0];
+			}
 			foreach($r->postalInfo as $e) {
 				$name = (string)$e->name;
 				$org = (string)$e->org;
@@ -789,6 +946,41 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<create>
+	  <contact:create
+	   xmlns:contact="http://hostmaster.ua/epp/contact-1.1">
+		<contact:id>{{ id }}</contact:id>
+		<contact:postalInfo type="{{ type }}">
+		  <contact:name>{{ name }}</contact:name>
+		  <contact:org>{{ org }}</contact:org>
+		  <contact:addr>
+			<contact:street>{{ street1 }}</contact:street>
+			<contact:street>{{ street2 }}</contact:street>
+			<contact:street>{{ street3 }}</contact:street>
+			<contact:city>{{ city }}</contact:city>
+			<contact:sp>{{ state }}</contact:sp>
+			<contact:pc>{{ postcode }}</contact:pc>
+			<contact:cc>{{ country }}</contact:cc>
+		  </contact:addr>
+		</contact:postalInfo>
+		<contact:voice>{{ phonenumber }}</contact:voice>
+		<contact:fax></contact:fax>
+		<contact:email>{{ email }}</contact:email>
+		<contact:authInfo>
+		  <contact:pw>{{ authInfo }}</contact:pw>
+		</contact:authInfo>
+	  </contact:create>
+	</create>
+	{{ extensions }}
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -828,7 +1020,11 @@ class Epp
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/contact-1.1')->creData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->creData;
+			}
             $id = (string)$r->id;
 
             $return = array(
@@ -1001,6 +1197,39 @@ class Epp
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
 			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<update>
+	  <contact:update xmlns:contact="http://hostmaster.ua/epp/contact-1.1">
+		<contact:id>{{ id }}</contact:id>
+		<contact:chg>
+		  <contact:postalInfo type="{{ type }}">
+			<contact:name>{{ name }}</contact:name>
+			<contact:org>{{ org }}</contact:org>
+			<contact:addr>
+			  <contact:street>{{ street1 }}</contact:street>
+			  <contact:street>{{ street2 }}</contact:street>
+			  <contact:street>{{ street3 }}</contact:street>
+			  <contact:city>{{ city }}</contact:city>
+			  <contact:sp>{{ state }}</contact:sp>
+			  <contact:pc>{{ postcode }}</contact:pc>
+			  <contact:cc>{{ country }}</contact:cc>
+			</contact:addr>
+		  </contact:postalInfo>
+		  <contact:voice>{{ voice }}</contact:voice>
+		  <contact:fax></contact:fax>
+		  <contact:email>{{ email }}</contact:email>
+		</contact:chg>
+	  </contact:update>
+	</update>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1032,6 +1261,7 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
@@ -1071,6 +1301,23 @@ class Epp
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-delete-' . $clTRID);
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0
+    epp-1.0.xsd">
+ <command>
+   <delete>
+     <contact:delete xmlns:contact="http://hostmaster.ua/epp/contact-1.1">
+       <contact:id>{{ id }}</contact:id>
+     </contact:delete>
+   </delete>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1086,6 +1333,7 @@ class Epp
    <clTRID>{{ clTRID }}</clTRID>
  </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
@@ -1150,6 +1398,21 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'ua') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <check>
+      <domain:check
+        xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+        {{ names }}
+      </domain:check>
+    </check>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1182,7 +1445,11 @@ class Epp
                 $domains[$i]['reason'] = (string)$cd->reason;
             }
 			} else {
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->chkData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->chkData;
+			}
             $i = 0;
             foreach($r->cd as $cd) {
                 $i++;
@@ -1233,6 +1500,23 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <info>
+      <domain:info xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+        <domain:name>{{ domainname }}</domain:name>
+        {{ authInfo }}
+      </domain:info>
+    </info>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1249,10 +1533,15 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->infData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+			}
             $name = (string)$r->name;
             $roid = (string)$r->roid;
             $status = array();
@@ -1340,6 +1629,22 @@ class Epp
 			$from[] = '/{{ clTRID }}/';
 			$clTRID = str_replace('.', '', round(microtime(1), 3));
 			$to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<info>
+		  <domain:info xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+			<domain:name hosts="all">{{ name }}</domain:name>
+		  </domain:info>
+		</info>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1355,8 +1660,13 @@ class Epp
 		<clTRID>{{ clTRID }}</clTRID>
 	  </command>
 	</epp>');
-            $r = $this->writeRequest($xml);			
+			}
+            $r = $this->writeRequest($xml);
+			if ($ext == 'ua') {
+			$r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->infData;
+			} else {
 			$r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+			}
 			$add = $rem = array();
 			$i = 0;
 			foreach($r->ns->hostObj as $ns) {
@@ -1407,6 +1717,25 @@ class Epp
 				$from[] = '/{{ clTRID }}/';
 				$clTRID = str_replace('.', '', round(microtime(1), 3));
 				$to[] = htmlspecialchars($this->prefix . '-domain-updateNS-' . $clTRID);
+				$ext = isset($params['ext']) ? $params['ext'] : '';
+				if ($ext == 'ua') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+	  <command>
+		<update>
+		  <domain:update
+         xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+			<domain:name>{{ name }}</domain:name>
+		{{ add }}
+		{{ rem }}
+		  </domain:update>
+		</update>
+		<clTRID>{{ clTRID }}</clTRID>
+	  </command>
+	</epp>');
+				} else {
 				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1424,6 +1753,7 @@ class Epp
 		<clTRID>{{ clTRID }}</clTRID>
 	  </command>
 	</epp>');
+				}
 				$r = $this->writeRequest($xml);
 				$code = (int)$r->response->result->attributes()->code;
 				$msg = (string)$r->response->result->msg;
@@ -1532,6 +1862,27 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<transfer op="request">
+	  <domain:transfer 
+         xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+		<domain:name>{{ name }}</domain:name>
+		<domain:period unit="y">{{ years }}</domain:period>
+		<domain:authInfo>
+		  <domain:pw>{{ authInfoPw }}</domain:pw>
+		</domain:authInfo>
+	  </domain:transfer>
+	</transfer>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1550,10 +1901,15 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->trnData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
+			}
             $name = (string)$r->name;
             $trStatus = (string)$r->trStatus;
             $reID = (string)$r->reID;
@@ -1719,7 +2075,8 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-create-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
-			if ($params['ext'] == 'nask') {
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'nask') {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1734,6 +2091,29 @@ class Epp
         <domain:name>{{ name }}</domain:name>
         <domain:period unit="y">{{ period }}</domain:period>
           {{ hostObjs }}
+        <domain:registrant>{{ registrant }}</domain:registrant>
+        {{ contacts }}
+        <domain:authInfo>
+          <domain:pw>{{ authInfoPw }}</domain:pw>
+        </domain:authInfo>
+      </domain:create>
+    </create>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else if ($ext == 'ua') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <create>
+      <domain:create xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+        <domain:name>{{ name }}</domain:name>
+        <domain:period unit="y">{{ period }}</domain:period>
+        <domain:ns>
+          {{ hostObjs }}
+        </domain:ns>
         <domain:registrant>{{ registrant }}</domain:registrant>
         {{ contacts }}
         <domain:authInfo>
@@ -1772,7 +2152,11 @@ class Epp
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->creData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->creData;
+			}
             $name = (string)$r->name;
             $crDate = (string)$r->crDate;
             $exDate = (string)$r->exDate;
@@ -1817,6 +2201,22 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<info>
+	  <domain:info xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+		<domain:name>{{ name }}</domain:name>
+	  </domain:info>
+	</info>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1832,8 +2232,13 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->infData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+			}
 		    $expDate = (string)$r->exDate;
 		    $expDate = preg_replace("/^(\d+\-\d+\-\d+)\D.*$/", "$1", $expDate);
             $from = $to = array();
@@ -1846,6 +2251,23 @@ class Epp
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
+			if ($ext == 'ua') {
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<renew>
+	  <domain:renew xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+		<domain:name>{{ name }}</domain:name>
+		<domain:curExpDate>{{ expDate }}</domain:curExpDate>
+		<domain:period unit="y">{{ regperiod }}</domain:period>
+	  </domain:renew>
+	</renew>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1862,10 +2284,15 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+			if ($ext == 'ua') {
+            $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->renData;
+			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->renData;
+			}
             $name = (string)$r->name;
             $exDate = (string)$r->exDate;
 
@@ -2000,6 +2427,22 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-domain-delete-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'ua') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<delete>
+	  <domain:delete xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+		<domain:name>{{ name }}</domain:name>
+	  </domain:delete>
+	</delete>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -2014,6 +2457,7 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			}
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
