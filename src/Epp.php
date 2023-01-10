@@ -274,6 +274,7 @@ class Epp
             foreach($r->cd as $cd) {
                 $i++;
                 $hosts[$i]['name'] = (string)$cd->name;
+                $hosts[$i]['reason'] = (string)$cd->reason;
                 $hosts[$i]['avail'] = (int)$cd->name->attributes()->avail;
             }
 
@@ -334,7 +335,12 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			$r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
 			$name = (string)$r->name;
-			$status = (string)$r->status;
+            $status = array();
+            $i = 0;
+            foreach($r->status as $e) {
+                $i++;
+                $status[$i] = (string)$e->attributes()->s;
+            }
 			$addr = array();
 			foreach($r->addr as $ns) {
 				$addr[] = (string)$ns;
@@ -530,7 +536,7 @@ class Epp
             foreach($r->cd as $cd) {
                 $i++;
                 $contacts[$i]['id'] = (string)$cd->id;
-                $contacts[$i]['avail'] = (int)$cd->name->attributes()->avail;
+                $contacts[$i]['avail'] = (int)$cd->id->attributes()->avail;
                 $contacts[$i]['reason'] = (string)$cd->reason;
             }
 
@@ -606,6 +612,14 @@ class Epp
 				$postal = (string)$e->addr->pc;
 				$country = (string)$e->addr->cc;
 			}
+			$id = (string)$r->id;
+            $status = array();
+            $i = 0;
+            foreach($r->status as $e) {
+                $i++;
+                $status[$i] = (string)$e->attributes()->s;
+            }
+			$roid = (string)$r->roid;
 			$voice = (string)$r->voice;
 			$fax = (string)$r->fax;
 			$email = (string)$r->email;
@@ -617,7 +631,10 @@ class Epp
             $authInfo = (string)$r->authInfo->pw;
 
             $return = array(
+                'id' => $id,
+                'roid' => $roid,
                 'code' => $code,
+                'status' => $status,
                 'msg' => $msg,
                 'name' => $name,
                 'org' => $org,
@@ -700,7 +717,8 @@ class Epp
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);	
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
-			if ($params['ext'] == 'nask') {
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'nask') {
 			$xml = preg_replace($from, $to, '<?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
  epp-2.1.xsd">
@@ -739,7 +757,7 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
-			} else if ($params['ext'] == 'fred') {
+			} else if ($ext == 'fred') {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -921,6 +939,106 @@ class Epp
                 'code' => $code,
                 'msg' => $msg,
                 'id' => $id
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * contactUpdate
+     */
+    function contactUpdate($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+			$from = $to = array();
+			$from[] = '/{{ type }}/';
+			$to[] = htmlspecialchars($params['type']);
+			$from[] = '/{{ id }}/';
+			$to[] = htmlspecialchars($params['id']);
+			$from[] = '/{{ name }}/';
+			$to[] = htmlspecialchars($params['firstname'] . ' ' . $params['lastname']);
+			$from[] = '/{{ org }}/';
+			$to[] = htmlspecialchars($params['companyname']);
+			$from[] = '/{{ street1 }}/';
+			$to[] = htmlspecialchars($params['address1']);
+			$from[] = '/{{ street2 }}/';
+			$to[] = htmlspecialchars($params['address2']);
+			$from[] = '/{{ street3 }}/';
+			$street3 = (isset($params['address3']) ? $params['address3'] : '');
+			$to[] = htmlspecialchars($street3);
+			$from[] = '/{{ city }}/';
+			$to[] = htmlspecialchars($params['city']);
+			$from[] = '/{{ state }}/';
+			$to[] = htmlspecialchars($params['state']);
+			$from[] = '/{{ postcode }}/';
+			$to[] = htmlspecialchars($params['postcode']);
+			$from[] = '/{{ country }}/';
+			$to[] = htmlspecialchars($params['country']);
+			$from[] = '/{{ voice }}/';
+			$to[] = htmlspecialchars($params['fullphonenumber']);
+			$from[] = '/{{ email }}/';
+			$to[] = htmlspecialchars($params['email']);
+            $from[] = '/{{ extensions }}/';
+            $to[] = '';
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-contact-update-' . $microtime);	
+			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+			$to[] = '';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<update>
+	  <contact:update xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+		<contact:id>{{ id }}</contact:id>
+		<contact:chg>
+		  <contact:postalInfo type="{{ type }}">
+			<contact:name>{{ name }}</contact:name>
+			<contact:org>{{ org }}</contact:org>
+			<contact:addr>
+			  <contact:street>{{ street1 }}</contact:street>
+			  <contact:street>{{ street2 }}</contact:street>
+			  <contact:street>{{ street3 }}</contact:street>
+			  <contact:city>{{ city }}</contact:city>
+			  <contact:sp>{{ state }}</contact:sp>
+			  <contact:pc>{{ postcode }}</contact:pc>
+			  <contact:cc>{{ country }}</contact:cc>
+			</contact:addr>
+		  </contact:postalInfo>
+		  <contact:voice>{{ voice }}</contact:voice>
+		  <contact:fax></contact:fax>
+		  <contact:email>{{ email }}</contact:email>
+		</contact:chg>
+	  </contact:update>
+	</update>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
             );
         }
 
@@ -1917,7 +2035,7 @@ class Epp
 
 function _response_log($content)
 {
-    $handle = fopen(dirname(__FILE__) . '/response.log', 'a');
+    $handle = fopen(dirname(__FILE__) . '/../log/response.log', 'a');
     ob_start();
     echo "\n==================================\n";
     ob_end_clean();
@@ -1927,7 +2045,7 @@ function _response_log($content)
 
 function _request_log($content)
 {
-    $handle = fopen(dirname(__FILE__) . '/request.log', 'a');
+    $handle = fopen(dirname(__FILE__) . '/../log/request.log', 'a');
     ob_start();
     echo "\n==================================\n";
     ob_end_clean();
