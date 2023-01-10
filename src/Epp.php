@@ -1570,7 +1570,7 @@ class Epp
                 'reID' => $reID,
                 'reDate' => $reDate,
                 'acID' => $acID,
-                'exDate' => $exDate,
+                'acDate' => $acDate,
                 'exDate' => $exDate
             );
         }
