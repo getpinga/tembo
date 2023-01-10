@@ -72,12 +72,12 @@ use Pinga\Tembo\HttpsClient;
 
 ## Registry Support
 
-| Registry | TLDs | Status | TODO |
-|----------|----------|----------|----------|
-| Generic RFC EPP | any | ✅ | |
-| Hostmaster | .ua | ✅ | |
-| IIS | .se, .nu | ✅ | transfer and domain contact update |
-| FRED | .cz/any | 🚧 | domain and host |
-| CoCCA | .lviv.ua | 🚧 | fix login issues |
-| FORTH-ICS | .gr, .ελ | 🚧 | |
-| NASK | .pl | 🚧 | |
+| Registry | TLDs | Extension | Status | TODO |
+|----------|----------|----------|----------|----------|
+| Generic RFC EPP | any | | ✅ | |
+| Hostmaster | .ua | ua | ✅ | |
+| IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
+| FRED | .cz/any | fred | 🚧 | domain and host |
+| CoCCA | .lviv.ua | cocca | 🚧 | fix login issues |
+| FORTH-ICS | .gr, .ελ | forth | 🚧 | |
+| NASK | .pl | nask | 🚧 | |
