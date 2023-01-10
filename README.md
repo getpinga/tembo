@@ -77,7 +77,7 @@ use Pinga\Tembo\HttpsClient;
 | Generic RFC EPP | any | ✅ | |
 | Hostmaster | .ua | ✅ | |
 | IIS | .se, .nu | ✅ | transfer and domain contact update |
-| FRED | .cz/any | 🚧 | all besides contact:create |
+| FRED | .cz/any | 🚧 | domain and host |
+| CoCCA | .lviv.ua | 🚧 | fix login issues |
 | FORTH-ICS | .gr, .ελ | 🚧 | |
 | NASK | .pl | 🚧 | |
-| CoCCA | .lviv.ua | 🚧 | |
