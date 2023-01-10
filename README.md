@@ -58,7 +58,8 @@ use Pinga\Tembo\HttpsClient;
 | updateDNSSEC | 🚧 | N/A | N/A | |
 | renew | ✅ | N/A | N/A | |
 | delete | ✅ | ✅ | ✅ |  |
-| restore | 🚧 | N/A | N/A | |
+| rgp:restore | 🚧 | N/A | N/A | |
+| rgp:report | 🚧 | N/A | N/A | |
 | transferRequest | ✅ | ❌ | ❌ | |
 
 ## Supported EPP Types
