@@ -75,8 +75,8 @@ use Pinga\Tembo\HttpsClient;
 | Registry | TLDs | Status | TODO |
 |----------|----------|----------|----------|
 | Generic RFC EPP | any | ✅ | |
-| IIS | .se, .nu | ✅ | transfer and domain contact update |
 | Hostmaster | .ua | ✅ | |
+| IIS | .se, .nu | ✅ | transfer and domain contact update |
 | FRED | .cz/any | 🚧 | all besides contact:create |
 | FORTH-ICS | .gr, .ελ | 🚧 | |
 | NASK | .pl | 🚧 | |
