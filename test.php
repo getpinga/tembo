@@ -33,25 +33,6 @@ use Pinga\Tembo\EppClient;
             'allow_self_signed' => true
         );
         $epp->connect($info);
-	    
-	//.pl or .gr
-	/*$epp = new HttpsClient();
-
-        $info = array(
-            'host' => 'https://registry.dns.pl/registry/epp',
-            'port' => 443,
-            'timeout' => 30,
-            'verify_peer' => true,
-            'verify_peer_name' => false,
-            'verify_host' => 2,
-            'cafile' => '/root/tembo/root.pem',
-            'local_cert' => '/root/tembo/cert.pem',
-            'local_pk' => '/root/tembo/key.pem',
-            'passphrase' => '',
-            'allow_self_signed' => true
-        );
-        $epp->connect($info);*/
-
 
         $epp->login(array(
             'clID' => 'testregistrar1',
