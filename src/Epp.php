@@ -641,6 +641,21 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<check>
+	  <contact:check xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
+		<contact:id>{{ id }}</contact:id>
+	  </contact:check>
+	</check>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -663,6 +678,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/contact-1.1')->chkData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/contact-1.6')->chkData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->chkData;
 			}
@@ -732,6 +749,22 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<info>
+	  <contact:info xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+    xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
+		<contact:id>{{ id }}</contact:id>
+        {{ authInfo }}
+	  </contact:info>
+	</info>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -754,6 +787,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
 			$r = $r->response->resData->children('http://hostmaster.ua/epp/contact-1.1')->infData[0];
+			} else if ($ext == 'fred') {
+			$r = $r->response->resData->children('http://www.nic.cz/xml/epp/contact-1.6')->infData[0];
 			} else {
 			$r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->infData[0];
 			}
@@ -1022,6 +1057,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/contact-1.1')->creData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/contact-1.6')->creData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->creData;
 			}
@@ -1229,6 +1266,39 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<update>
+	  <contact:update xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
+		<contact:id>{{ id }}</contact:id>
+		<contact:chg>
+		  <contact:postalInfo>
+			<contact:name>{{ name }}</contact:name>
+			<contact:org>{{ org }}</contact:org>
+			<contact:addr>
+			  <contact:street>{{ street1 }}</contact:street>
+			  <contact:street>{{ street2 }}</contact:street>
+			  <contact:street>{{ street3 }}</contact:street>
+			  <contact:city>{{ city }}</contact:city>
+			  <contact:sp>{{ state }}</contact:sp>
+			  <contact:pc>{{ postcode }}</contact:pc>
+			  <contact:cc>{{ country }}</contact:cc>
+			</contact:addr>
+		  </contact:postalInfo>
+		  <contact:voice>{{ voice }}</contact:voice>
+		  <contact:fax></contact:fax>
+		  <contact:email>{{ email }}</contact:email>
+		</contact:chg>
+	  </contact:update>
+	</update>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1311,6 +1381,23 @@ class Epp
  <command>
    <delete>
      <contact:delete xmlns:contact="http://hostmaster.ua/epp/contact-1.1">
+       <contact:id>{{ id }}</contact:id>
+     </contact:delete>
+   </delete>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0
+    epp-1.0.xsd">
+ <command>
+   <delete>
+     <contact:delete
+       xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
        <contact:id>{{ id }}</contact:id>
      </contact:delete>
    </delete>
