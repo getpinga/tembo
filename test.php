@@ -59,60 +59,15 @@ use Pinga\Tembo\EppClient;
             'vatno' => ''
         );
         $contactCreate = $epp->contactCreateIIS($ccreateparams); */
-
-/*        $checkparams = array(
-            'domains' => array('tembo3.test')
-        );
-        $domainCheck = $epp->domainCheck($checkparams); 
-		
-	 foreach ($domainCheck['domains'] as $domain) {
-    // Check if the domain is available
-    if ($domain['avail'] === 1) {
-        echo "The domain " . $domain['name'] . " is available." . PHP_EOL;
-    } else {
-        echo "The domain " . $domain['name'] . " is not available. Reason: " . $domain['reason'] . PHP_EOL;
-    }
-}  */
-
-
-/*         $infoparams = array(
-            'domainname' => 'example1.com',
-            'authInfoPw' => 'domainpw123@'
-        );
-        $domainInfo = $epp->domainInfo($infoparams);
-		*/
- 
-        $createparams = array(
-            'domainname' => 'georgievi.test',
-            'period' => 1,
-            'nss' => array('ns1.example.com','ns2.example.com'),
-            'registrant' => 'ABCTEST123',
-/*             'contacts' => array(
-                'EX-1234567' => 'admin',
-                'EX-1234567' => 'tech',
-                'EX-1234567' => 'billing'
-                ), */
-             'authInfoPw' => 'Domainpw123@',
-            'ext' => 'iis.se'
-        );
-        $domainCreate = $epp->domainCreate($createparams); 
-/*
-
-        $transferparams = array(
+	    
+/*$transferparams = array(
             'domainname' => 'example1.com',
             'years' => 1,
             'authInfoPw' => 'domainpw123@'
         );
         $domainTransfer = $epp->domainTransfer($transferparams);
-
-		
-        $renewparams = array(
-            'domainname' => 'example1.com',
-            'regperiod' => 1
-        );
-        $domainRenew = $epp->domainRenew($renewparams); */
-	    
-/*  	$updparams = array(
+    
+  	$updparams = array(
             'domainname' => 'tembo1.test',
             'ns1' => 'ns1.google.com',
             'ns2' => 'ns2.google.com'
