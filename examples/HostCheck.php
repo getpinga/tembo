@@ -33,17 +33,18 @@ try
     else
     {
 		echo "HostCheck result: " . $hostCheck['code'] . ": " . $hostCheck['msg'] . PHP_EOL;
-
+		$x=1;
 		foreach ($hostCheck['hosts'] as $host)
 		{
 			if ($host['avail'] == 1)
 			{
-				echo "Host 1: " . $host['name'] . " is available" . PHP_EOL;
+				echo "Host ".$x.": " . $host['name'] . " is available" . PHP_EOL;
 			}
 			else
 			{
-				echo "Host 1: " . $host['name'] . " is not available because: " . $host['reason'] . PHP_EOL;
+				echo "Host ".$x.": " . $host['name'] . " is not available because: " . $host['reason'] . PHP_EOL;
 			}
+			$x++;
 		} 
     }
 
