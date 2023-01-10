@@ -33,16 +33,18 @@ try
     else
     {
 		echo "ContactCheck result: " . $contactCheck['code'] . ": " . $contactCheck['msg'] . PHP_EOL;
+		$x=1;
 		foreach ($contactCheck['contacts'] as $contact)
 		{
 			if ($contact['avail'] == 1)
 			{
-				echo "Contact 1: ID " . $contact['id'] . " is available" . PHP_EOL;
+				echo "Contact ".$x.": ID " . $contact['id'] . " is available" . PHP_EOL;
 			}
 			else
 			{
-				echo "Contact 1: ID " . $contact['id'] . " is not available because: " . $contact['reason'] . PHP_EOL;
+				echo "Contact ".$x.": ID " . $contact['id'] . " is not available because: " . $contact['reason'] . PHP_EOL;
 			}
+			$x++;
 		}
     }
 
