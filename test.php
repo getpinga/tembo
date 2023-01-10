@@ -78,50 +78,6 @@ use Pinga\Tembo\EppClient;
             'vatno' => ''
         );
         $contactCreate = $epp->contactCreateIIS($ccreateparams); */
-		
-/*          $hcreateparams = array(
-            'hostname' => 'ns2.example.com',
-            'v' => 'v4',
-            'ip' => '54.6.7.8'
-        );
-        $hostCreate = $epp->hostCreate($hcreateparams);  */
-	    
-/* 		$hcheckparams = array(
-            'hostname' => 'ns3.google.com'
-        );
-        $hostCheck = $epp->hostCheck($hcheckparams);  
-		print_r($hostCheck);
-		
-		$hinfoparams = array(
-            'hostname' => 'ns3.google.com'
-        );
-        $hostInfo = $epp->hostInfo($hinfoparams);  
-		print_r($hostInfo); */
-	    
-/* 	$hdelparams = array(
-            'hostname' => 'ns2.google.com'
-        );
-        $hostDelete = $epp->hostDelete($hdelparams);  
-	print_r($hostDelete); */
-		
-/* 		
-        $ccreateparams = array(
-            'id' => 'ABCTEST123',
-            'firstname' => 'Petko',
-            'lastname' => 'Petkov',
-            'companyname' => 'Petkovi OOD',
-            'address1' => 'bul. Vitosha 1',
-            'address2' => 'ap. 1',
-            'city' => 'Sofia',
-            'state' => 'Sofia-Grad',
-            'postcode' => '1000',
-            'country' => 'BG',
-            'fullphonenumber' => '+359.1234567',
-            'email' => 'test@petkovi.bg',
-            'authInfoPw' => 'ABCSofi@345'
-        );
-        $contactCreate = $epp->contactCreate($ccreateparams); */
-
 
 /*        $checkparams = array(
             'domains' => array('tembo3.test')
@@ -182,13 +138,7 @@ use Pinga\Tembo\EppClient;
         );
         $domainUpdateNS = $epp->domainUpdateNS($updparams); 
 		print_r($domainUpdateNS);  */
-		
-/*      $ccheckparams = array(
-            'contact' => 'tembo2'
-        );
-        $contactCheck = $epp->contactCheck($ccheckparams); 
-		print_r($contactCheck); */
-	    
+
         $logout = $epp->logout();
 		print_r($logout);
     }
