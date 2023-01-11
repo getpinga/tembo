@@ -519,20 +519,24 @@ class Epp
             $to[] = htmlspecialchars($params['v']);
             $from[] = '/{{ ip }}/';
             $to[] = htmlspecialchars($params['ip']);
-			$ext = isset($params['ext']) ? $params['ext'] : '';
-			if ($ext == 'fred') {
+	    $ext = isset($params['ext']) ? $params['ext'] : '';
+	    if ($ext == 'fred') {      
+            $from[] = '/{{ name2 }}/';
+            $to[] = htmlspecialchars($params['hostname2']);
+            $from[] = '/{{ ip2 }}/';
+            $to[] = htmlspecialchars($params['ip2']);
             $from[] = '/{{ nsid }}/';
             $to[] = htmlspecialchars($params['nsid']);
             $from[] = '/{{ nstech }}/';
             $to[] = htmlspecialchars($params['nstech']);
-			}
+	    }
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
-			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
-			$to[] = '';
-			if ($ext == 'ua') {
-			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	    $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+            $to[] = '';
+	    if ($ext == 'ua') {
+	    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
@@ -559,6 +563,10 @@ class Epp
             <nsset:ns>
                <nsset:name>{{ name }}</nsset:name>
                <nsset:addr>{{ ip }}</nsset:addr>
+            </nsset:ns>
+            <nsset:ns>
+               <nsset:name>{{ name2 }}</nsset:name>
+               <nsset:addr>{{ ip2 }}</nsset:addr>
             </nsset:ns>
             <nsset:tech>{{ nstech }}</nsset:tech>
             <nsset:reportlevel>0</nsset:reportlevel>
