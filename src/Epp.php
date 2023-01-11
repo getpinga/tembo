@@ -451,23 +451,45 @@ class Epp
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-			if ($ext == 'ua') {
-			$r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->infData[0];
-			} else if ($ext == 'fred') {
-			$r = $r->response->resData->children('http://www.nic.cz/xml/epp/nsset-1.2')->infData[0];
-			} else {
-			$r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
-			}
-			$name = (string)$r->name;
+	if ($ext == 'ua') {
+	$r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->infData[0];
+	$name = (string)$r->name;
+	$addr = array();
+	foreach($r->addr as $ns) {
+	   $addr[] = (string)$ns;
+	    }
             $status = array();
             $i = 0;
             foreach($r->status as $e) {
                 $i++;
                 $status[$i] = (string)$e->attributes()->s;
             }
+			} else if ($ext == 'fred') {
+			$r = $r->response->resData->children('http://www.nic.cz/xml/epp/nsset-1.2')->infData[0];
+			$name = (string)$r->id;
+			$addr = array();
+			foreach ($r->ns as $ns) {
+				$addr[] = (string)$ns->name;
+			}
+            $status = array();
+            $i = 0;
+            foreach($r->status as $e) {
+                $i++;
+                $status[$i] = (string)$e->attributes()->s;
+            }
+			} else {
+			$r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
+			$name = (string)$r->name;
 			$addr = array();
 			foreach($r->addr as $ns) {
 				$addr[] = (string)$ns;
+			}
+            $status = array();
+            $i = 0;
+            foreach($r->status as $e) {
+                $i++;
+                $status[$i] = (string)$e->attributes()->s;
+            }
 			}
             $clID = (string)$r->clID;
             $crID = (string)$r->crID;
