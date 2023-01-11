@@ -32,6 +32,25 @@ try
     }
     else
     {
+		if ($params['ext'] == 'fred') {
+		echo 'HostInfo Result: ' . $hostInfo['code'] . ': ' . $hostInfo['msg'] . PHP_EOL;
+		echo 'Name: ' . $hostInfo['name'] . PHP_EOL;
+		echo 'Status ';
+		foreach ($hostInfo['status'] as $key => $value) {
+			echo $key . ': ' . $value . ', ';
+		}
+		echo PHP_EOL;
+		echo 'Addr ';
+		foreach ($hostInfo['addr'] as $key => $value) {
+			echo $key . ': ' . $value . ', ';
+		}
+		echo PHP_EOL;
+		echo 'Current Registrar: ' . $hostInfo['clID'] . PHP_EOL;
+		echo 'Original Registrar: ' . $hostInfo['crID'] . PHP_EOL;
+		echo 'Created On: ' . $hostInfo['crDate'] . PHP_EOL;
+		echo 'Updated By: ' . $hostInfo['upID'] . PHP_EOL;
+		echo 'Updated On: ' . $hostInfo['upDate'] . PHP_EOL;
+		} else {
 		echo 'HostInfo Result: ' . $hostInfo['code'] . ': ' . $hostInfo['msg'] . PHP_EOL;
 		echo 'Name: ' . $hostInfo['name'] . PHP_EOL;
 		echo 'Status: ' . $hostInfo['status'][0] . PHP_EOL;
@@ -41,6 +60,7 @@ try
 		echo 'Created On: ' . $hostInfo['crDate'] . PHP_EOL;
 		echo 'Updated By: ' . $hostInfo['upID'] . PHP_EOL;
 		echo 'Updated On: ' . $hostInfo['upDate'] . PHP_EOL;
+		}
     }
 
     $logout = $epp->logout();
