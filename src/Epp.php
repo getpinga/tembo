@@ -296,6 +296,21 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+   <command>
+      <check>
+         <nsset:check xmlns:nsset="http://www.nic.cz/xml/epp/nsset-1.2"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/nsset-1.2 nsset-1.2.2.xsd">
+            <nsset:id>{{ name }}</nsset:id>
+         </nsset:check>
+      </check>
+      <clTRID>{{ clTRID }}</clTRID>
+   </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -318,16 +333,28 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->chkData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/nsset-1.2')->chkData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->chkData;
 			}
+			
+			if ($ext == 'fred') {
             $i = 0;
+            foreach($r->cd as $cd) {
+                $i++;
+                $hosts[$i]['id'] = (string)$cd->id;
+                $hosts[$i]['reason'] = (string)$cd->reason;
+                $hosts[$i]['avail'] = (int)$cd->id->attributes()->avail;
+            }
+			} else {
             foreach($r->cd as $cd) {
                 $i++;
                 $hosts[$i]['name'] = (string)$cd->name;
                 $hosts[$i]['reason'] = (string)$cd->reason;
                 $hosts[$i]['avail'] = (int)$cd->name->attributes()->avail;
             }
+			}
 
             $return = array(
                 'code' => $code,
@@ -362,12 +389,18 @@ class Epp
             $from = $to = array();
             $from[] = '/{{ name }}/';
 			$to[] = htmlspecialchars($params['hostname']);
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'fred') {
+            $from[] = '/{{ authInfo }}/';
+            $authInfo = (isset($params['authInfoPw']) ? "<nsset:authInfo><![CDATA[{$params['authInfoPw']}]]></nsset:authInfo>" : '');
+            $to[] = $authInfo;
+			}			
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-host-info-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
-			$ext = isset($params['ext']) ? $params['ext'] : '';
+
 			if ($ext == 'ua') {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -382,6 +415,22 @@ class Epp
    </info>
    <clTRID>{{ clTRID }}</clTRID>
  </command>
+</epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<command>
+   <info>
+      <nsset:info xmlns:nsset="http://www.nic.cz/xml/epp/nsset-1.2"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/nsset-1.2 nsset-1.2.2.xsd">
+         <nsset:id>{{ name }}</nsset:id>
+         {{ authInfo }}
+      </nsset:info>
+   </info>
+   <clTRID>{{ clTRID }}</clTRID>
+</command>
 </epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -404,6 +453,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
 			$r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->infData[0];
+			} else if ($ext == 'fred') {
+			$r = $r->response->resData->children('http://www.nic.cz/xml/epp/nsset-1.2')->infData[0];
 			} else {
 			$r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
 			}
@@ -468,12 +519,18 @@ class Epp
             $to[] = htmlspecialchars($params['v']);
             $from[] = '/{{ ip }}/';
             $to[] = htmlspecialchars($params['ip']);
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'fred') {
+            $from[] = '/{{ nsid }}/';
+            $to[] = htmlspecialchars($params['nsid']);
+            $from[] = '/{{ nstech }}/';
+            $to[] = htmlspecialchars($params['nstech']);
+			}
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-host-create-' . $clTRID);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
-			$ext = isset($params['ext']) ? $params['ext'] : '';
 			if ($ext == 'ua') {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -488,6 +545,27 @@ class Epp
 	</create>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
+</epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+   <command>
+      <create>
+         <nsset:create xmlns:nsset="http://www.nic.cz/xml/epp/nsset-1.2"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/nsset-1.2 nsset-1.2.2.xsd">
+            <nsset:id>{{ nsid }}</nsset:id>
+            <nsset:ns>
+               <nsset:name>{{ name }}</nsset:name>
+               <nsset:addr>{{ ip }}</nsset:addr>
+            </nsset:ns>
+            <nsset:tech>{{ nstech }}</nsset:tech>
+            <nsset:reportlevel>0</nsset:reportlevel>
+         </nsset:create>
+      </create>
+      <clTRID>{{ clTRID }}</clTRID>
+   </command>
 </epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -511,10 +589,17 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/host-1.1')->creData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/nsset-1.2')->creData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->creData;
 			}
+			
+			if ($ext == 'fred') {
+            $name = (string)$r->id;
+			} else {
             $name = (string)$r->name;
+			}
 
             $return = array(
                 'code' => $code,
@@ -567,6 +652,21 @@ class Epp
 		<clTRID>{{ clTRID }}</clTRID>
 	  </command>
 	</epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+   <command>
+   <delete>
+      <nsset:delete xmlns:nsset="http://www.nic.cz/xml/epp/nsset-1.2"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/nsset-1.2 nsset-1.2.2.xsd">
+         <nsset:id>{{ name }}</nsset:id>
+      </nsset:delete>
+   </delete>
+   <clTRID>{{ clTRID }}</clTRID>
+   </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1500,6 +1600,21 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <check>
+      <domain:check xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+        {{ names }}
+      </domain:check>
+    </check>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1534,6 +1649,8 @@ class Epp
 			} else {
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->chkData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/domain-1.4')->chkData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->chkData;
 			}
@@ -1580,14 +1697,18 @@ class Epp
             $from[] = '/{{ domainname }}/';
             $to[] = htmlspecialchars($params['domainname']);
             $from[] = '/{{ authInfo }}/';
+			$ext = isset($params['ext']) ? $params['ext'] : '';
+			if ($ext == 'fred') {
+            $authInfo = (isset($params['authInfoPw']) ? "<domain:authInfo><![CDATA[{$params['authInfoPw']}]]></domain:authInfo>" : '');
+			} else {
             $authInfo = (isset($params['authInfoPw']) ? "<domain:authInfo>\n<domain:pw><![CDATA[{$params['authInfoPw']}]]></domain:pw>\n</domain:authInfo>" : '');
+			}
             $to[] = $authInfo;
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $microtime);
 			$from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
 			$to[] = '';
-			$ext = isset($params['ext']) ? $params['ext'] : '';
 			if ($ext == 'ua') {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1596,6 +1717,22 @@ class Epp
   <command>
     <info>
       <domain:info xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+        <domain:name>{{ domainname }}</domain:name>
+        {{ authInfo }}
+      </domain:info>
+    </info>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else if ($ext == 'fred') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <info>
+      <domain:info xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
         <domain:name>{{ domainname }}</domain:name>
         {{ authInfo }}
       </domain:info>
@@ -1626,6 +1763,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->infData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/domain-1.4')->infData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
 			}
@@ -1969,6 +2108,22 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<transfer op="request">
+	  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+		<domain:name>{{ name }}</domain:name>
+		<domain:authInfo>{{ authInfoPw }}</domain:authInfo>
+	  </domain:transfer>
+	</transfer>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1997,6 +2152,13 @@ class Epp
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
 			}
+			
+			if ($ext == 'fred') {
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+			} else {
             $name = (string)$r->name;
             $trStatus = (string)$r->trStatus;
             $reID = (string)$r->reID;
@@ -2016,6 +2178,7 @@ class Epp
                 'acDate' => $acDate,
                 'exDate' => $exDate
             );
+			}
         }
 
         catch(\Exception $e) {
@@ -2303,6 +2466,21 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<info>
+	  <domain:info xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+		<domain:name>{{ name }}</domain:name>
+	  </domain:info>
+	</info>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -2323,6 +2501,8 @@ class Epp
             $r = $this->writeRequest($xml);
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->infData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/domain-1.4')->infData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
 			}
@@ -2354,6 +2534,23 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<renew>
+	  <domain:renew xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+		<domain:name>{{ name }}</domain:name>
+		<domain:curExpDate>{{ expDate }}</domain:curExpDate>
+		<domain:period unit="y">{{ regperiod }}</domain:period>
+	  </domain:renew>
+	</renew>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 		    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -2377,6 +2574,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->renData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/domain-1.4')->renData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->renData;
 			}
@@ -2523,6 +2722,21 @@ class Epp
   <command>
 	<delete>
 	  <domain:delete xmlns:domain="http://hostmaster.ua/epp/domain-1.1">
+		<domain:name>{{ name }}</domain:name>
+	  </domain:delete>
+	</delete>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else if ($ext == 'fred') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<delete>
+	  <domain:delete xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
 		<domain:name>{{ name }}</domain:name>
 	  </domain:delete>
 	</delete>
