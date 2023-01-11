@@ -32,6 +32,22 @@ try
     }
     else
     {
+		if ($params['ext'] == 'fred') {
+		echo "HostCheck result: " . $hostCheck['code'] . ": " . $hostCheck['msg'] . PHP_EOL;
+		$x=1;
+		foreach ($hostCheck['hosts'] as $host)
+		{
+			if ($host['avail'] == 1)
+			{
+				echo "Host ".$x.": " . $host['id'] . " is available" . PHP_EOL;
+			}
+			else
+			{
+				echo "Host ".$x.": " . $host['id'] . " is not available because: " . $host['reason'] . PHP_EOL;
+			}
+			$x++;
+		} 
+		} else {
 		echo "HostCheck result: " . $hostCheck['code'] . ": " . $hostCheck['msg'] . PHP_EOL;
 		$x=1;
 		foreach ($hostCheck['hosts'] as $host)
@@ -46,6 +62,7 @@ try
 			}
 			$x++;
 		} 
+		}
     }
 
     $logout = $epp->logout();
