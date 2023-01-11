@@ -2285,6 +2285,8 @@ class Epp
             $to[] = htmlspecialchars($params['domainname']);
             $from[] = '/{{ period }}/';
             $to[] = (int)($params['period']);
+			
+			
 			if ($params['ext'] == 'nask') {
             $text = '';
             foreach ($params['nss'] as $hostObj) {
@@ -2292,6 +2294,9 @@ class Epp
             }
             $from[] = '/{{ hostObjs }}/';
             $to[] = $text;
+			} else if ($params['ext'] == 'fred') {
+            $from[] = '/{{ nsid }}/';
+            $to[] = htmlspecialchars($params['nsid']);
 			} else {
 				if (isset($params['nss'])) {
 				$text = '';
@@ -2310,6 +2315,9 @@ class Epp
 			if ($params['ext'] == 'iis.se') {
             $from[] = '/{{ contacts }}/';
             $to[] = '';
+			} else if ($params['ext'] == 'fred') {
+            $from[] = '/{{ admin }}/';
+            $to[] = htmlspecialchars($params['admin']);
 			} else {
             $text = '';
             foreach ($params['contacts'] as $id => $contactType) {
@@ -2374,6 +2382,25 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'fred') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+   <command>
+      <create>
+         <domain:create xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+          xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+            <domain:name>{{ name }}</domain:name>
+            <domain:period unit="y">{{ period }}</domain:period>
+            <domain:nsset>{{ nsid }}</domain:nsset>
+            <domain:registrant>{{ registrant }}</domain:registrant>
+            <domain:admin>{{ admin }}</domain:admin>
+         </domain:create>
+      </create>
+      <clTRID>{{ clTRID }}</clTRID>
+   </command>
+</epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -2404,6 +2431,8 @@ class Epp
             $msg = (string)$r->response->result->msg;
 			if ($ext == 'ua') {
             $r = $r->response->resData->children('http://hostmaster.ua/epp/domain-1.1')->creData;
+			} else if ($ext == 'fred') {
+            $r = $r->response->resData->children('http://www.nic.cz/xml/epp/domain-1.4')->creData;
 			} else {
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->creData;
 			}
