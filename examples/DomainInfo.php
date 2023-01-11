@@ -39,9 +39,21 @@ try
 		echo 'Status: ' . $domainInfo['status'][1] . PHP_EOL;
 		echo 'Name: ' . $domainInfo['name'] . PHP_EOL;
 		echo 'Registrant: ' . $domainInfo['registrant'] . PHP_EOL;
-		echo 'Contact: ' . $domainInfo['contact'] . PHP_EOL;
-		echo 'NS: ' . $domainInfo['ns'] . PHP_EOL;
-		echo 'Host: ' . $domainInfo['host'] . PHP_EOL;
+		echo 'Contact: ';
+		foreach ($domainInfo['contact'] as $key => $value) {
+			echo $key . ': ' . $value . ', ';
+		}
+		echo PHP_EOL;
+		echo 'NS: ';
+		foreach ($domainInfo['ns'] as $key => $value) {
+			echo $key . ': ' . $value . ', ';
+		}
+		echo PHP_EOL;
+		echo 'Host: ';
+		foreach ($domainInfo['host'] as $key => $value) {
+			echo $key . ': ' . $value . ', ';
+		}
+		echo PHP_EOL;
 		echo 'Current Registrar: ' . $domainInfo['clID'] . PHP_EOL;
 		echo 'Original Registrar: ' . $domainInfo['crID'] . PHP_EOL;
 		echo 'Created On: ' . $domainInfo['crDate'] . PHP_EOL;
