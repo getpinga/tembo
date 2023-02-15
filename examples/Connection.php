@@ -23,6 +23,7 @@ function connectEpp(){
             'host' => 'epp.example.com',
             'port' => 700,
             'timeout' => 30,
+            'tls' => '1.3',
             'verify_peer' => false,
             'verify_peer_name' => false,
             'verify_host' => false,
