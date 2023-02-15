@@ -79,5 +79,6 @@ use Pinga\Tembo\HttpsClient;
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | FRED | .cz/any | fred | ✅ | domain update |
 | CoCCA | .lviv.ua | cocca | ✅ |  |
+| HKIRC | .hk | | ✅ | test all commands |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
 | NASK | .pl | nask | ✅ | test all commands |
