@@ -78,6 +78,6 @@ use Pinga\Tembo\HttpsClient;
 | Hostmaster | .ua | ua | ✅ | |
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | FRED | .cz/any | fred | ✅ | domain update |
-| CoCCA | .lviv.ua | cocca | 🚧 | fix login issues |
-| FORTH-ICS | .gr, .ελ | forth | 🚧 | |
-| NASK | .pl | nask | 🚧 | |
+| CoCCA | .lviv.ua | cocca | ✅ |  |
+| FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
+| NASK | .pl | nask | ✅ | test all commands |
