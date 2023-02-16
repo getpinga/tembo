@@ -40,6 +40,7 @@ require_once 'vendor/autoload.php';
 use Pinga\Tembo\Epp;
 use Pinga\Tembo\EppClient;
 use Pinga\Tembo\HttpsClient;
+use Pinga\Tembo\RRIClient;
 ```
 
 3. You can now use the EppClient class and its functions in your code. You can refer to the **examples** directory for examples of how the package can be used.
