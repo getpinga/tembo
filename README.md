@@ -77,7 +77,7 @@ use Pinga\Tembo\RRIClient;
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
-| AFNIC | .fr/others | | 🚧 | work on extensions |
+| AFNIC | .fr/others | afnic | 🚧 | work on extensions |
 | Caucasus Online | .ge | | ✅ |  |
 | CentralNic | all | | ✅ |  |
 | CoCCA | all | | ✅ |  |
