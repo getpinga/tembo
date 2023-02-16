@@ -87,5 +87,6 @@ use Pinga\Tembo\HttpsClient;
 | NASK | .pl | nask | ✅ | test all commands |
 | NORID | .no | norid | 🚧 | work on extensions |
 | .PT | .pt | pt | 🚧 | work on extensions |
+| SIDN | all | | ✅ | commands need further tests |
 | Verisign | all | verisign | 🚧 | work on extensions |
 | ZADNA | .za |  | ✅ | test all commands |
