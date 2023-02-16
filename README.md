@@ -75,7 +75,7 @@ use Pinga\Tembo\HttpsClient;
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
-| CoCCA | .lviv.ua | cocca | ✅ |  |
+| CoCCA | all | cocca | ✅ |  |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
 | FRED | .cz/any | fred | ✅ | domain update |
