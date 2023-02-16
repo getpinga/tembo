@@ -25,6 +25,8 @@ class EppClient extends Epp
         $port = (int)$params['port'];
         $timeout = (int)$params['timeout'];
         $tls = (string)$params['tls'];
+        $bind = (string)$params['bind'];
+        $bindip = (string)$params['bindip'];
 	if ($tls !== '1.3' && $tls !== '1.2' && $tls !== '1.1') {
 	    throw new EppException('Invalid TLS version specified.');
 	}
@@ -41,7 +43,9 @@ class EppClient extends Epp
 		'min_tls_version' => $tls
             )
         );
-
+        if ($bind) {
+            $opts['socket'] = array('bindto' => $bindip);
+        }
         $context = stream_context_create($opts);
         $this->resource = stream_socket_client("tls://{$host}:{$port}", $errno, $errmsg, $timeout, STREAM_CLIENT_CONNECT, $context);
         if (!$this->resource) {
