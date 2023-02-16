@@ -28,11 +28,11 @@ try
 	
     if (array_key_exists('error', $domainRestore))
     {
-        echo 'domainRestore Error: ' . $domainRestore['error'] . PHP_EOL;
+        echo 'DomainRestore Error: ' . $domainRestore['error'] . PHP_EOL;
     }
     else
     {
-        echo "domainRestore result: " . $domainRestore['code'] . ": " . $domainRestore['msg'] . PHP_EOL;
+        echo "DomainRestore result: " . $domainRestore['code'] . ": " . $domainRestore['msg'] . PHP_EOL;
     }
 	
     $logout = $epp->logout();
