@@ -259,6 +259,41 @@ class Epp
     }
 	
     /**
+     * hello
+     */
+    function hello()
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-hello-' . $microtime);
+	    $ext = isset($params['ext']) ? $params['ext'] : '';
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+   <hello/>
+</epp>');
+            $r = $this->writeRequest($xml);
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $r->asXML();
+    }
+	
+    /**
      * hostCheck
      */
     function hostCheck($params = array())
