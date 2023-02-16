@@ -79,6 +79,7 @@ use Pinga\Tembo\RRIClient;
 | Generic RFC EPP | any | | ✅ | |
 | AFNIC | .fr/others | | 🚧 | work on extensions |
 | Caucasus Online | .ge | | ✅ |  |
+| CentralNic | all | | ✅ |  |
 | CoCCA | all | | ✅ |  |
 | DENIC | .de | | ✅ | some functions need to be added |
 | Domicilium | .im | | ✅ | small parsing fixes needed |
