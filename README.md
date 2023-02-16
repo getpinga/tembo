@@ -80,6 +80,7 @@ use Pinga\Tembo\HttpsClient;
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
 | FRED | .cz/any | fred | ✅ | domain update |
+| GoDaddy Registry | all | | ✅ | |
 | Hostmaster | .ua | ua | ✅ | |
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | test all commands |
