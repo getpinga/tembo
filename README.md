@@ -75,8 +75,10 @@ use Pinga\Tembo\HttpsClient;
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
+| AFNIC | .fr/others | | 🚧 | work on extensions |
 | Caucasus Online | .ge | | ✅ |  |
 | CoCCA | all | | ✅ |  |
+| Domicilium | .im | | ✅ | small parsing fixes needed |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
 | FRED | .cz/any | fred | ✅ | domain update |
@@ -86,8 +88,11 @@ use Pinga\Tembo\HttpsClient;
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | test all commands |
 | NASK | .pl | nask | ✅ | test all commands |
+| NIC Chile | .cl | | 🚧 | further work needed |
 | NORID | .no | norid | 🚧 | work on extensions |
 | .PT | .pt | pt | 🚧 | work on extensions |
+| Registro.it | .it | it | 🚧 | work on extensions |
+| RoTLD | .ro | | ✅ | commands need further tests |
 | SIDN | all | | ✅ | commands need further tests |
 | Verisign | all | verisign | 🚧 | work on extensions |
 | ZADNA | .za |  | ✅ | test all commands |
