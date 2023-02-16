@@ -2836,6 +2836,67 @@ class Epp
 
         return $return;
     }
+	
+    /**
+     * domainRestore
+     */
+    function domainRestore($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-restore-' . $clTRID);
+	    $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+	    $to[] = '';
+	    $ext = isset($params['ext']) ? $params['ext'] : '';
+	    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+   <update>
+	 <domain:update xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+	   <domain:name>{{ name }}</domain:name>
+	   <domain:chg/>
+	 </domain:update>
+   </update>
+   <extension>
+	 <rgp:update xmlns:rgp="urn:ietf:params:xml:ns:rgp-1.0">
+	   <rgp:restore op="request"/>
+	 </rgp:update>
+   </extension>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+}
 
 function _response_log($content)
 {
