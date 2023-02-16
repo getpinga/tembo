@@ -89,6 +89,7 @@ use Pinga\Tembo\RRIClient;
 | GoDaddy Registry | all | | ✅ | |
 | Google Nomulus | all | | ✅ | small parsing fixes needed |
 | Hostmaster | .ua | ua | ✅ | |
+| Identity Digital | all | | ✅ | |
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | test all commands |
 | NASK | .pl | nask | ✅ | test all commands |
