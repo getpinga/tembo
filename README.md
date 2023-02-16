@@ -72,7 +72,7 @@ use Pinga\Tembo\RRIClient;
 | RRI | ✅ |
 | REGRR | ❌ |
 
-## Registry Support
+## Registry Support (27 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
