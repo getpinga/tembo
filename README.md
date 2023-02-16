@@ -62,12 +62,13 @@ use Pinga\Tembo\HttpsClient;
 | rgp:report | 🚧 | N/A | N/A | |
 | transferRequest | ✅ | ❌ | ❌ | |
 
-## Supported EPP Types
+## Supported Connection Types
 
 | type | status |
 |----------|----------|
 | EPP over TLS/TCP | ✅ |
 | EPP over HTTPS | ✅ |
+| RRI | ✅ |
 | REGRR | ❌ |
 
 ## Registry Support
@@ -78,6 +79,7 @@ use Pinga\Tembo\HttpsClient;
 | AFNIC | .fr/others | | 🚧 | work on extensions |
 | Caucasus Online | .ge | | ✅ |  |
 | CoCCA | all | | ✅ |  |
+| DENIC | .de | | ✅ | some functions need to be added |
 | Domicilium | .im | | ✅ | small parsing fixes needed |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
