@@ -84,6 +84,7 @@ use Pinga\Tembo\HttpsClient;
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | test all commands |
 | NASK | .pl | nask | ✅ | test all commands |
+| NORID | .no | norid | 🚧 | work on extensions |
 | .PT | .pt | pt | 🚧 | work on extensions |
 | Verisign | all | verisign | 🚧 | work on extensions |
 | ZADNA | .za |  | ✅ | test all commands |
