@@ -75,10 +75,14 @@ use Pinga\Tembo\HttpsClient;
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
+| CoCCA | .lviv.ua | cocca | ✅ |  |
+| DOMREG | .lt | domreg | 🚧 | work on extensions |
+| FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
+| FRED | .cz/any | fred | ✅ | domain update |
 | Hostmaster | .ua | ua | ✅ | |
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
-| FRED | .cz/any | fred | ✅ | domain update |
-| CoCCA | .lviv.ua | cocca | ✅ |  |
 | HKIRC | .hk | | ✅ | test all commands |
-| FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
 | NASK | .pl | nask | ✅ | test all commands |
+| .PT | .pt | pt | 🚧 | work on extensions |
+| Verisign | all | verisign | 🚧 | work on extensions |
+| ZADNA | .za |  | ✅ | test all commands |
