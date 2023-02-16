@@ -24,6 +24,8 @@ function connectEpp(){
             'port' => 700,
             'timeout' => 30,
             'tls' => '1.3',
+            'bind' => false,
+            'bindip' => '1.2.3.4:0',
             'verify_peer' => false,
             'verify_peer_name' => false,
             'verify_host' => false,
