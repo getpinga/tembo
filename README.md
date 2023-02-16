@@ -101,3 +101,4 @@ use Pinga\Tembo\RRIClient;
 | SIDN | all | | ✅ | commands need further tests |
 | Verisign | all | verisign | 🚧 | work on extensions |
 | ZADNA | .za |  | ✅ | test all commands |
+| ZDNS | all |  | ✅ | |
