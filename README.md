@@ -75,6 +75,7 @@ use Pinga\Tembo\HttpsClient;
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
+| Caucasus Online | .ge | | ✅ |  |
 | CoCCA | all | cocca | ✅ |  |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
