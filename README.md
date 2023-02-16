@@ -76,11 +76,12 @@ use Pinga\Tembo\HttpsClient;
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
 | Caucasus Online | .ge | | ✅ |  |
-| CoCCA | all | cocca | ✅ |  |
+| CoCCA | all | | ✅ |  |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
 | FRED | .cz/any | fred | ✅ | domain update |
 | GoDaddy Registry | all | | ✅ | |
+| Google Nomulus | all | | ✅ | small parsing fixes needed |
 | Hostmaster | .ua | ua | ✅ | |
 | IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | test all commands |
