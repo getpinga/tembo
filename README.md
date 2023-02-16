@@ -53,7 +53,7 @@ use Pinga\Tembo\RRIClient;
 | info | ✅ | ✅ | ✅ | logout ✅ |
 | create | ✅ | ✅ | ✅ | poll 🚧 |
 | update | N/A | ✅ | 🚧 | hello ✅ |
-| updateNS | ✅ | N/A | N/A | keep-alive 🚧 |
+| updateNS | ✅ | N/A | N/A | keep-alive ✅ |
 | updateContact | ✅ ❗ | N/A | N/A | |
 | updateStatus | 🚧 | ❌ | ❌| |
 | updateDNSSEC | 🚧 | N/A | N/A | |
