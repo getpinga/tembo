@@ -81,6 +81,7 @@ use Pinga\Tembo\RRIClient;
 | Caucasus Online | .ge | | ✅ |  |
 | CentralNic | all | | ✅ |  |
 | CoCCA | all | | ✅ |  |
+| CORE/Knipp | all | | ✅ |  |
 | DENIC | .de | | ✅ | some functions need to be added |
 | Domicilium | .im | | ✅ | small parsing fixes needed |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
