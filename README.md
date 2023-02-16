@@ -46,7 +46,7 @@ use Pinga\Tembo\HttpsClient;
 
 ## Supported EPP Commands
 
-| | domain | contact | host | others |
+| | domain | contact | host | session |
 |----------|----------|----------|----------|----------|
 | check | ✅ | ✅ | ✅ | login ✅ |
 | info | ✅ | ✅ | ✅ | logout ✅ |
