@@ -84,7 +84,7 @@ class EppClient extends Epp
             throw new EppException('Error writing to the connection.');
         }
         $r = simplexml_load_string($this->readResponse());
-        if ($r->response->result->attributes()->code >= 2000) {
+        if (isset($r->response) && $r->response->result->attributes()->code >= 2000) {
             throw new EppException($r->response->result->msg);
         }
             return $r;
