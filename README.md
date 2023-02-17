@@ -72,7 +72,7 @@ use Pinga\Tembo\RRIClient;
 | RRI | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (28 backends and counting)
+## Registry Support (29 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -97,6 +97,7 @@ use Pinga\Tembo\RRIClient;
 | NIC Chile | .cl | | 🚧 | further work needed |
 | NORID | .no | norid | ✅ | transfer and update need testing |
 | .PT | .pt | pt | 🚧 | work on extensions |
+| Registr.io | all | | ✅ | |
 | Registro.it | .it | it | 🚧 | work on extensions |
 | RoTLD | .ro | | ✅ | commands need further tests |
 | RyCE | all | | ✅ | commands need further tests |
