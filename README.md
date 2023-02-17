@@ -51,7 +51,7 @@ use Pinga\Tembo\RRIClient;
 |----------|----------|----------|----------|----------|
 | check | ✅ | ✅ | ✅ | login ✅ |
 | info | ✅ | ✅ | ✅ | logout ✅ |
-| create | ✅ | ✅ | ✅ | poll 🚧 |
+| create | ✅ | ✅ | ✅ | poll ✅ |
 | update | N/A | ✅ | 🚧 | hello ✅ |
 | updateNS | ✅ | N/A | N/A | keep-alive ✅ |
 | updateContact | ✅ ❗ | N/A | N/A | |
