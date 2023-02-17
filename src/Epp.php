@@ -176,6 +176,33 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($params['ext'] == 'pt') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <login>
+      <clID>{{ clID }}</clID>
+      <pw>{{ pwd }}</pw>
+      <options>
+        <version>1.0</version>
+        <lang>en</lang>
+      </options>
+      <svcs>
+        <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
+        <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
+        <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
+        <svcExtension>
+        <extURI>http://eppdev.dns.pt/schemas/ptcontact-1.0</extURI>
+        <extURI>http://eppdev.dns.pt/schemas/ptdomain-1.0</extURI>
+        <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
+        </svcExtension>
+      </svcs>
+    </login>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1101,6 +1128,10 @@ class Epp
 				$from[] = '/{{ orgid }}/';
 				$to[] = htmlspecialchars($params['companyid']);
 			}
+			if (!empty($params['vat'])) {
+				$from[] = '/{{ vat }}/';
+				$to[] = htmlspecialchars($params['vat']);
+			}
 			$from[] = '/{{ street1 }}/';
 			$to[] = htmlspecialchars($params['address1']);
 			$from[] = '/{{ street2 }}/';
@@ -1312,10 +1343,48 @@ $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone
 </epp>');
 				}
 			}
-				
-				
-				
-			
+			} else if ($ext == 'pt') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<create>
+	  <contact:create
+ xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+		<contact:id>{{ id }}</contact:id>
+		<contact:postalInfo type="{{ type }}">
+		  <contact:name>{{ name }}</contact:name>
+		  <contact:org>{{ org }}</contact:org>
+		  <contact:addr>
+			<contact:street>{{ street1 }}</contact:street>
+			<contact:street>{{ street2 }}</contact:street>
+			<contact:street>{{ street3 }}</contact:street>
+			<contact:city>{{ city }}</contact:city>
+			<contact:sp>{{ state }}</contact:sp>
+			<contact:pc>{{ postcode }}</contact:pc>
+			<contact:cc>{{ country }}</contact:cc>
+		  </contact:addr>
+		</contact:postalInfo>
+		<contact:voice>{{ phonenumber }}</contact:voice>
+		<contact:fax></contact:fax>
+		<contact:email>{{ email }}</contact:email>
+		<contact:authInfo>
+		  <contact:pw>{{ authInfo }}</contact:pw>
+		</contact:authInfo>
+	  </contact:create>
+	</create>
+<extension>
+ <ptcontact:create xmlns:ptcontact="http://eppdev.dns.pt/schemas/ptcontact-1.0"
+xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptcontact-1.0 ptcontact-1.0.xsd">
+ <ptcontact:vat>{{ vat }}</ptcontact:vat>
+ <ptcontact:mobile>{{ phonenumber }}</ptcontact:mobile>
+ </ptcontact:create>
+ </extension>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1596,6 +1665,44 @@ $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone
 		</contact:chg>
 	  </contact:update>
 	</update>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+			} else if ($ext == 'pt') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<update>
+	  <contact:update xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+		<contact:id>{{ id }}</contact:id>
+		<contact:chg>
+		  <contact:postalInfo type="{{ type }}">
+			<contact:name>{{ name }}</contact:name>
+			<contact:org>{{ org }}</contact:org>
+			<contact:addr>
+			  <contact:street>{{ street1 }}</contact:street>
+			  <contact:street>{{ street2 }}</contact:street>
+			  <contact:street>{{ street3 }}</contact:street>
+			  <contact:city>{{ city }}</contact:city>
+			  <contact:sp>{{ state }}</contact:sp>
+			  <contact:pc>{{ postcode }}</contact:pc>
+			  <contact:cc>{{ country }}</contact:cc>
+			</contact:addr>
+		  </contact:postalInfo>
+		  <contact:voice>{{ voice }}</contact:voice>
+		  <contact:fax></contact:fax>
+		  <contact:email>{{ email }}</contact:email>
+		</contact:chg>
+	  </contact:update>
+	</update>
+ <extension>
+ <ptcontact:update xmlns:ptcontact="http://eppdev.dns.pt/schemas/ptcontact-1.0"
+xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptcontact-1.0 ptcontact-1.0.xsd">
+ <ptcontact:mobile>{{ voice }}</ptcontact:mobile>
+ </ptcontact:update>
+ </extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
