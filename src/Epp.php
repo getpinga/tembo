@@ -147,6 +147,35 @@ class Epp
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($params['ext'] == 'no') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+  <command>
+    <login>
+      <clID>{{ clID }}</clID>
+      <pw>{{ pwd }}</pw>
+      <options>
+        <version>1.0</version>
+        <lang>en</lang>
+      </options>
+      <svcs>
+        <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
+        <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
+        <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
+        <svcExtension>
+          <extURI>http://www.norid.no/xsd/no-ext-epp-1.0</extURI>
+          <extURI>http://www.norid.no/xsd/no-ext-domain-1.1</extURI>
+          <extURI>http://www.norid.no/xsd/no-ext-domain-1.0</extURI>
+          <extURI>http://www.norid.no/xsd/no-ext-contact-1.0</extURI>
+          <extURI>http://www.norid.no/xsd/no-ext-host-1.0</extURI>
+          <extURI>http://www.norid.no/xsd/no-ext-result-1.0</extURI>
+          <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
+        </svcExtension>
+      </svcs>
+    </login>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -576,6 +605,10 @@ class Epp
             $to[] = htmlspecialchars($params['v']);
             $from[] = '/{{ ip }}/';
             $to[] = htmlspecialchars($params['ip']);
+			if (!empty($params['contact'])) {
+				$from[] = '/{{ contact }}/';
+				$to[] = htmlspecialchars($params['contact']);
+			}
 	    $ext = isset($params['ext']) ? $params['ext'] : '';
 	    if ($ext == 'fred') {      
             $from[] = '/{{ name2 }}/';
@@ -631,6 +664,24 @@ class Epp
       </create>
       <clTRID>{{ clTRID }}</clTRID>
    </command>
+</epp>');
+			} else if ($ext == 'no') {
+			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <create>
+      <host:create xmlns:host="urn:ietf:params:xml:ns:host-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:host-1.0 host-1.0.xsd">
+        <host:name>{{ name }}</host:name>
+        <host:addr ip="{{ v }}">{{ ip }}</host:addr>
+      </host:create>
+    </create>
+    <extension>
+      <no-ext-host:create xmlns:no-ext-host="http://www.norid.no/xsd/no-ext-host-1.0" xsi:schemaLocation="http://www.norid.no/xsd/no-ext-host-1.0 no-ext-host-1.0.xsd">
+        <no-ext-host:contact>{{ contact }}</no-ext-host:contact>
+      </no-ext-host:create>
+    </extension>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
 </epp>');
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -1046,6 +1097,10 @@ class Epp
 			$to[] = htmlspecialchars($params['firstname'] . ' ' . $params['lastname']);
 			$from[] = '/{{ org }}/';
 			$to[] = htmlspecialchars($params['companyname']);
+			if (!empty($params['companyid'])) {
+				$from[] = '/{{ orgid }}/';
+				$to[] = htmlspecialchars($params['companyid']);
+			}
 			$from[] = '/{{ street1 }}/';
 			$to[] = htmlspecialchars($params['address1']);
 			$from[] = '/{{ street2 }}/';
@@ -1181,6 +1236,86 @@ class Epp
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
+			} else if ($ext == 'no') {
+				if (!empty($params['no_contype'])) {
+				if ($params['no_contype'] === 'organization') {
+					$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+ <command>
+  <create>
+   <contact:create xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+    <contact:id>auto</contact:id>
+    <contact:postalInfo type="loc">
+     <contact:name>{{ name }}</contact:name>
+     <contact:org>{{ org }}</contact:org>
+     <contact:addr>
+      <contact:street>{{ street1 }}</contact:street>
+      <contact:street>{{ street2 }}</contact:street>
+      <contact:street>{{ street3 }}</contact:street>
+      <contact:city>{{ city }}</contact:city>
+      <contact:pc>{{ postcode }}</contact:pc>
+      <contact:cc>{{ country }}</contact:cc>
+     </contact:addr>
+    </contact:postalInfo>
+    <contact:voice>{{ phonenumber }}</contact:voice>
+    <contact:email>{{ email }}</contact:email>
+    <contact:authInfo>
+     <contact:pw/>
+    </contact:authInfo>
+   </contact:create>
+  </create>
+  <extension>
+   <no-ext-contact:create xmlns:no-ext-contact="http://www.norid.no/xsd/no-ext-contact-1.0" xsi:schemaLocation="http://www.norid.no/xsd/no-ext-contact-1.0 no-ext-contact-1.0.xsd">
+	<no-ext-contact:type>organization</no-ext-contact:type>
+    <no-ext-contact:identity type="organizationNumber">{{ orgid }}</no-ext-contact:identity>
+    <no-ext-contact:mobilePhone>{{ phonenumber }}</no-ext-contact:mobilePhone>
+    <no-ext-contact:email>{{ email }}</no-ext-contact:email>
+   </no-ext-contact:create>
+  </extension>
+  <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+				} else if ($params['no_contype'] === 'role') {
+$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+ <command>
+  <create>
+   <contact:create xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+    <contact:id>auto</contact:id>
+    <contact:postalInfo type="loc">
+     <contact:name>{{ name }}</contact:name>
+     <contact:addr>
+      <contact:street>{{ street1 }}</contact:street>
+      <contact:street>{{ street2 }}</contact:street>
+      <contact:street>{{ street3 }}</contact:street>
+      <contact:city>{{ city }}</contact:city>
+      <contact:pc>{{ postcode }}</contact:pc>
+      <contact:cc>{{ country }}</contact:cc>
+     </contact:addr>
+    </contact:postalInfo>
+    <contact:voice>{{ phonenumber }}</contact:voice>
+    <contact:email>{{ email }}</contact:email>
+    <contact:authInfo>
+     <contact:pw/>
+    </contact:authInfo>
+   </contact:create>
+  </create>
+  <extension>
+   <no-ext-contact:create xmlns:no-ext-contact="http://www.norid.no/xsd/no-ext-contact-1.0" xsi:schemaLocation="http://www.norid.no/xsd/no-ext-contact-1.0 no-ext-contact-1.0.xsd">
+	<no-ext-contact:type>role</no-ext-contact:type>
+    <no-ext-contact:mobilePhone>{{ phonenumber }}</no-ext-contact:mobilePhone>
+    <no-ext-contact:email>{{ email }}</no-ext-contact:email>
+   </no-ext-contact:create>
+  </extension>
+  <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+				}
+			}
+				
+				
+				
+			
 			} else {
 			$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -2383,6 +2518,13 @@ class Epp
 			} else if ($params['ext'] == 'fred') {
             $from[] = '/{{ admin }}/';
             $to[] = htmlspecialchars($params['admin']);
+			} else if ($params['ext'] == 'no') {
+            $from[] = '/{{ reg_pers }}/';
+            $to[] = htmlspecialchars($params['reg_pers']);
+            $from[] = '/{{ reg_date }}/';
+            $to[] = htmlspecialchars($params['reg_date']);
+            $from[] = '/{{ tech }}/';
+            $to[] = htmlspecialchars($params['tech']);
 			} else {
             $text = '';
             foreach ($params['contacts'] as $id => $contactType) {
@@ -2465,6 +2607,35 @@ class Epp
       </create>
       <clTRID>{{ clTRID }}</clTRID>
    </command>
+</epp>');
+			} else if ($ext == 'no') {
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+ <command>
+  <create>
+   <domain:create xmlns:domain="urn:ietf:params:xml:ns:domain-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+    <domain:name>{{ name }}</domain:name>
+    <domain:ns>
+       {{ hostObjs }}
+    </domain:ns>
+    <domain:registrant>{{ registrant }}</domain:registrant>
+    <domain:contact type="tech">{{ tech }}</domain:contact>
+    <domain:authInfo>
+     <domain:pw>{{ authInfoPw }}</domain:pw>
+    </domain:authInfo>
+   </domain:create>
+  </create>
+  <extension>
+   <no-ext-domain:create xmlns:no-ext-domain="http://www.norid.no/xsd/no-ext-domain-1.1" xsi:schemaLocation="http://www.norid.no/xsd/no-ext-domain-1.1 no-ext-domain-1.1.xsd">
+    <no-ext-domain:applicantDataset>
+     <no-ext-domain:versionNumber>3.2</no-ext-domain:versionNumber>
+     <no-ext-domain:acceptName>{{ reg_pers }}</no-ext-domain:acceptName>
+     <no-ext-domain:acceptDate>{{ reg_date }}</no-ext-domain:acceptDate>
+    </no-ext-domain:applicantDataset>
+   </no-ext-domain:create>
+  </extension>
+  <clTRID>{{ clTRID }}</clTRID>
+ </command>
 </epp>');
 			} else {
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
