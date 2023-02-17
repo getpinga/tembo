@@ -3192,6 +3192,108 @@ $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone
 
         return $return;
 }
+	
+    /**
+     * pollReq
+     */
+    function pollReq()
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-poll-req-' . $clTRID);
+	    $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+	    $to[] = '';
+	    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+   <epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+     <command>
+       <poll op="req"/>
+       <clTRID>{{ clTRID }}</clTRID>
+     </command>
+   </epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $messages = (int)$r->response->msgQ->attributes()->count;
+            $last_id = (int)$r->response->msgQ->attributes()->id;
+            $qDate = (string)$r->response->msgQ->qDate;
+            $last_msg = (string)$r->response->msgQ->msg;
+			
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'messages' => $messages,
+                'last_id' => $last_id,
+                'qDate' => $qDate,
+                'last_msg' => $last_msg
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+}
+
+    /**
+     * pollAck
+     */
+    function pollAck($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ message }}/';
+            $to[] = htmlspecialchars($params['msgID']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-poll-ack-' . $clTRID);
+	    $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+	    $to[] = '';
+	    $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+   <epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+     <command>
+       <poll op="ack" msgID="{{ message }}"/>
+       <clTRID>{{ clTRID }}</clTRID>
+     </command>
+   </epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+			
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+        }
+
+        catch(\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+}
 
 function _response_log($content)
 {
