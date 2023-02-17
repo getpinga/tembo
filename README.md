@@ -95,7 +95,7 @@ use Pinga\Tembo\RRIClient;
 | HKIRC | .hk | | ✅ | test all commands |
 | NASK | .pl | nask | ✅ | test all commands |
 | NIC Chile | .cl | | 🚧 | further work needed |
-| NORID | .no | norid | 🚧 | work on extensions |
+| NORID | .no | norid | ✅ | transfer and update need testing |
 | .PT | .pt | pt | 🚧 | work on extensions |
 | Registro.it | .it | it | 🚧 | work on extensions |
 | RoTLD | .ro | | ✅ | commands need further tests |
