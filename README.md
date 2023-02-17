@@ -43,7 +43,27 @@ use Pinga\Tembo\HttpsClient;
 use Pinga\Tembo\RRIClient;
 ```
 
-3. You can now use the EppClient class and its functions in your code. You can refer to the **examples** directory for examples of how the package can be used.
+3. To create test certificates (cert.pem and key.pem), if the registry does not have mandatory SSL certificates, you can use:
+
+```
+openssl genrsa -out key.pem 2048
+```
+
+```
+openssl req -new -x509 -key key.pem -out cert.pem -days 365
+```
+
+4. You can now use the EppClient class and its functions in your code. You can refer to the **examples** directory for examples of how the package can be used.
+
+5. To test if you have access to the EPP server from your system, you may use:
+
+```
+openssl s_client -showcerts -connect epp.example.com:700
+```
+
+```
+openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem -key key.pem
+```
 
 ## Supported EPP Commands
 
