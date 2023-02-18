@@ -30,17 +30,10 @@ To install the Pinga Tembo EPP client, follow these steps:
 
 ```composer require pinga/tembo```
 
-2. In your PHP code, include the Composer autoloader and use the EppClient class from the Pinga Tembo package:
+2. In your PHP code, include the **Connection.php** file from the Tembo package:
 
 ```
-// Include the Composer autoloader
-require_once 'vendor/autoload.php';
-
-// Use the Epp class from the Pinga Tembo package
-use Pinga\Tembo\Epp;
-use Pinga\Tembo\EppClient;
-use Pinga\Tembo\HttpsClient;
-use Pinga\Tembo\RRIClient;
+require_once 'Connection.php';
 ```
 
 3. To create test certificates (cert.pem and key.pem), if the registry does not have mandatory SSL certificates, you can use:
