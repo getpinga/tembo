@@ -370,13 +370,16 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
    <info>
      <host:info
-      xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+ xmlns:host="http://www.dns.pl/nask-epp-schema/host-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/host-2.1
+ host-2.1.xsd">
        <host:name>{{ name }}</host:name>
      </host:info>
    </info>
@@ -514,13 +517,16 @@ class PlEpp implements EppRegistryInterface
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-host-delete-' . $clTRID);
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
 	  <command>
 		<delete>
 		  <host:delete
-		   xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+ xmlns:host="http://www.dns.pl/nask-epp-schema/host-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/host-2.1
+ host-2.1.xsd">
 			<host:name>{{ name }}</host:name>
 		  </host:delete>
 		</delete>
@@ -637,13 +643,16 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
 	<info>
 	  <contact:info
-	   xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
+ xmlns:contact="http://www.dns.pl/nask-epp-schema/contact-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/contact-2.1
+ contact-2.1.xsd">
 		<contact:id>{{ id }}</contact:id>
         {{ authInfo }}
 	  </contact:info>
@@ -887,12 +896,16 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
 	<update>
-	  <contact:update xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+	  <contact:update
+ xmlns:contact="http://www.dns.pl/nask-epp-schema/contact-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/contact-2.1
+ contact-2.1.xsd">
 		<contact:id>{{ id }}</contact:id>
 		<contact:chg>
 		  <contact:postalInfo type="{{ type }}">
@@ -955,14 +968,16 @@ class PlEpp implements EppRegistryInterface
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-delete-' . $clTRID);
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0
-    epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
  <command>
    <delete>
      <contact:delete
-      xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
+ xmlns:contact="http://www.dns.pl/nask-epp-schema/contact-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/contact-2.1
+ contact-2.1.xsd">
        <contact:id>{{ id }}</contact:id>
      </contact:delete>
    </delete>
@@ -1082,14 +1097,13 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dns.pl/nask-eppschema/epp-2.1 epp-2.1.xsd">
   <command>
     <info>
       <domain:info
-       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-       xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+       xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+       xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1 domain-2.1.xsd">
         <domain:name hosts="all">{{ domainname }}</domain:name>
         {{ authInfo }}
       </domain:info>
@@ -1253,14 +1267,16 @@ class PlEpp implements EppRegistryInterface
                 $clTRID = str_replace('.', '', round(microtime(1), 3));
                 $to[] = htmlspecialchars($this->prefix . '-domain-updateNS-' . $clTRID);
                 $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
 	  <command>
 		<update>
 		  <domain:update
-		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
 			<domain:name>{{ name }}</domain:name>
 		{{ add }}
 		{{ rem }}
@@ -1314,14 +1330,16 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
 	  <command>
 		<update>
 		  <domain:update
-		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
 			<domain:name>{{ name }}</domain:name>
 	
 		{{ add }}
@@ -1374,15 +1392,17 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
 	<transfer op="request">
 	  <domain:transfer
-	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
 		<domain:name>{{ name }}</domain:name>
-		<domain:period unit="y">{{ years }}</domain:period>
 		<domain:authInfo>
 		  <domain:pw>{{ authInfoPw }}</domain:pw>
 		</domain:authInfo>
@@ -1534,14 +1554,13 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dns.pl/nask-eppschema/epp-2.1 epp-2.1.xsd">
   <command>
 	<info>
 	  <domain:info
-	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-	   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+	   xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+	   xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1 domain-2.1.xsd">
 		<domain:name hosts="all">{{ name }}</domain:name>
 	  </domain:info>
 	</info>
@@ -1563,18 +1582,29 @@ class PlEpp implements EppRegistryInterface
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
 	<renew>
 	  <domain:renew
-	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
 		<domain:name>{{ name }}</domain:name>
 		<domain:curExpDate>{{ expDate }}</domain:curExpDate>
 		<domain:period unit="y">{{ regperiod }}</domain:period>
 	  </domain:renew>
 	</renew>
+ <extension>
+ <extdom:renew
+ xmlns:extdom="http://www.dns.pl/nask-epp-schema/extdom-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/extdom-2.1
+ extdom-2.1.xsd">
+ <extdom:reactivate/>
+ </extdom:renew>
+ </extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -1623,13 +1653,16 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
 	<delete>
 	  <domain:delete
-	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
 		<domain:name>{{ name }}</domain:name>
 	  </domain:delete>
 	</delete>
@@ -1818,7 +1851,10 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-   <epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
      <command>
        <poll op="req"/>
        <clTRID>{{ clTRID }}</clTRID>
@@ -1872,7 +1908,10 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-   <epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
      <command>
        <poll op="ack" msgID="{{ message }}"/>
        <clTRID>{{ clTRID }}</clTRID>
