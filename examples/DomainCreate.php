@@ -26,8 +26,7 @@ try
            'tembo005' => 'tech',
            'tembo005' => 'billing'
         ), 
-        'authInfoPw' => 'Domainpw123@',
-        'ext' => ''
+        'authInfoPw' => 'Domainpw123@'
     );
     $domainCreate = $epp->domainCreate($params);
 
