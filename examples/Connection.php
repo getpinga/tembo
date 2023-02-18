@@ -11,16 +11,15 @@
  // Include the Composer autoloader
 require_once '../vendor/autoload.php';
 
-// Use the Epp class from your package
-use Pinga\Tembo\Epp;
-use Pinga\Tembo\EppClient;
-use Pinga\Tembo\HttpsClient;
+use Pinga\Tembo\EppRegistryFactory;
 
 function connectEpp(){
     try{
-        $epp = new EppClient();
+        $epp = EppRegistryFactory::create($registry);
         $info = array(
+            //For EPP-over-HTTPS,  'host' => 'https://registry.example.com/epp',
             'host' => 'epp.example.com',
+            //For EPP-over-HTTPS , port is usually 443
             'port' => 700,
             'timeout' => 30,
             'tls' => '1.3',
@@ -28,6 +27,7 @@ function connectEpp(){
             'bindip' => '1.2.3.4:0',
             'verify_peer' => false,
             'verify_peer_name' => false,
+            //For EPP-over-HTTPS , change false to 2
             'verify_host' => false,
             'cafile' => '',
             'local_cert' => '/root/epp/cert.pem',
@@ -40,9 +40,8 @@ function connectEpp(){
             'clID' => 'testregistrar1',
             'pw' => 'testpassword1',
             'prefix' => 'tembo',
-            'ext' => ''
         ));
-		echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
+	echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
         return $epp;
     }catch(EppException $e){
         return "Error : ".$e->getMessage();
