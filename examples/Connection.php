@@ -13,7 +13,7 @@ require_once '../vendor/autoload.php';
 
 use Pinga\Tembo\EppRegistryFactory;
 
-function connectEpp(){
+function connectEpp(string $registry) {
     try{
         $epp = EppRegistryFactory::create($registry);
         $info = array(
