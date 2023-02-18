@@ -1804,10 +1804,10 @@ class SeEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $messages = (int)$r->response->msgQ->attributes()->count;
-            $last_id = (int)$r->response->msgQ->attributes()->id;
-            $qDate = (string)$r->response->msgQ->qDate;
-            $last_msg = (string)$r->response->msgQ->msg;
+	    $messages = (int)($r->response->msgQ->attributes()->count ?? 0);
+	    $last_id = (int)($r->response->msgQ->attributes()->id ?? 0);
+	    $qDate = (string)($r->response->msgQ->qDate ?? '');
+	    $last_msg = (string)($r->response->msgQ->msg ?? '');
 
             $return = array(
                 'code' => $code,
