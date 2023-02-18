@@ -97,7 +97,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | CORE/Knipp | all | | ✅ |  |
 | DENIC | .de | | ✅ | some functions need to be added |
 | Domicilium | .im | | ✅ | small parsing fixes needed |
-| DOMREG | .lt | domreg | 🚧 | work on extensions |
+| DOMREG | .lt | LT | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | GR | ✅ | work on transfers |
 | FRED | .cz/any | FRED | ✅ | domain update |
 | GoDaddy Registry | all | | ✅ | |
