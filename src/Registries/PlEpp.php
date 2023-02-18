@@ -593,7 +593,7 @@ class PlEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->chkData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/contact-2.1')->chkData;
 
             $i = 0;
             foreach ($r->cd as $cd) {
@@ -663,7 +663,7 @@ class PlEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->infData[0];
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/contact-2.1')->infData[0];
 
             foreach ($r->postalInfo as $e) {
                 $name = (string)$e->name;
@@ -1114,7 +1114,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->infData;
             $name = (string)$r->name;
             $roid = (string)$r->roid;
             $status = array();
@@ -1201,14 +1201,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dns.pl/nask-eppschema/epp-2.1 epp-2.1.xsd">
 	  <command>
 		<info>
 		  <domain:info
-		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+       xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+       xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1 domain-2.1.xsd">
 			<domain:name hosts="all">{{ name }}</domain:name>
 		  </domain:info>
 		</info>
@@ -1216,7 +1215,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
 	  </command>
 	</epp>');
             $r = $this->writeRequest($xml);
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->infData;
             $add = $rem = array();
             $i = 0;
             foreach ($r->ns->hostObj as $ns) {
@@ -1568,7 +1567,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->infData;
             $expDate = (string)$r->exDate;
             $expDate = preg_replace("/^(\d+\-\d+\-\d+)\D.*$/", "$1", $expDate);
             $from = $to = array();
@@ -1611,7 +1610,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->renData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->renData;
             $name = (string)$r->name;
             $exDate = (string)$r->exDate;
 
