@@ -304,19 +304,21 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-	<check>
-	  <host:check
-		xmlns:host="urn:ietf:params:xml:ns:host-1.0"
-		xsi:schemaLocation="urn:ietf:params:xml:ns:host-1.0 host-1.0.xsd">
-		<host:name>{{ name }}</host:name>
-	  </host:check>
-	</check>
-	<clTRID>{{ clTRID }}</clTRID>
-  </command>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+ <command>
+ <check>
+ <host:check
+ xmlns:host="http://www.dns.pl/nask-epp-schema/host-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/host-2.1
+ host-2.1.xsd">
+ <host:name>{{ name }}</host:name>
+ </host:check>
+ </check>
+ <clTRID>{{ clTRID }}</clTRID>
+ </command>
 </epp>');
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
@@ -454,13 +456,16 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
   <command>
 	<create>
 	  <host:create
-	   xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+ xmlns:host="http://www.dns.pl/nask-epp-schema/host-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/host-2.1
+ host-2.1.xsd">
 		<host:name>{{ name }}</host:name>
 		<host:addr ip="{{ v }}">{{ ip }}</host:addr>
 	  </host:create>
@@ -563,20 +568,22 @@ class PlEpp implements EppRegistryInterface
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-	<check>
-	  <contact:check
-		xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
-		xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
-		<contact:id>{{ id }}</contact:id>
-	  </contact:check>
-	</check>
-	<clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+ <command>
+ <check>
+ <contact:check
+ xmlns:contact="http://www.dns.pl/nask-epp-schema/contact-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/contact-2.1
+ contact-2.1.xsd">
+ <contact:id>{{ id }}</contact:id>
+ </contact:check>
+ </check>
+ <clTRID>{{ clTRID }}</clTRID>
+ </command>
+ </epp>');
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
