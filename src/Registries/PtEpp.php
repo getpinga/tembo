@@ -1392,6 +1392,12 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptcontact-1.0 ptcontact-1.0.xsd
 		</domain:authInfo>
 	  </domain:transfer>
 	</transfer>
+	<extension>
+	  <ptdomain:transfer xmlns:ptdomain="http://eppdev.dns.pt/schemas/ptdomain-1.0"
+xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptdomain-1.0 ptdomain-1.0.xsd">
+		<ptdomain:autoRenew>1</ptdomain:autoRenew>
+	  </ptdomain:transfer>
+	</extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -1459,12 +1465,8 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptcontact-1.0 ptcontact-1.0.xsd
             }
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
-            $text = '';
-            foreach ($params['contacts'] as $id => $contactType) {
-                $text .= '<domain:contact type="' . $contactType . '">' . $id . '</domain:contact>' . "\n";
-            }
-            $from[] = '/{{ contacts }}/';
-            $to[] = $text;
+            $from[] = '/{{ tech }}/';
+            $to[] = htmlspecialchars($params['tech']);
             $from[] = '/{{ authInfoPw }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ clTRID }}/';
@@ -1486,12 +1488,20 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptcontact-1.0 ptcontact-1.0.xsd
           {{ hostObjs }}
         </domain:ns>
         <domain:registrant>{{ registrant }}</domain:registrant>
-        {{ contacts }}
+        <domain:contact type="tech">{{ tech }}</domain:contact>
         <domain:authInfo>
           <domain:pw>{{ authInfoPw }}</domain:pw>
         </domain:authInfo>
       </domain:create>
     </create>
+    <extension>
+      <ptdomain:create xmlns:ptdomain="http://eppdev.dns.pt/schemas/ptdomain-1.0"
+xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptdomain-1.0 ptdomain-1.0.xsd">
+        <ptdomain:autoRenew>true</ptdomain:autoRenew>
+        <ptdomain:Arbitration>true</ptdomain:Arbitration>
+        <ptdomain:ownerConf>false</ptdomain:ownerConf>
+      </ptdomain:create>
+    </extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -1583,6 +1593,13 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptcontact-1.0 ptcontact-1.0.xsd
 		<domain:period unit="y">{{ regperiod }}</domain:period>
 	  </domain:renew>
 	</renew>
+	<extension>
+	  <ptdomain:renew
+xmlns:ptdomain="http://eppdev.dns.pt/schemas/ptdomain-1.0"
+xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptdomain-1.0 ptdomain-1.0.xsd">
+	    <ptdomain:autoRenew>1</ptdomain:autoRenew>
+	  </ptdomain:renew>
+	</extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
