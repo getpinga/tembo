@@ -75,6 +75,10 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | rgp:restore | ✅ | N/A | N/A | |
 | rgp:report | ✅ | N/A | N/A | |
 | transferRequest | ✅ | ❌ | ❌ | |
+| transferQuery | 🚧 | ❌ | ❌ | |
+| transferApprove | 🚧 | ❌ | ❌ | |
+| transferReject | 🚧 | ❌ | ❌ | |
+| transferCancel | 🚧 | ❌ | ❌ | |
 
 ## Supported Connection Types
 
