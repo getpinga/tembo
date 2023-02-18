@@ -13,7 +13,7 @@ require_once '../vendor/autoload.php';
 
 use Pinga\Tembo\EppRegistryFactory;
 
-function connectEppDB($registry){
+function connectEpp(string $registry) {
     try {
         $pdo = new PDO('mysql:host=localhost;dbname=mydatabase', 'username', 'password');
         $stmt = $pdo->prepare("SELECT local_cert, local_pk, passphrase FROM epp_credentials WHERE id = :id");
