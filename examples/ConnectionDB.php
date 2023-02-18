@@ -20,7 +20,7 @@ function connectEppDB($registry){
         $stmt->execute(array('id' => 1));
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		$epp = EppRegistryFactory::create($registry);
+        $epp = EppRegistryFactory::create($registry);
         $info = array(
             'host' => 'epp.example.com',
             'port' => 700,
@@ -42,9 +42,8 @@ function connectEppDB($registry){
             'clID' => 'testregistrar1',
             'pw' => 'testpassword1',
             'prefix' => 'tembo',
-            'ext' => ''
         ));
-		echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
+	echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
         return $epp;
     }catch(EppException $e){
         return "Error : ".$e->getMessage();
