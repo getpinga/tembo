@@ -90,7 +90,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
-| AFNIC | .fr/others | afnic | 🚧 | work on extensions |
+| AFNIC | .fr/others | FR | 🚧 | work on extensions |
 | Caucasus Online | .ge | | ✅ |  |
 | CentralNic | all | | ✅ |  |
 | CoCCA | all | | ✅ |  |
@@ -98,23 +98,23 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | DENIC | .de | | ✅ | some functions need to be added |
 | Domicilium | .im | | ✅ | small parsing fixes needed |
 | DOMREG | .lt | domreg | 🚧 | work on extensions |
-| FORTH-ICS | .gr, .ελ | forth | ✅ | work on transfers |
-| FRED | .cz/any | fred | ✅ | domain update |
+| FORTH-ICS | .gr, .ελ | GR | ✅ | work on transfers |
+| FRED | .cz/any | FRED | ✅ | domain update |
 | GoDaddy Registry | all | | ✅ | |
 | Google Nomulus | all | | ✅ | small parsing fixes needed |
-| Hostmaster | .ua | ua | ✅ | |
+| Hostmaster | .ua | UA | ✅ | |
 | Identity Digital | all | | ✅ | |
-| IIS | .se, .nu | iis.se | ✅ | transfer and domain contact update |
+| IIS | .se, .nu | SE | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | test all commands |
-| NASK | .pl | nask | ✅ | test all commands |
+| NASK | .pl | PL | ✅ | test all commands |
 | NIC Chile | .cl | | 🚧 | further work needed |
-| NORID | .no | norid | ✅ | transfer and update need testing |
-| .PT | .pt | pt | 🚧 | work on extensions |
+| NORID | .no | NO | ✅ | transfer and update need testing |
+| .PT | .pt | PT | 🚧 | work on extensions |
 | Registr.io | all | | ✅ | |
-| Registro.it | .it | it | 🚧 | work on extensions |
+| Registro.it | .it | IT | 🚧 | work on extensions |
 | RoTLD | .ro | | ✅ | commands need further tests |
 | RyCE | all | | ✅ | commands need further tests |
 | SIDN | all | | ✅ | commands need further tests |
-| Verisign | all | verisign | 🚧 | work on extensions |
+| Verisign | all | VRSN | 🚧 | work on extensions |
 | ZADNA | .za |  | ✅ | test all commands |
 | ZDNS | all |  | ✅ | |
