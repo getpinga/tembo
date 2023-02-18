@@ -11,19 +11,16 @@
  // Include the Composer autoloader
 require_once '../vendor/autoload.php';
 
-// Use the Epp class from your package
-use Pinga\Tembo\Epp;
-use Pinga\Tembo\EppClient;
-use Pinga\Tembo\HttpsClient;
+use Pinga\Tembo\EppRegistryFactory;
 
-function connectEppDB(){
+function connectEppDB($registry){
     try {
         $pdo = new PDO('mysql:host=localhost;dbname=mydatabase', 'username', 'password');
         $stmt = $pdo->prepare("SELECT local_cert, local_pk, passphrase FROM epp_credentials WHERE id = :id");
         $stmt->execute(array('id' => 1));
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $epp = new EppClient();
+		$epp = EppRegistryFactory::create($registry);
         $info = array(
             'host' => 'epp.example.com',
             'port' => 700,

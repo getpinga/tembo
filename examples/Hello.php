@@ -12,14 +12,9 @@
 require_once '../vendor/autoload.php';
 require_once 'Connection.php';
 
-// Use the Epp class from your package
-use Pinga\Tembo\Epp;
-use Pinga\Tembo\EppClient;
-use Pinga\Tembo\HttpsClient;
-
 try
 {
-    $epp = connectEpp();
+	$epp = connectEpp('generic');
 
     $hello = $epp->hello();
     echo 'Hello Result: ' . PHP_EOL . $hello . PHP_EOL;

@@ -12,14 +12,9 @@
 require_once '../vendor/autoload.php';
 require_once 'Connection.php';
 
-// Use the Epp class from your package
-use Pinga\Tembo\Epp;
-use Pinga\Tembo\EppClient;
-use Pinga\Tembo\HttpsClient;
-
 try
 {
-    $epp = connectEpp();
+	$epp = connectEpp('generic');
 
     $params = array(
         'contact' => 'tembo001'
