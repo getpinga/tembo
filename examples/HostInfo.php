@@ -14,7 +14,8 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $registry = 'generic';
+    $epp = connectEpp($registry);
 
     $params = array(
         'hostname' => 'ns1.example.com'
@@ -27,7 +28,7 @@ try
     }
     else
     {
-		if ($params['ext'] == 'fred') {
+		if ($registry == 'fred') {
 		echo 'HostInfo Result: ' . $hostInfo['code'] . ': ' . $hostInfo['msg'] . PHP_EOL;
 		echo 'Name: ' . $hostInfo['name'] . PHP_EOL;
 		echo 'Status ';
