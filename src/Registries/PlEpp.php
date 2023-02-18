@@ -323,7 +323,7 @@ class PlEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->chkData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/host-2.1')->chkData;
 
             $i = 0;
             foreach ($r->cd as $cd) {
@@ -389,7 +389,7 @@ class PlEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->infData[0];
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/host-2.1')->infData[0];
             $name = (string)$r->name;
             $addr = array();
             foreach ($r->addr as $ns) {
@@ -479,7 +479,7 @@ class PlEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:host-1.0')->creData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/host-2.1')->creData;
             $name = (string)$r->name;
 
             $return = array(
@@ -829,7 +829,7 @@ class PlEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->creData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/contact-2.1')->creData;
             $id = (string)$r->id;
 
             $return = array(
@@ -1413,7 +1413,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->trnData;
             $name = (string)$r->name;
             $trStatus = (string)$r->trStatus;
             $reID = (string)$r->reID;
@@ -1509,7 +1509,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->creData;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->creData;
             $name = (string)$r->name;
             $crDate = (string)$r->crDate;
             $exDate = (string)$r->exDate;
