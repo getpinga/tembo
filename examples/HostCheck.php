@@ -14,7 +14,8 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $registry = 'generic';
+    $epp = connectEpp($registry);
 
     $params = array(
         'hostname' => 'ns351.blah.bg'
@@ -27,7 +28,7 @@ try
     }
     else
     {
-		if ($params['ext'] == 'fred') {
+		if ($registry == 'fred') {
 		echo "HostCheck result: " . $hostCheck['code'] . ": " . $hostCheck['msg'] . PHP_EOL;
 		$x=1;
 		foreach ($hostCheck['hosts'] as $host)
