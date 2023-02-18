@@ -39,7 +39,7 @@ function connectEpp(){
         $login = $epp->login(array(
             'clID' => 'testregistrar1',
             'pw' => 'testpassword1',
-            'prefix' => 'tembo',
+            'prefix' => 'tembo'
         ));
 	echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
         return $epp;
