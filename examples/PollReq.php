@@ -17,10 +17,14 @@ try
 	$epp = connectEpp('generic');
 
     $pollReq = $epp->pollReq();
-    echo 'Messages in Poll: ' . $pollReq['messages'] . PHP_EOL;
-    echo 'Last message ID: ' . $pollReq['last_id'] . PHP_EOL;
-    echo 'Last message date: ' . $pollReq['qDate'] . PHP_EOL;
-    echo 'Last message content: ' . $pollReq['last_msg'] . PHP_EOL;
+    if ($pollReq['messages'] == 0) {
+        echo 'No messages in poll queue' . PHP_EOL;
+    } else {
+		echo 'Messages in Poll: ' . $pollReq['messages'] . PHP_EOL;
+		echo 'Last message ID: ' . $pollReq['last_id'] . PHP_EOL;
+		echo 'Last message date: ' . $pollReq['qDate'] . PHP_EOL;
+		echo 'Last message content: ' . $pollReq['last_msg'] . PHP_EOL;
+	}
 	
     $logout = $epp->logout();
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
