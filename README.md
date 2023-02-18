@@ -106,7 +106,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Identity Digital | all | | ✅ | |
 | IIS | .se, .nu | SE | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | more tests |
-| NASK | .pl | PL | ✅ | more tests |
+| NASK | .pl | PL | ✅ | |
 | NIC Chile | .cl | | 🚧 | further work needed |
 | NORID | .no | NO | ✅ | transfer and update need testing |
 | .PT | .pt | PT | ✅ | more tests |
