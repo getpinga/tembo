@@ -109,7 +109,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | NASK | .pl | PL | ✅ | more tests |
 | NIC Chile | .cl | | 🚧 | further work needed |
 | NORID | .no | NO | ✅ | transfer and update need testing |
-| .PT | .pt | PT | ✅ | work on extensions |
+| .PT | .pt | PT | ✅ | more tests |
 | Registr.io | all | | ✅ | |
 | Registro.it | .it | IT | 🚧 | work on extensions |
 | RoTLD | .ro | | ✅ | more tests |
