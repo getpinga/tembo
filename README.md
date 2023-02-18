@@ -105,16 +105,16 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Hostmaster | .ua | UA | ✅ | |
 | Identity Digital | all | | ✅ | |
 | IIS | .se, .nu | SE | ✅ | transfer and domain contact update |
-| HKIRC | .hk | | ✅ | test all commands |
-| NASK | .pl | PL | ✅ | test all commands |
+| HKIRC | .hk | | ✅ | more tests |
+| NASK | .pl | PL | ✅ | more tests |
 | NIC Chile | .cl | | 🚧 | further work needed |
 | NORID | .no | NO | ✅ | transfer and update need testing |
-| .PT | .pt | PT | 🚧 | work on extensions |
+| .PT | .pt | PT | ✅ | work on extensions |
 | Registr.io | all | | ✅ | |
 | Registro.it | .it | IT | 🚧 | work on extensions |
-| RoTLD | .ro | | ✅ | commands need further tests |
-| RyCE | all | | ✅ | commands need further tests |
-| SIDN | all | | ✅ | commands need further tests |
+| RoTLD | .ro | | ✅ | more tests |
+| RyCE | all | | ✅ | more tests |
+| SIDN | all | | ✅ | more tests |
 | Verisign | all | VRSN | 🚧 | work on extensions |
-| ZADNA | .za |  | ✅ | test all commands |
+| ZADNA | .za |  | ✅ | more tests |
 | ZDNS | all |  | ✅ | |
