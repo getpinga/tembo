@@ -18,8 +18,7 @@ try
 	
     $params = array(
         'hostname' => 'ns1.example.com',
-        'v' => 'v4',
-        'ip' => '8.8.8.8'
+        'ipaddress' => '8.8.8.8'
     );
     $hostCreate = $epp->hostCreate($params);
 
