@@ -72,13 +72,13 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | updateDNSSEC | 🚧 | N/A | N/A | |
 | renew | ✅ | N/A | N/A | |
 | delete | ✅ | ✅ | ✅ |  |
-| rgp:restore | ✅ | N/A | N/A | |
-| rgp:report | ✅ | N/A | N/A | |
 | transferRequest | ✅ | ❌ | ❌ | |
 | transferQuery | ✅ | ❌ | ❌ | |
 | transferApprove | ✅ | ❌ | ❌ | |
 | transferReject | ✅ | ❌ | ❌ | |
 | transferCancel | ✅ | ❌ | ❌ | |
+| rgp:restore | ✅ | N/A | N/A | |
+| rgp:report | ✅ | N/A | N/A | |
 
 ## Supported Connection Types
 
