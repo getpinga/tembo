@@ -1381,36 +1381,65 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ years }}/';
-            $to[] = (int)($params['years']);
-            $from[] = '/{{ authInfoPw }}/';
-            $to[] = htmlspecialchars($params['authInfoPw']);
+			switch (htmlspecialchars($params['op'])) {
+				case 'request':
+					$from[] = '/{{ years }}/';
+					$to[] = (int)($params['years']);
+					$from[] = '/{{ authInfoPw }}/';
+					$to[] = htmlspecialchars($params['authInfoPw']);
+					$xmltype = 'req';
+					break;
+				case 'query':
+					$from[] = '/{{ type }}/';
+					$to[] = 'query';
+					$xmltype = 'oth';
+					break;
+				case 'cancel':
+					$from[] = '/{{ type }}/';
+					$to[] = 'cancel';
+					$xmltype = 'oth';
+					break;
+				case 'reject':
+					$from[] = '/{{ type }}/';
+					$to[] = 'reject';
+					$xmltype = 'oth';
+					break;
+				case 'approve':
+					$xmltype = 'apr';
+					break;
+				default:
+					throw new EppException('Invalid value for transfer:op specified.');
+					break;
+			}
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+			if ($xmltype === 'req') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
  epp-2.1.xsd">
   <command>
-	<transfer op="request">
-	  <domain:transfer
+				<transfer op="request">
+				  <domain:transfer
  xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
  xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
  domain-2.1.xsd">
-		<domain:name>{{ name }}</domain:name>
-		<domain:authInfo>
-		  <domain:pw>{{ authInfoPw }}</domain:pw>
-		</domain:authInfo>
-	  </domain:transfer>
-	</transfer>
-	<clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
+					<domain:name>{{ name }}</domain:name>
+					<domain:period unit="y">{{ years }}</domain:period>
+					<domain:authInfo>
+					  <domain:pw>{{ authInfoPw }}</domain:pw>
+					</domain:authInfo>
+				  </domain:transfer>
+				</transfer>
+				<clTRID>{{ clTRID }}</clTRID>
+			  </command>
+			</epp>');
+			
+			$r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
             $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->trnData;
@@ -1433,6 +1462,73 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
                 'acDate' => $acDate,
                 'exDate' => $exDate
             );
+			
+			} else if ($xmltype === 'apr') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+				<transfer op="approve">
+				  <domain:transfer
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
+					<domain:name>{{ name }}</domain:name>
+				  </domain:transfer>
+				</transfer>
+				<clTRID>{{ clTRID }}</clTRID>
+			  </command>
+			</epp>');
+			
+	    $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('http://www.dns.pl/nask-epp-schema/domain-2.1')->Data;
+            $name = (string)$r->name;
+            $trStatus = (string)$r->trStatus;
+            $reID = (string)$r->reID;
+            $reDate = (string)$r->reDate;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'trStatus' => $trStatus,
+                'reID' => $reID,
+                'reDate' => $reDate
+            );
+			
+			} else if ($xmltype === 'oth') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="http://www.dns.pl/nask-epp-schema/epp-2.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
+ epp-2.1.xsd">
+  <command>
+				<transfer op="{{ type }}">
+				  <domain:transfer
+ xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
+ xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
+ domain-2.1.xsd">
+					<domain:name>{{ name }}</domain:name>
+				  </domain:transfer>
+				</transfer>
+				<clTRID>{{ clTRID }}</clTRID>
+			  </command>
+			</epp>');
+			
+	    $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+			
+			} 
         } catch (\Exception $e) {
             $return = array(
                 'error' => $e->getMessage()
