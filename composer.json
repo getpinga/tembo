@@ -9,9 +9,10 @@
             "email": "tk@gepinga.com"
         }
     ],
-    "require": {
-        "php": "^8.1"
-    },
+"require": {
+    "php": "^8.1",
+    "ext-xml": "*"
+},
     "autoload": {
         "psr-4": {
             "Pinga\\Tembo\\": "src/",
