@@ -122,3 +122,22 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Verisign | all | VRSN | 🚧 | work on extensions |
 | ZADNA | .za |  | ✅ | more tests |
 | ZDNS | all |  | ✅ | |
+
+## Integration with billing systems
+
+Would you like to see any registry added as a WHMCS/FOSSBilling module? Or an EPP module for any other billing system? Simply create an [issue](https://github.com/getpinga/tembo/issues) in this project and let us know.
+
+### WHMCS
+
+| Registry | TLDs | Status | Project |
+|----------|----------|----------|----------|
+| Generic RFC EPP | any | ✅ | [whmcs-epp-rfc](https://github.com/getpinga/whmcs-epp-rfc) |
+| Hostmaster | .ua | ✅ | [whmcs-epp-ua](https://github.com/getpinga/whmcs-epp-ua) |
+
+### FOSSBilling
+
+| Registry | TLDs | Status | Project |
+|----------|----------|----------|----------|
+| Generic RFC EPP | any | ✅ | [fossbilling-epp-rfc](https://github.com/getpinga/fossbilling-epp-rfc) |
+| Hostmaster | .ua | ✅ | [fossbilling-epp-ua](https://github.com/getpinga/fossbilling-epp-ua) |
+| FRED | .cz/any | ✅ | [fossbilling-epp-fred](https://github.com/getpinga/fossbilling-epp-fred) |
