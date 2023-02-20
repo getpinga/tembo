@@ -445,10 +445,10 @@ class PtEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['hostname']);
-            $from[] = '/{{ v }}/';
-            $to[] = htmlspecialchars($params['v']);
-            $from[] = '/{{ ip }}/';
-            $to[] = htmlspecialchars($params['ip']);
+			$from[] = '/{{ ip }}/';
+			$to[] = htmlspecialchars($params['ipaddress']);
+			$from[] = '/{{ v }}/';
+			$to[] = (preg_match('/:/', $params['ipaddress']) ? 'v6' : 'v4');
             if (!empty($params['contact'])) {
                 $from[] = '/{{ contact }}/';
                 $to[] = htmlspecialchars($params['contact']);
@@ -483,6 +483,71 @@ class PtEpp implements EppRegistryInterface
                 'code' => $code,
                 'msg' => $msg,
                 'name' => $name
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * hostUpdate
+     */
+    public function hostUpdate($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+			$from[] = '/{{ name }}/';
+			$to[] = htmlspecialchars($params['hostname']);
+			$from[] = '/{{ ip1 }}/';
+			$to[] = htmlspecialchars($params['currentipaddress']);
+			$from[] = '/{{ v1 }}/';
+			$to[] = (preg_match('/:/', $params['currentipaddress']) ? 'v6' : 'v4');
+			$from[] = '/{{ ip2 }}/';
+			$to[] = htmlspecialchars($params['newipaddress']);
+			$from[] = '/{{ v2 }}/';
+			$to[] = (preg_match('/:/', $params['newipaddress']) ? 'v6' : 'v4');
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-host-update-' . $clTRID);
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+	<update>
+	  <host:update
+	   xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+		<host:name>{{ name }}</host:name>
+		<host:add>
+		  <host:addr ip="{{ v2 }}">{{ ip2 }}</host:addr>
+		</host:add>
+		<host:rem>
+		  <host:addr ip="{{ v1 }}">{{ ip1 }}</host:addr>
+		</host:rem>
+	  </host:update>
+	</update>
+	<clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
             );
         } catch (\Exception $e) {
             $return = array(
