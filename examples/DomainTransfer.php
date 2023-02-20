@@ -19,7 +19,8 @@ try
     $params = array(
          'domainname' => 'example1.com',
          'years' => 1,
-         'authInfoPw' => 'domainpw123@'
+         'authInfoPw' => 'Domainpw123@',
+         'op' => 'request'
     );
     $domainTransfer = $epp->domainTransfer($params);
 	
