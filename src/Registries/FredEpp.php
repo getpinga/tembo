@@ -180,7 +180,6 @@ class FredEpp implements EppRegistryInterface
         <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
         <svcExtension>
           <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
-		  {{ extensions }}
         </svcExtension>
       </svcs>
     </login>
