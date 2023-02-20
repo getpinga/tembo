@@ -630,9 +630,6 @@ class NoEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ id }}/';
             $to[] = htmlspecialchars($params['contact']);
-            $from[] = '/{{ authInfo }}/';
-            $authInfo = (isset($params['authInfoPw']) ? "<contact:authInfo>\n<contact:pw><![CDATA[{$params['authInfoPw']}]]></contact:pw>\n</contact:authInfo>" : '');
-            $to[] = $authInfo;
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-info-' . $microtime);
@@ -647,7 +644,6 @@ class NoEpp implements EppRegistryInterface
 	  <contact:info
 	   xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
 		<contact:id>{{ id }}</contact:id>
-        {{ authInfo }}
 	  </contact:info>
 	</info>
 	<clTRID>{{ clTRID }}</clTRID>
@@ -930,7 +926,7 @@ class NoEpp implements EppRegistryInterface
 	  <contact:update xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
 		<contact:id>{{ id }}</contact:id>
 		<contact:chg>
-		  <contact:postalInfo type="{{ type }}">
+		  <contact:postalInfo type="loc">
 			<contact:name>{{ name }}</contact:name>
 			<contact:org>{{ org }}</contact:org>
 			<contact:addr>
@@ -1398,6 +1394,10 @@ class NoEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['domainname']);
             $from[] = '/{{ years }}/';
             $to[] = (int)($params['years']);
+            $from[] = '/{{ trans_pers }}/';
+            $to[] = htmlspecialchars($params['trans_pers']);
+            $from[] = '/{{ trans_date }}/';
+            $to[] = htmlspecialchars($params['trans_date']);
             $from[] = '/{{ authInfoPw }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ clTRID }}/';
@@ -1420,6 +1420,15 @@ class NoEpp implements EppRegistryInterface
 		</domain:authInfo>
 	  </domain:transfer>
 	</transfer>
+        <extension>
+            <no-ext-domain:create xmlns:no-ext-domain="http://www.norid.no/xsd/no-ext-domain-1.1" xsi:schemaLocation="http://www.norid.no/xsd/no-ext-domain-1.1 no-ext-domain-1.1.xsd">
+                <no-ext-domain:applicantDataset>
+                    <no-ext-domain:versionNumber>2.0</no-ext-domain:versionNumber>
+                    <no-ext-domain:acceptName>{{ trans_pers }}</no-ext-domain:acceptName>
+                    <no-ext-domain:acceptDate>{{ trans_date }}</no-ext-domain:acceptDate>
+                </no-ext-domain:applicantDataset>
+            </no-ext-domain:create>
+        </extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
