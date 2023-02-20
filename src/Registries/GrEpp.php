@@ -1753,6 +1753,8 @@ class GrEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ password }}/';
+            $to[] = htmlspecialchars($params['password']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-delete-' . $clTRID);
@@ -1769,6 +1771,12 @@ class GrEpp implements EppRegistryInterface
 		<domain:name>{{ name }}</domain:name>
 	  </domain:delete>
 	</delete>
+<extension>
+<extdomain:delete xmlns:extdomain="urn:ics-forth:params:xml:ns:extdomain-1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:ics-forth:params:xml:ns:extdomain-1.2 extdomain-1.2.xsd">
+<extdomain:pw>{{ password }}</extdomain:pw>
+<extdomain:op>deleteDomain</extdomain:op>
+</extdomain:delete>
+</extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -1801,50 +1809,7 @@ class GrEpp implements EppRegistryInterface
             );
         }
 
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ name }}/';
-            $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ clTRID }}/';
-            $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-restore-' . $clTRID);
-            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
-            $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-   <update>
-	 <domain:update xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
-	   <domain:name>{{ name }}</domain:name>
-	   <domain:chg/>
-	 </domain:update>
-   </update>
-   <extension>
-	 <rgp:update xmlns:rgp="urn:ietf:params:xml:ns:rgp-1.0">
-	   <rgp:restore op="request"/>
-	 </rgp:update>
-   </extension>
-	<clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $return;
+throw new EppException("RGP extension not supported!");
     }
 
     /**
@@ -1859,78 +1824,7 @@ class GrEpp implements EppRegistryInterface
             );
         }
 
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ name }}/';
-            $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ clTRID }}/';
-            $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-report-' . $clTRID);
-            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
-            $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-   <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0
-		epp-1.0.xsd">
-	 <command>
-	   <update>
-		 <domain:update
-		  xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-		  xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0
-		  domain-1.0.xsd">
-		   <domain:name>{{ name }}</domain:name>
-		   <domain:chg/>
-		 </domain:update>
-	   </update>
-	   <extension>
-		 <rgp:update xmlns:rgp="urn:ietf:params:xml:ns:rgp-1.0"
-		  xsi:schemaLocation="urn:ietf:params:xml:ns:rgp-1.0
-		  rgp-1.0.xsd">
-		   <rgp:restore op="report">
-			 <rgp:report>
-			   <rgp:preData>Pre-delete registration data goes here.
-			   Both XML and free text are allowed.</rgp:preData>
-			   <rgp:postData>Post-restore registration data goes here.
-			   Both XML and free text are allowed.</rgp:postData>
-			   <rgp:delTime>2019-10-10T22:00:00.0Z</rgp:delTime>
-			   <rgp:resTime>2019-10-20T22:00:00.0Z</rgp:resTime>
-			   <rgp:resReason>Registrant error.</rgp:resReason>
-			   <rgp:statement>This registrar has not restored the
-			   Registered Name in order to assume the rights to use
-			   or sell the Registered Name for itself or for any
-			   third party.</rgp:statement>
-			   <rgp:statement>The information in this report is
-			   true to best of this registrars knowledge, and this
-			   registrar acknowledges that intentionally supplying
-			   false information in this report shall constitute an
-			   incurable material breach of the
-			   Registry-Registrar Agreement.</rgp:statement>
-			   <rgp:other>Supporting information goes
-			   here.</rgp:other>
-			 </rgp:report>
-		   </rgp:restore>
-		 </rgp:update>
-	   </extension>
-	<clTRID>{{ clTRID }}</clTRID>
-	 </command>
-   </epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $return;
+ throw new EppException("RGP extension not supported!");
     }
 
     /**
