@@ -112,7 +112,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | HKIRC | .hk | | ✅ | more tests |
 | NASK | .pl | PL | ✅ | |
 | NIC Chile | .cl | | 🚧 | further work needed |
-| NORID | .no | NO | ✅ | transfer and update need testing |
+| NORID | .no | NO | ✅ | |
 | .PT | .pt | PT | ✅ | more tests |
 | Registr.io | all | | ✅ | |
 | Registro.it | .it | IT | 🚧 | work on extensions |
