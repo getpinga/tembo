@@ -446,18 +446,12 @@ class FredEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['hostname']);
-            $from[] = '/{{ v }}/';
-            $to[] = htmlspecialchars($params['v']);
-            $from[] = '/{{ ip }}/';
-            $to[] = htmlspecialchars($params['ip']);
-            if (!empty($params['contact'])) {
-                $from[] = '/{{ contact }}/';
-                $to[] = htmlspecialchars($params['contact']);
-            }
+			$from[] = '/{{ ip }}/';
+			$to[] = htmlspecialchars($params['ipaddress']);
             $from[] = '/{{ name2 }}/';
             $to[] = htmlspecialchars($params['hostname2']);
             $from[] = '/{{ ip2 }}/';
-            $to[] = htmlspecialchars($params['ip2']);
+            $to[] = htmlspecialchars($params['ipaddress2']);
             $from[] = '/{{ nsid }}/';
             $to[] = htmlspecialchars($params['nsid']);
             $from[] = '/{{ nstech }}/';
@@ -501,6 +495,81 @@ class FredEpp implements EppRegistryInterface
                 'code' => $code,
                 'msg' => $msg,
                 'name' => $name
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * hostUpdate
+     */
+    public function hostUpdate($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+			$from[] = '/{{ newname }}/';
+			$to[] = htmlspecialchars($params['newhostname']);
+			$from[] = '/{{ oldname }}/';
+			$to[] = htmlspecialchars($params['oldhostname']);
+			$from[] = '/{{ ip2 }}/';
+			$to[] = htmlspecialchars($params['newipaddress']);
+            $from[] = '/{{ nsid }}/';
+            $to[] = htmlspecialchars($params['nsid']);
+            $from[] = '/{{ nstech_new }}/';
+            $to[] = htmlspecialchars($params['nstech_new']);
+            $from[] = '/{{ nstech_old }}/';
+            $to[] = htmlspecialchars($params['nstech_old']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-host-update-' . $clTRID);
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+<command>
+   <update>
+      <nsset:update xmlns:nsset="http://www.nic.cz/xml/epp/nsset-1.2"
+       xsi:schemaLocation="http://www.nic.cz/xml/epp/nsset-1.2 nsset-1.2.2.xsd">
+         <nsset:id>{{ nsid }}</nsset:id>
+         <nsset:add>
+            <nsset:ns>
+               <nsset:name>{{ newname }}</nsset:name>
+               <nsset:addr>{{ ip2 }}</nsset:addr>
+            </nsset:ns>
+            <nsset:tech>{{ nstech_new }}</nsset:tech>
+         </nsset:add>
+         <nsset:rem>
+            <nsset:name>{{ oldname }}</nsset:name>
+            <nsset:tech>{{ nstech_old }}</nsset:tech>
+         </nsset:rem>
+         <nsset:chg>
+            <nsset:reportlevel>4</nsset:reportlevel>
+         </nsset:chg>
+      </nsset:update>
+   </update>
+   <clTRID>{{ clTRID }}</clTRID>
+</command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
             );
         } catch (\Exception $e) {
             $return = array(
