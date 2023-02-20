@@ -1333,40 +1333,71 @@ class GrEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ years }}/';
-            $to[] = (int)($params['years']);
-            $from[] = '/{{ authInfoPw }}/';
-            $to[] = htmlspecialchars($params['authInfoPw']);
+			switch (htmlspecialchars($params['op'])) {
+				case 'request':
+					$from[] = '/{{ years }}/';
+					$to[] = (int)($params['years']);
+					$from[] = '/{{ authInfoPw }}/';
+					$to[] = htmlspecialchars($params['authInfoPw']);
+					$from[] = '/{{ registrant }}/';
+					$to[] = htmlspecialchars($params['registrant']);
+					$from[] = '/{{ new_authInfoPw }}/';
+					$to[] = htmlspecialchars($params['new_authInfoPw']);
+					$xmltype = 'req';
+					break;
+				case 'query':
+					$from[] = '/{{ type }}/';
+					$to[] = 'query';
+					$xmltype = 'oth';
+					break;
+				case 'cancel':
+					$from[] = '/{{ type }}/';
+					$to[] = 'cancel';
+					$xmltype = 'oth';
+					break;
+				case 'reject':
+					$from[] = '/{{ type }}/';
+					$to[] = 'reject';
+					$xmltype = 'oth';
+					break;
+				case 'approve':
+					$xmltype = 'apr';
+					break;
+				default:
+					throw new EppException('Invalid value for transfer:op specified.');
+					break;
+			}
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-	<transfer op="request">
-	  <domain:transfer
-	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
-		<domain:name>{{ name }}</domain:name>
-		<domain:period unit="y">{{ years }}</domain:period>
-		<domain:authInfo>
-		  <domain:pw>{{ authInfoPw }}</domain:pw>
-		</domain:authInfo>
-	  </domain:transfer>
-	</transfer>
-	<extension>
+			if ($xmltype === 'req') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+			<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+			  <command>
+				<transfer op="request">
+				  <domain:transfer
+				   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+					<domain:name>{{ name }}</domain:name>
+					<domain:period unit="y">{{ years }}</domain:period>
+					<domain:authInfo>
+					  <domain:pw>{{ authInfoPw }}</domain:pw>
+					</domain:authInfo>
+				  </domain:transfer>
+				</transfer>
       <extdomain:transfer xmlns:extdomain="urn:ics-forth:params:xml:ns:extdomain-1.2" xsi:schemaLocation="urn:ics-forth:params:xml:ns:extdomain-1.2 extdomain-1.2.xsd">
-	    <extdomain:registrantid>XXX</extdomain:registrantid>
-	    <extdomain:newPW>XXX</extdomain:newPW>
+	    <extdomain:registrantid>{{ registrant }}</extdomain:registrantid>
+	    <extdomain:newPW>{{ new_authInfoPw }}</extdomain:newPW>
 	  </extdomain:transfer>
 	</extension>
-	<clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
+				<clTRID>{{ clTRID }}</clTRID>
+			  </command>
+			</epp>');
+			
+			$r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
@@ -1389,6 +1420,67 @@ class GrEpp implements EppRegistryInterface
                 'acDate' => $acDate,
                 'exDate' => $exDate
             );
+			
+			} else if ($xmltype === 'apr') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+			<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+			  <command>
+				<transfer op="approve">
+				  <domain:transfer
+				   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+					<domain:name>{{ name }}</domain:name>
+				  </domain:transfer>
+				</transfer>
+				<clTRID>{{ clTRID }}</clTRID>
+			  </command>
+			</epp>');
+			
+	    $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->Data;
+            $name = (string)$r->name;
+            $trStatus = (string)$r->trStatus;
+            $reID = (string)$r->reID;
+            $reDate = (string)$r->reDate;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'trStatus' => $trStatus,
+                'reID' => $reID,
+                'reDate' => $reDate
+            );
+			
+			} else if ($xmltype === 'oth') {
+				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+			<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+			  <command>
+				<transfer op="{{ type }}">
+				  <domain:transfer
+				   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+					<domain:name>{{ name }}</domain:name>
+				  </domain:transfer>
+				</transfer>
+				<clTRID>{{ clTRID }}</clTRID>
+			  </command>
+			</epp>');
+			
+	    $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+			
+			} 
         } catch (\Exception $e) {
             $return = array(
                 'error' => $e->getMessage()
