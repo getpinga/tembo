@@ -1087,6 +1087,21 @@ class GrEpp implements EppRegistryInterface
 
         return $return;
     }
+	
+    /**
+     * domainCheckClaims
+     */
+    public function domainCheckClaims($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+ throw new EppException("Launch extension not supported!");
+    }
 
     /**
      * domainInfo
@@ -1476,6 +1491,120 @@ class GrEpp implements EppRegistryInterface
 
         return $return;
     }
+	
+    /**
+     * domainUpdateDNSSEC
+     */
+    public function domainUpdateDNSSEC($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+			if ($params['command'] == 'add') {
+				$from[] = '/{{ add }}/';
+				$to[] = "<secDNS:add>
+				<secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+		  </secDNS:dsData>
+		  </secDNS:add>";
+				$from[] = '/{{ rem }}/';
+				$to[] = "";
+				$from[] = '/{{ addrem }}/';
+				$to[] = "";
+			} else if ($params['command'] == 'rem') {
+				$from[] = '/{{ add }}/';
+				$to[] = "";
+				$from[] = '/{{ rem }}/';
+				$to[] = "<secDNS:rem>
+				<secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+		  </secDNS:dsData>
+		  </secDNS:rem>";
+				$from[] = '/{{ addrem }}/';
+				$to[] = "";
+			} else if ($params['command'] == 'addrem') {
+				$from[] = '/{{ add }}/';
+				$to[] = "";
+				$from[] = '/{{ rem }}/';
+				$to[] = "";
+				$from[] = '/{{ addrem }}/';
+				$to[] = "<secDNS:rem>
+				<secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+		  </secDNS:dsData>
+		  </secDNS:rem>
+		  <secDNS:add>
+		  <secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_2'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_2'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_2'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_2'])."</secDNS:digest>
+		  </secDNS:dsData>
+		  </secDNS:add>";
+			}
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-updateDNSSEC-' . $clTRID);
+            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+            $to[] = '';
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+ <command>
+   <update>
+     <domain:update
+		   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+		   xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+       <domain:name>{{ name }}</domain:name>
+     </domain:update>
+   </update>
+<extension>
+      <secDNS:update
+        xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1"
+        xsi:schemaLocation="urn:ietf:params:xml:ns:secDNS-1.1 secDNS-1.1.xsd">
+		{{ add }}
+		{{ rem }}
+		{{ addrem }}
+      </secDNS:update>
+    </extension>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
 
     /**
      * domainTransfer
@@ -1716,6 +1845,143 @@ class GrEpp implements EppRegistryInterface
         </domain:authInfo>
       </domain:create>
     </create>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->creData;
+            $name = (string)$r->name;
+            $crDate = (string)$r->crDate;
+            $exDate = (string)$r->exDate;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'name' => $name,
+                'crDate' => $crDate,
+                'exDate' => $exDate
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+	
+    /**
+     * domainCreateClaims
+     */
+    public function domainCreateClaims($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+ throw new EppException("Launch extension not supported!");
+    }
+	
+    /**
+     * domainCreateDNSSEC
+     */
+    public function domainCreateDNSSEC($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ period }}/';
+            $to[] = (int)($params['period']);
+            if (isset($params['nss'])) {
+                $text = '';
+                foreach ($params['nss'] as $hostObj) {
+                    $text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
+                }
+                $from[] = '/{{ hostObjs }}/';
+                $to[] = $text;
+            } else {
+                $from[] = '/{{ hostObjs }}/';
+                $to[] = '';
+            }
+            $from[] = '/{{ registrant }}/';
+            $to[] = htmlspecialchars($params['registrant']);
+            $text = '';
+            foreach ($params['contacts'] as $id => $contactType) {
+                $text .= '<domain:contact type="' . $contactType . '">' . $id . '</domain:contact>' . "\n";
+            }
+            $from[] = '/{{ contacts }}/';
+            $to[] = $text;
+			if ($params['dnssec_records'] == 1) {
+				$from[] = '/{{ dnssec_data }}/';
+				$to[] = "<secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+		  </secDNS:dsData>";
+			} else if ($params['dnssec_records'] == 2) {
+				$from[] = '/{{ dnssec_data }}/';
+				$to[] = "<secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+		  </secDNS:dsData>
+		  <secDNS:dsData>
+			<secDNS:keyTag>".htmlspecialchars($params['keyTag_2'])."</secDNS:keyTag>
+			<secDNS:alg>".htmlspecialchars($params['alg_2'])."</secDNS:alg>
+			<secDNS:digestType>".htmlspecialchars($params['digestType_2'])."</secDNS:digestType>
+			<secDNS:digest>".htmlspecialchars($params['digest_2'])."</secDNS:digest>
+		  </secDNS:dsData>";
+			}
+            $from[] = '/{{ authInfoPw }}/';
+            $to[] = htmlspecialchars($params['authInfoPw']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-createDNSSEC-' . $clTRID);
+            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+            $to[] = '';
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <create>
+      <domain:create
+       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+        <domain:name>{{ name }}</domain:name>
+        <domain:period unit="y">{{ period }}</domain:period>
+        <domain:ns>
+          {{ hostObjs }}
+        </domain:ns>
+        <domain:registrant>{{ registrant }}</domain:registrant>
+        {{ contacts }}
+        <domain:authInfo>
+          <domain:pw>{{ authInfoPw }}</domain:pw>
+        </domain:authInfo>
+      </domain:create>
+    </create>
+	<extension>
+	  <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
+		<secDNS:add>
+		  {{ dnssec_data }}
+		</secDNS:add>
+	  </secDNS:create>
+	</extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
