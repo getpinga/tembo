@@ -1951,7 +1951,7 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptdomain-1.0 ptdomain-1.0.xsd">
     /**
      * domainCreateDNSSEC
      */
-    public function domainCreate($params = array())
+    public function domainCreateDNSSEC($params = array())
     {
         if (!$this->isLoggedIn) {
             return array(
