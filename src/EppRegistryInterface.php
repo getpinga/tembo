@@ -24,6 +24,7 @@ interface EppRegistryInterface
     public function hostCheck(array $params);
     public function hostInfo(array $params);
     public function hostCreate(array $params);
+    public function hostUpdate(array $params);
     public function hostDelete(array $params);
 	
     public function contactCheck(array $params);
@@ -34,10 +35,12 @@ interface EppRegistryInterface
 	
     public function domainCheck(array $params);
     public function domainInfo(array $params);
-    public function domainUpdateNS(array $params);
-    public function domainUpdateContact(array $params);
-    public function domainTransfer(array $params);
     public function domainCreate(array $params);
+    public function domainUpdateNS(array $params);
+    public function domainUpdateContact(array $params);   
+    public function domainUpdateStatus(array $params);
+    public function domainUpdateAuthinfo(array $params);
+    public function domainTransfer(array $params);
     public function domainRenew(array $params);
     public function domainDelete(array $params);
     public function domainRestore(array $params);
