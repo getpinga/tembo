@@ -98,11 +98,11 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
-| AFNIC | .fr/others | FR | 🚧 | work on extensions |
-| Caucasus Online | .ge | | ✅ |  |
-| CentralNic | all | | ✅ |  |
-| CoCCA | all | | ✅ |  |
-| CORE/Knipp | all | | ✅ |  |
+| AFNIC | .fr/others | FR | ✅ | |
+| Caucasus Online | .ge | | ✅ | |
+| CentralNic | all | | ✅ | |
+| CoCCA | all | | ✅ | |
+| CORE/Knipp | all | | ✅ | |
 | DENIC | .de | | ✅ | some functions need to be added |
 | Domicilium | .im | | ✅ | small parsing fixes needed |
 | DOMREG | .lt | LT | 🚧 | work on extensions |
