@@ -12,6 +12,7 @@ namespace Pinga\Tembo;
 
 use Pinga\Tembo\Registries\FredEpp;
 use Pinga\Tembo\Registries\GrEpp;
+use Pinga\Tembo\Registries\LvEpp;
 use Pinga\Tembo\Registries\NoEpp;
 use Pinga\Tembo\Registries\PlEpp;
 use Pinga\Tembo\Registries\PtEpp;
@@ -28,6 +29,9 @@ class EppRegistryFactory
                 break;
             case 'GR':
                 return new GrEpp();
+                break;
+            case 'LV':
+                return new LvEpp();
                 break;
             case 'NO':
                 return new NoEpp();
