@@ -118,7 +118,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | NIC Chile | .cl | | 🚧 | further work needed |
 | NIC.LV | .lv | LV | ✅ | |
 | NORID | .no | NO | ✅ | |
-| .PT | .pt | PT | ✅ | more tests |
+| .PT | .pt | PT | ✅ | |
 | Registr.io | all | | ✅ | |
 | Registro.it | .it | IT | 🚧 | work on extensions |
 | RoTLD | .ro | | ✅ | more tests |
