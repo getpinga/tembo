@@ -93,7 +93,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | RRI | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (29 backends and counting)
+## Registry Support (30 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -116,6 +116,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | HKIRC | .hk | | ✅ | more tests |
 | NASK | .pl | PL | ✅ | |
 | NIC Chile | .cl | | 🚧 | further work needed |
+| NIC.LV | .lv | LV | ✅ | |
 | NORID | .no | NO | ✅ | |
 | .PT | .pt | PT | ✅ | more tests |
 | Registr.io | all | | ✅ | |
