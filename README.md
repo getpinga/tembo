@@ -91,6 +91,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | EPP over TLS/TCP | ✅ |
 | EPP over HTTPS | ✅ |
 | RRI | ✅ |
+| TMCH | ✅ |
 | REGRR | ❌ |
 
 ## Registry Support (31 backends and counting)
