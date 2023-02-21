@@ -1983,6 +1983,7 @@ class UaEpp implements EppRegistryInterface
           <domain:pw>{{ authInfoPw }}</domain:pw>
         </domain:authInfo>
       </domain:create>
+    </create>
 	<extension>
 	  <secDNS:create xmlns:secDNS="http://hostmaster.ua/epp/secDNS-1.1">
 		<secDNS:add>
@@ -1990,7 +1991,6 @@ class UaEpp implements EppRegistryInterface
 		</secDNS:add>
 	  </secDNS:create>
 	</extension>
-    </create>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
