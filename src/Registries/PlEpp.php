@@ -849,8 +849,6 @@ class PlEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ authInfo }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
-            $from[] = '/{{ extensions }}/';
-            $to[] = '';
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);
@@ -956,8 +954,6 @@ class PlEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['fullphonenumber']);
             $from[] = '/{{ email }}/';
             $to[] = htmlspecialchars($params['email']);
-            $from[] = '/{{ extensions }}/';
-            $to[] = '';
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-update-' . $microtime);
