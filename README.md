@@ -93,7 +93,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | RRI | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (30 backends and counting)
+## Registry Support (31 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
