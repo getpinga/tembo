@@ -849,7 +849,6 @@ class GrEpp implements EppRegistryInterface
 		</contact:authInfo>
 	  </contact:create>
 	</create>
-	{{ extensions }}
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
