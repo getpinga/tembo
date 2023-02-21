@@ -34,12 +34,16 @@ interface EppRegistryInterface
     public function contactDelete(array $params);
 	
     public function domainCheck(array $params);
+    public function domainCheckClaims(array $params);
     public function domainInfo(array $params);
     public function domainCreate(array $params);
+    public function domainCreateDNSSEC(array $params);
+    public function domainCreateClaims(array $params);
     public function domainUpdateNS(array $params);
     public function domainUpdateContact(array $params);   
     public function domainUpdateStatus(array $params);
     public function domainUpdateAuthinfo(array $params);
+    public function domainUpdateDNSSEC(array $params);
     public function domainTransfer(array $params);
     public function domainRenew(array $params);
     public function domainDelete(array $params);
