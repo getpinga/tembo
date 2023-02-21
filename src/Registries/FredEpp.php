@@ -879,7 +879,6 @@ class FredEpp implements EppRegistryInterface
 		<contact:email>{{ email }}</contact:email>
 	  </contact:create>
 	</create>
-	{{ extensions }}
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
