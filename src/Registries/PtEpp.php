@@ -2148,7 +2148,7 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptdomain-1.0 ptdomain-1.0.xsd">
 	   xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
 		<domain:name>{{ name }}</domain:name>
 		<domain:curExpDate>{{ expDate }}</domain:curExpDate>
-		<domain:period unit="y">{{ regperiod }}</domain:period>
+		<domain:period unit="y">1</domain:period>
 	  </domain:renew>
 	</renew>
 	<extension>
