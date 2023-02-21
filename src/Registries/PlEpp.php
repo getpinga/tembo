@@ -1387,13 +1387,24 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
+			if ($params['contacttype'] === 'registrant') {
             $from[] = '/{{ add }}/';
-            $to[] = "<domain:add><domain:contact type=\"admin\">XXX</domain:contact><domain:contact type=\"tech\">XXX</domain:contact></domain:add>\n";
-            /* 			$from[] = '/{{ rem }}/';
-                        $to[] = "<domain:rem><domain:contact type=\"admin\">XXX</domain:contact><domain:contact type=\"tech\">XXX</domain:contact></domain:rem>\n"; */
+            $to[] = "";
+            $from[] = '/{{ rem }}/';
+            $to[] = "";
+            $from[] = '/{{ chg }}/';
+            $to[] = "<domain:chg><domain:registrant>".htmlspecialchars($params['new_contactid'])."</domain:registrant></domain:chg>\n";
+			} else {
+            $from[] = '/{{ add }}/';
+            $to[] = "<domain:add><domain:contact type=\"".htmlspecialchars($params['contacttype'])."\">".htmlspecialchars($params['new_contactid'])."</domain:contact></domain:add>\n";
+            $from[] = '/{{ rem }}/';
+            $to[] = "<domain:rem><domain:contact type=\"".htmlspecialchars($params['contacttype'])."\">".htmlspecialchars($params['old_contactid'])."</domain:contact></domain:rem>\n";
+            $from[] = '/{{ chg }}/';
+            $to[] = "";	
+			}
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-updateContactGR-' . $clTRID);
+            $to[] = htmlspecialchars($this->prefix . '-domain-updateContact-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -1401,20 +1412,21 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/epp-2.1
  epp-2.1.xsd">
-	  <command>
-		<update>
-		  <domain:update
+ <command>
+   <update>
+     <domain:update
  xmlns:domain="http://www.dns.pl/nask-epp-schema/domain-2.1"
  xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/domain-2.1
  domain-2.1.xsd">
-			<domain:name>{{ name }}</domain:name>
-	
-		{{ add }}
-		  </domain:update>
-		</update>
-		<clTRID>{{ clTRID }}</clTRID>
-	  </command>
-	</epp>');
+       <domain:name>{{ name }}</domain:name>
+       {{ add }}
+       {{ rem }}
+       {{ chg }}
+     </domain:update>
+   </update>
+   <clTRID>{{ clTRID }}</clTRID>
+ </command>
+</epp>');
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
