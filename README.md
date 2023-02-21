@@ -63,16 +63,17 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | | domain | contact | host | session |
 |----------|----------|----------|----------|----------|
 | check | ✅ | ✅ | ✅ | login ✅ |
-| info | ✅ | ✅ | ✅ | logout ✅ |
-| create | ✅ | ✅ | ✅ | poll ✅ |
-| createDNSSEC | 🚧 | N/A | N/A | hello ✅ |
-| createTMCH | 🚧 | N/A | N/A | keep-alive ✅ |
+| checkClaims | ✅ | N/A | N/A | logout ✅ |
+| info | ✅ | ✅ | ✅ | poll ✅ |
+| create | ✅ | ✅ | ✅ | hello ✅ |
+| createDNSSEC | ✅ | N/A | N/A | keep-alive ✅ |
+| createClaims | ✅ | N/A | N/A | |
 | update | N/A | ✅ | ✅ | |
 | updateNS | ✅ | N/A | N/A | |
 | updateContact | ✅ | N/A | N/A | |
 | updateAuthinfo | ✅ | N/A | N/A | |
 | updateStatus | ✅ | ❌ | ❌| |
-| updateDNSSEC | 🚧 | N/A | N/A | |
+| updateDNSSEC | ✅ | N/A | N/A | |
 | renew | ✅ | N/A | N/A | |
 | delete | ✅ | ✅ | ✅ |  |
 | transferRequest | ✅ | ❌ | ❌ | |
@@ -106,7 +107,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Domicilium | .im | | ✅ | small parsing fixes needed |
 | DOMREG | .lt | LT | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | GR | ✅ | |
-| FRED | .cz/any | FRED | ✅ | domain update |
+| FRED | .cz/any | FRED | ✅ | domain update, DNSSEC |
 | GoDaddy Registry | all | | ✅ | |
 | Google Nomulus | all | | ✅ | small parsing fixes needed |
 | Hostmaster | .ua | UA | ✅ | |
