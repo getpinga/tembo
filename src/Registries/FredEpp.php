@@ -1729,6 +1729,66 @@ class FredEpp implements EppRegistryInterface
 
         return $return;
     }
+	
+    /**
+     * domainCheckClaims
+     */
+    public function domainCheckClaims($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+ throw new EppException("Launch extension not supported!");
+    }
+	
+    /**
+     * domainUpdateDNSSEC
+     */
+    public function domainUpdateDNSSEC($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+ throw new EppException("DNSSEC extension not supported!");
+    }
+	
+    /**
+     * domainCreateClaims
+     */
+    public function domainCreateClaims($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+ throw new EppException("Launch extension not supported!");
+    }
+	
+    /**
+     * domainCreateDNSSEC
+     */
+    public function domainCreateDNSSEC($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+ throw new EppException("DNSSEC extension not supported!");
+    }
 
     /**
      * domainRenew
