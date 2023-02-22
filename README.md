@@ -114,9 +114,9 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Hostmaster | .ua | UA | ✅ | |
 | Identity Digital | all | | ✅ | |
 | IIS | .se, .nu | SE | ✅ | transfer and domain contact update |
-| HKIRC | .hk | | ✅ | more tests |
+| HKIRC | .hk | | ✅ | |
 | NASK | .pl | PL | ✅ | |
-| NIC Chile | .cl | | ✅ | more tests |
+| NIC Chile | .cl | | ✅ | |
 | NIC.LV | .lv | LV | ✅ | |
 | NORID | .no | NO | ✅ | |
 | .PT | .pt | PT | ✅ | |
