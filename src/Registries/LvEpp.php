@@ -1870,9 +1870,9 @@ class LvEpp implements EppRegistryInterface
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
             $text = '';
-            foreach ($params['contacts'] as $id => $contactType) {
-                $text .= '<domain:contact type="' . $contactType . '">' . $id . '</domain:contact>' . "\n";
-            }
+	    foreach ($params['contacts'] as $contactType => $contactID) {
+	        $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
+	    }
             $from[] = '/{{ contacts }}/';
             $to[] = $text;
             $from[] = '/{{ authInfoPw }}/';
@@ -1962,9 +1962,9 @@ class LvEpp implements EppRegistryInterface
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
             $text = '';
-            foreach ($params['contacts'] as $id => $contactType) {
-                $text .= '<domain:contact type="' . $contactType . '">' . $id . '</domain:contact>' . "\n";
-            }
+	    foreach ($params['contacts'] as $contactType => $contactID) {
+	        $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
+	    }
             $from[] = '/{{ contacts }}/';
             $to[] = $text;
             $from[] = '/{{ authInfoPw }}/';
