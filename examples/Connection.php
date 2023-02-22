@@ -41,7 +41,12 @@ function connectEpp(string $registry) {
             'pw' => 'testpassword1',
             'prefix' => 'tembo'
         ));
-	echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
+        if (array_key_exists('error', $login)) {
+            echo 'Login Error: ' . $login['error'] . PHP_EOL;
+            exit();
+        } else {
+            echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
+        }
         return $epp;
     }catch(EppException $e){
         return "Error : ".$e->getMessage();
