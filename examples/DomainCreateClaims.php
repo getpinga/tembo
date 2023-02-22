@@ -22,10 +22,10 @@ try
         'nss' => array('ns1.google.com','ns2.goolge.com'),
         'registrant' => 'tembo005',
         'contacts' => array(
-           'tembo005' => 'admin',
-           'tembo005' => 'tech',
-           'tembo005' => 'billing'
-        ), 
+           'admin' => 'tembo005',
+           'tech' => 'tembo005',
+           'billing' => 'tembo005',
+        ),
         'authInfoPw' => 'Domainpw123@',
         'noticeID' => 'ABCDE1234FGHIJK5678',
         'notAfter' => '2023-02-24T09:30:00.0Z',
