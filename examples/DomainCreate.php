@@ -24,7 +24,7 @@ try
         'contacts' => array(
            'admin' => 'tembo005',
            'tech' => 'tembo005',
-           'billing' => 'tembo005',
+           'billing' => 'tembo005'
         ),
         'authInfoPw' => 'Domainpw123@'
     );
