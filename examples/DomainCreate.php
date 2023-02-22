@@ -22,10 +22,10 @@ try
         'nss' => array('ns1.google.com','ns2.goolge.com'),
         'registrant' => 'tembo005',
         'contacts' => array(
-           'tembo005' => 'admin',
-           'tembo005' => 'tech',
-           'tembo005' => 'billing'
-        ), 
+           'admin' => 'tembo005',
+           'tech' => 'tembo005',
+           'billing' => 'tembo005',
+        ),
         'authInfoPw' => 'Domainpw123@'
     );
     $domainCreate = $epp->domainCreate($params);
