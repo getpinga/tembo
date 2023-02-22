@@ -33,7 +33,7 @@ try
 		$x=1;
 		foreach ($hostCheck['hosts'] as $host)
 		{
-			if ($host['avail'] == 1)
+			if ($host['avail'])
 			{
 				echo "Host ".$x.": " . $host['id'] . " is available" . PHP_EOL;
 			}
