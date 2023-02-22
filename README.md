@@ -110,7 +110,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | FORTH-ICS | .gr, .ελ | GR | ✅ | |
 | FRED | .cz/any | FRED | ✅ | domain update, DNSSEC |
 | GoDaddy Registry | all | | ✅ | |
-| Google Nomulus | all | | ✅ | small parsing fixes needed |
+| Google Nomulus | all | | ✅ | |
 | Hostmaster | .ua | UA | ✅ | |
 | Identity Digital | all | | ✅ | |
 | IIS | .se, .nu | SE | ✅ | transfer and domain contact update |
