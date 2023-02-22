@@ -31,7 +31,7 @@ try
 		$x=1;
 		foreach ($contactCheck['contacts'] as $contact)
 		{
-			if ($contact['avail'] == 1)
+			if ($contact['avail'])
 			{
 				echo "Contact ".$x.": ID " . $contact['id'] . " is available" . PHP_EOL;
 			}
