@@ -116,7 +116,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | IIS | .se, .nu | SE | ✅ | transfer and domain contact update |
 | HKIRC | .hk | | ✅ | more tests |
 | NASK | .pl | PL | ✅ | |
-| NIC Chile | .cl | | 🚧 | further work needed |
+| NIC Chile | .cl | | ✅ | more tests |
 | NIC.LV | .lv | LV | ✅ | |
 | NORID | .no | NO | ✅ | |
 | .PT | .pt | PT | ✅ | |
