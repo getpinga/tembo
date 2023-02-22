@@ -31,7 +31,7 @@ try
 		$x=1;
 		foreach ($domainCheck['domains'] as $domain)
 		{
-			if ($domain['avail'] == 1)
+			if ($domain['avail'])
 			{
 				echo "Domain ".$x.": " . $domain['name'] . " is available" . PHP_EOL;
 			}
