@@ -105,7 +105,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | CoCCA | all | | ✅ | |
 | CORE/Knipp | all | | ✅ | |
 | DENIC | .de | | ✅ | some functions need to be added |
-| Domicilium | .im | | ✅ | small parsing fixes needed |
+| Domicilium | .im | | ✅ | |
 | DOMREG | .lt | LT | 🚧 | work on extensions |
 | FORTH-ICS | .gr, .ελ | GR | ✅ | |
 | FRED | .cz/any | FRED | ✅ | domain update, DNSSEC |
