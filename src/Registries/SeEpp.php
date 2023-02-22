@@ -1124,9 +1124,6 @@ class SeEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ domainname }}/';
             $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ authInfo }}/';
-            $authInfo = (isset($params['authInfoPw']) ? "<domain:authInfo>\n<domain:pw><![CDATA[{$params['authInfoPw']}]]></domain:pw>\n</domain:authInfo>" : '');
-            $to[] = $authInfo;
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $microtime);
@@ -1142,7 +1139,6 @@ class SeEpp implements EppRegistryInterface
        xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
        xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
         <domain:name hosts="all">{{ domainname }}</domain:name>
-        {{ authInfo }}
       </domain:info>
     </info>
     <clTRID>{{ clTRID }}</clTRID>
