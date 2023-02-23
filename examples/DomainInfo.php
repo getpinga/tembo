@@ -18,7 +18,7 @@ try
 
     $params = array(
         'domainname' => 'test.example',
-		'authInfoPw' => 'domainpw123@'
+		'authInfoPw' => 'Domainpw123@'
     );
     $domainInfo = $epp->domainInfo($params);
 	
