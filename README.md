@@ -94,7 +94,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | TMCH | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (31 backends and counting)
+## Registry Support (32 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -107,6 +107,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | DENIC | .de | | ✅ | |
 | Domicilium | .im | | ✅ | |
 | DOMREG | .lt | LT | 🚧 | work on extensions |
+| DRS.UA | all | | ✅ | |
 | FORTH-ICS | .gr, .ελ | GR | ✅ | |
 | FRED | .cz/any | FRED | ✅ | domain update, DNSSEC |
 | GoDaddy Registry | all | | ✅ | |
