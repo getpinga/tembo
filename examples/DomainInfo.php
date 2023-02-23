@@ -32,23 +32,25 @@ try
 		echo 'Name: ' . $domainInfo['name'] . PHP_EOL;
 		echo 'ROID: ' . $domainInfo['roid'] . PHP_EOL;
 		echo 'Status: ' . $domainInfo['status'][1] . PHP_EOL;
-		echo 'Name: ' . $domainInfo['name'] . PHP_EOL;
 		echo 'Registrant: ' . $domainInfo['registrant'] . PHP_EOL;
-		echo 'Contact: ';
-		foreach ($domainInfo['contact'] as $key => $value) {
-			echo $key . ': ' . $value . ', ';
+                $contact_types = array("admin", "billing", "tech");
+		foreach ($contact_types as $type) {
+		  $contact = array_values(array_filter($domainInfo['contact'], function($c) use ($type) {
+			return $c["type"] == $type;
+		  }));
+		  if (count($contact) > 0) {
+			$type = ucfirst($type);
+			echo $type . ": " . $contact[0]["id"] . "\n";
+		  }
 		}
-		echo PHP_EOL;
-		echo 'NS: ';
-		foreach ($domainInfo['ns'] as $key => $value) {
-			echo $key . ': ' . $value . ', ';
+		asort($domainInfo['ns']);
+		foreach ($domainInfo['ns'] as $server) {
+		  echo "Name Server: $server\n";
 		}
-		echo PHP_EOL;
-		echo 'Host: ';
-		foreach ($domainInfo['host'] as $key => $value) {
-			echo $key . ': ' . $value . ', ';
+		asort($domainInfo['host']);
+		foreach ($domainInfo['host'] as $host) {
+		  echo "Host: $host\n";
 		}
-		echo PHP_EOL;
 		echo 'Current Registrar: ' . $domainInfo['clID'] . PHP_EOL;
 		echo 'Original Registrar: ' . $domainInfo['crID'] . PHP_EOL;
 		echo 'Created On: ' . $domainInfo['crDate'] . PHP_EOL;
