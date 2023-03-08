@@ -159,6 +159,13 @@ class LvEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['clID']);
             $from[] = '/{{ pwd }}/';
             $to[] = htmlspecialchars($params['pw']);
+            if (isset($params['newpw']) && !empty($params['newpw'])) {
+            $from[] = '/{{ newpw }}/';
+            $to[] = PHP_EOL . '      <newPW>' . htmlspecialchars($params['newpw']) . '</newPW>';
+            } else {
+            $from[] = '/{{ newpw }}/';
+            $to[] = '';
+            }
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($params['prefix'] . '-login-' . $microtime);
@@ -169,7 +176,7 @@ class LvEpp implements EppRegistryInterface
   <command>
     <login>
       <clID>{{ clID }}</clID>
-      <pw>{{ pwd }}</pw>
+      <pw>{{ pwd }}</pw>{{ newpw }}
       <options>
         <version>1.0</version>
         <lang>en</lang>
