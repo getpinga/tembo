@@ -67,7 +67,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | info | ✅ | ✅ | ✅ | poll ✅ |
 | create | ✅ | ✅ | ✅ | hello ✅ |
 | createDNSSEC | ✅ | N/A | N/A | keep-alive ✅ |
-| createClaims | ✅ | N/A | N/A | |
+| createClaims | ✅ | N/A | N/A | new password ✅ |
 | update | N/A | ✅ | ✅ | |
 | updateNS | ✅ | N/A | N/A | |
 | updateContact | ✅ | N/A | N/A | |
