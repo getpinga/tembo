@@ -160,7 +160,7 @@ class Epp
             $to[] = htmlspecialchars($params['pw']);    
             if (isset($params['newpw']) && !empty($params['newpw'])) {
             $from[] = '/{{ newpw }}/';
-            $to[] = PHP_EOL . '<newPW>' . htmlspecialchars($params['newpw']) . '</newPW>';
+            $to[] = PHP_EOL . '      <newPW>' . htmlspecialchars($params['newpw']) . '</newPW>';
             } else {
             $from[] = '/{{ newpw }}/';
             $to[] = '';
