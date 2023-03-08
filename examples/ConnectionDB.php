@@ -41,6 +41,7 @@ function connectEpp(string $registry) {
         $login = $epp->login(array(
             'clID' => 'testregistrar1',
             'pw' => 'testpassword1',
+            //'newpw' => 'testpassword2',
             'prefix' => 'tembo'
         ));
         if (array_key_exists('error', $login)) {
