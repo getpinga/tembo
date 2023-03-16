@@ -19,6 +19,7 @@ use Pinga\Tembo\Registries\PlEpp;
 use Pinga\Tembo\Registries\PtEpp;
 use Pinga\Tembo\Registries\SeEpp;
 use Pinga\Tembo\Registries\UaEpp;
+use Pinga\Tembo\Registries\HkEpp;
 
 class EppRegistryFactory
 {
@@ -51,6 +52,9 @@ class EppRegistryFactory
                 break;
             case 'UA':
                 return new UaEpp();
+                break;
+            case 'HK':
+                return new HkEpp();
                 break;
             default:
                 return new Epp();
