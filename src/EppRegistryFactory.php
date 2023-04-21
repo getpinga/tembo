@@ -10,6 +10,7 @@
 
 namespace Pinga\Tembo;
 
+use Pinga\Tembo\Registries\EsEpp;
 use Pinga\Tembo\Registries\FrEpp;
 use Pinga\Tembo\Registries\FredEpp;
 use Pinga\Tembo\Registries\GrEpp;
@@ -25,7 +26,10 @@ class EppRegistryFactory
 {
     public static function create($registry)
     {
-        switch ($registry) {     
+        switch ($registry) {   
+            case 'ES':
+                return new EsEpp();
+                break;
             case 'FR':
                 return new FrEpp();
                 break;
