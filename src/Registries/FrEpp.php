@@ -869,7 +869,7 @@ class FrEpp implements EppRegistryInterface
 	  </contact:create>
 	</create>
     <extension>
-       <frnic:ext xmlns:frnic="http://www.afnic.fr/xml/epp/frnic-1.4">
+       <frnic:ext xmlns:frnic="http://www.afnic.fr/xml/epp/frnic-2.0">
           <frnic:create>
              <frnic:contact>
                 <frnic:firstName>{{ firstname }}</frnic:firstName>
