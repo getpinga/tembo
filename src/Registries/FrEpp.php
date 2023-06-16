@@ -1749,7 +1749,7 @@ class FrEpp implements EppRegistryInterface
 				  </domain:transfer>
 				</transfer>
                 <extension>
-                   <frnic:ext xmlns:frnic="http://www.afnic.fr/xml/epp/frnic-1.4">
+                   <frnic:ext xmlns:frnic="http://www.afnic.fr/xml/epp/frnic-2.0">
                       <frnic:transfer>
                          <frnic:domain keepDS="1">
                             <frnic:contact type="admin">{{ admin }}</frnic:contact>
