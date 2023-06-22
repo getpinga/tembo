@@ -20,6 +20,7 @@ use Pinga\Tembo\Registries\PtEpp;
 use Pinga\Tembo\Registries\SeEpp;
 use Pinga\Tembo\Registries\UaEpp;
 use Pinga\Tembo\Registries\HkEpp;
+use Pinga\Tembo\Registries\VrsnEpp;
 
 class EppRegistryFactory
 {
@@ -55,6 +56,9 @@ class EppRegistryFactory
                 break;
             case 'HK':
                 return new HkEpp();
+                break;
+            case 'VRSN':
+                return new VrsnEpp();
                 break;
             default:
                 return new Epp();
