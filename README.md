@@ -127,7 +127,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | RyCE | all | | ✅ | more tests |
 | SIDN | all | | ✅ | more tests |
 | SWITCH | .ch, .li | | ✅ | |
-| Verisign | all | VRSN | 🚧 | work on extensions |
+| Verisign | all | VRSN | ✅ | |
 | ZADNA | .za |  | ✅ | more tests |
 | ZDNS | all |  | ✅ | |
 
