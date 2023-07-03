@@ -1477,6 +1477,11 @@ class VrsnEpp implements EppRegistryInterface
 		{{ rem }}
 		  </domain:update>
 		</update>
+    <extension>
+    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+    </namestoreExt:namestoreExt>
+  </extension>
 		<clTRID>{{ clTRID }}</clTRID>
 	  </command>
 	</epp>');
@@ -2182,6 +2187,9 @@ class VrsnEpp implements EppRegistryInterface
 		  {{ dnssec_data }}
 		</secDNS:add>
 	  </secDNS:create>
+    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+    </namestoreExt:namestoreExt>
 	</extension>
     </create>
     <clTRID>{{ clTRID }}</clTRID>
@@ -2379,6 +2387,11 @@ class VrsnEpp implements EppRegistryInterface
 		<domain:period unit="y">{{ regperiod }}</domain:period>
 	  </domain:renew>
 	</renew>
+   <extension>
+    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+    </namestoreExt:namestoreExt>
+  </extension>
 	<clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
