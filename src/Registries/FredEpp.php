@@ -1187,15 +1187,9 @@ class FredEpp implements EppRegistryInterface
             }
             $ns = array();
             $i = 0;
-            foreach ($r->ns->hostObj as $hostObj) {
+            foreach ($r->nsset as $hostObj) {
                 $i++;
                 $ns[$i] = (string)$hostObj;
-            }
-            $host = array();
-            $i = 0;
-            foreach ($r->host as $hostname) {
-                $i++;
-                $host[$i] = (string)$hostname;
             }
             $clID = (string)$r->clID;
             $crID = (string)$r->crID;
@@ -1215,7 +1209,6 @@ class FredEpp implements EppRegistryInterface
                 'registrant' => $registrant,
                 'contact' => $contact,
                 'ns' => $ns,
-                'host' => $host,
                 'clID' => $clID,
                 'crID' => $crID,
                 'crDate' => $crDate,
