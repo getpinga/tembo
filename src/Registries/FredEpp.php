@@ -1457,19 +1457,17 @@ class FredEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($this->prefix . '-domain-updateAuthinfo-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
- <command>
-   <update>
-     <domain:update xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+   <command>
+      <update>
+         <domain:update xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
        <domain:name>{{ name }}</domain:name>
        <domain:chg>
-         <domain:authInfo>
-           <domain:pw>{{ authInfo }}</domain:pw>
-         </domain:authInfo>
+         <domain:authInfo>{{ authInfo }}</domain:authInfo>
        </domain:chg>
      </domain:update>
    </update>
