@@ -19,7 +19,7 @@ try
     $params = array(
         'domainname' => 'test.example',
         'period' => 1,
-        'nss' => array('ns1.google.com','ns2.goolge.com'),
+        'nss' => array('ns1.google.com','ns2.google.com'),
         'registrant' => 'tembo005',
         'contacts' => array(
            'admin' => 'tembo005',
