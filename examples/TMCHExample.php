@@ -33,11 +33,13 @@ curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 curl_setopt($ch, CURLOPT_USERPWD, $username . ":" . $password);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 $xml = curl_exec($ch);
 
 if (curl_errno($ch)) {
     throw new Exception(curl_error($ch));
 }
+
 $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
