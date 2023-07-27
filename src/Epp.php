@@ -1131,7 +1131,7 @@ class Epp
       <domain:check
         xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
         xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
-        {{ name }}
+        <domain:name>{{ name }}</domain:name>
       </domain:check>
     </check>
     <extension>
@@ -2163,6 +2163,7 @@ class Epp
           <domain:pw>{{ authInfoPw }}</domain:pw>
         </domain:authInfo>
       </domain:create>
+    </create>
       <extension>
          <launch:create xmlns:launch="urn:ietf:params:xml:ns:launch-1.0">
             <launch:phase>claims</launch:phase>
@@ -2173,7 +2174,6 @@ class Epp
             </launch:notice>
          </launch:create>
       </extension>
-    </create>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
