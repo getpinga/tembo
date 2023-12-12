@@ -19,13 +19,13 @@ try
     $params = array(
         'domainname' => 'test.example',
         'period' => 1,
-        'registrant' => 'tembo005',
+        'registrant' => 'tembo007',
         'contacts' => array(
-           'admin' => 'tembo005',
-           'tech' => 'tembo005'
+           'admin' => 'tembo007',
+           'tech' => 'tembo007'
         ),
         'authInfoPw' => 'Domainpw123@',
-        'encodedSignedMark' => 'INSERT'
+        'encodedSignedMark' => 'INSERT_HERE'
     );
     $domainCreateSunrise = $epp->domainCreateSunrise($params);
 

@@ -55,5 +55,3 @@ function connectEpp(string $registry) {
         return "Error : ".$e->getMessage();
     }
 }
-
-?>

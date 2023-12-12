@@ -17,7 +17,7 @@ try
 	$epp = connectEpp('generic');
 
     $params = array(
-        'hostname' => 'ns1.tembo.com'
+        'hostname' => 'ns1.example.com'
     );
     $hostDelete = $epp->hostDelete($params);
 	
@@ -38,4 +38,3 @@ catch(EppException $e)
 {
     echo 'Error: ', $e->getMessage();
 }
-?>

@@ -16,23 +16,23 @@ interface EppRegistryInterface
     public function readResponse();
     public function writeRequest(string $xml);
     public function disconnect();
-	
+
     public function login(array $params);
     public function logout(array $params);
     public function hello();
-	
+
     public function hostCheck(array $params);
     public function hostInfo(array $params);
     public function hostCreate(array $params);
     public function hostUpdate(array $params);
     public function hostDelete(array $params);
-	
+
     public function contactCheck(array $params);
     public function contactInfo(array $params);
     public function contactCreate(array $params);
     public function contactUpdate(array $params);
     public function contactDelete(array $params);
-	
+
     public function domainCheck(array $params);
     public function domainCheckClaims(array $params);
     public function domainInfo(array $params);
@@ -49,7 +49,7 @@ interface EppRegistryInterface
     public function domainDelete(array $params);
     public function domainRestore(array $params);
     public function domainReport(array $params);
-	
+
     public function pollReq();
     public function pollAck(array $params);
 }

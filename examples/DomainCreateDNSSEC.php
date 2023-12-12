@@ -20,11 +20,11 @@ try
         'domainname' => 'test.example',
         'period' => 1,
         'nss' => array('ns1.google.com','ns2.google.com'),
-        'registrant' => 'tembo005',
+        'registrant' => 'tembo007',
         'contacts' => array(
-           'admin' => 'tembo005',
-           'tech' => 'tembo005',
-           'billing' => 'tembo005'
+           'admin' => 'tembo007',
+           'tech' => 'tembo007',
+           'billing' => 'tembo007'
         ),
         'authInfoPw' => 'Domainpw123@',
         'dnssec_records' => '2',

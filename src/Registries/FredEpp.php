@@ -13,6 +13,9 @@ namespace Pinga\Tembo\Registries;
 use Pinga\Tembo\EppRegistryInterface;
 use Pinga\Tembo\Exception\EppException;
 use Pinga\Tembo\Exception\EppNotConnectedException;
+use Monolog\Logger;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Formatter\LineFormatter;
 
 class FredEpp implements EppRegistryInterface
 {
@@ -25,6 +28,34 @@ class FredEpp implements EppRegistryInterface
         if (!extension_loaded('SimpleXML')) {
             throw new \Exception('PHP extension SimpleXML is not loaded.');
         }
+
+        // Create the loggers
+        $this->responseLogger = new Logger('Response');
+        $this->requestLogger = new Logger('Request');
+        $this->commonLogger = new Logger('Tembo');
+
+        // Define the line format
+        $lineFormat = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
+        $dateFormat = "Y-m-d H:i:s"; // Customize the date format if needed
+
+        // Create a LineFormatter instance
+        $formatter = new LineFormatter($lineFormat, $dateFormat);
+
+        // Create handlers - The second parameter is the max number of files to keep (0 means unlimited)
+        // The third parameter is the log level
+        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/response-fred.log', 0, Logger::DEBUG);
+        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/request-fred.log', 0, Logger::DEBUG);
+        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/common-fred.log', 0, Logger::DEBUG);
+
+        // Set the formatter to the handlers
+        $responseHandler->setFormatter($formatter);
+        $requestHandler->setFormatter($formatter);
+        $commonHandler->setFormatter($formatter);
+
+        // Push handlers to the loggers
+        $this->responseLogger->pushHandler($responseHandler);
+        $this->requestLogger->pushHandler($requestHandler);
+        $this->commonLogger->pushHandler($commonHandler);
     }
 
     /**
@@ -453,8 +484,8 @@ class FredEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['hostname']);
-			$from[] = '/{{ ip }}/';
-			$to[] = htmlspecialchars($params['ipaddress']);
+            $from[] = '/{{ ip }}/';
+            $to[] = htmlspecialchars($params['ipaddress']);
             $from[] = '/{{ name2 }}/';
             $to[] = htmlspecialchars($params['hostname2']);
             $from[] = '/{{ ip2 }}/';
@@ -511,7 +542,7 @@ class FredEpp implements EppRegistryInterface
 
         return $return;
     }
-	
+    
     /**
      * hostUpdate
      */
@@ -527,12 +558,12 @@ class FredEpp implements EppRegistryInterface
         $return = array();
         try {
             $from = $to = array();
-			$from[] = '/{{ newname }}/';
-			$to[] = htmlspecialchars($params['newhostname']);
-			$from[] = '/{{ oldname }}/';
-			$to[] = htmlspecialchars($params['oldhostname']);
-			$from[] = '/{{ ip2 }}/';
-			$to[] = htmlspecialchars($params['newipaddress']);
+            $from[] = '/{{ newname }}/';
+            $to[] = htmlspecialchars($params['newhostname']);
+            $from[] = '/{{ oldname }}/';
+            $to[] = htmlspecialchars($params['oldhostname']);
+            $from[] = '/{{ ip2 }}/';
+            $to[] = htmlspecialchars($params['newipaddress']);
             $from[] = '/{{ nsid }}/';
             $to[] = htmlspecialchars($params['nsid']);
             $from[] = '/{{ nstech_new }}/';
@@ -666,13 +697,13 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<check>
-	  <contact:check xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+    <check>
+      <contact:check xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
-		<contact:id>{{ id }}</contact:id>
-	  </contact:check>
-	</check>
-	<clTRID>{{ clTRID }}</clTRID>
+        <contact:id>{{ id }}</contact:id>
+      </contact:check>
+    </check>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -731,14 +762,14 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<info>
-	  <contact:info xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+    <info>
+      <contact:info xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
     xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
-		<contact:id>{{ id }}</contact:id>
+        <contact:id>{{ id }}</contact:id>
         {{ authInfo }}
-	  </contact:info>
-	</info>
-	<clTRID>{{ clTRID }}</clTRID>
+      </contact:info>
+    </info>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -864,29 +895,29 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<create>
-	  <contact:create xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+    <create>
+      <contact:create xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
-		<contact:id>{{ id }}</contact:id>
-		<contact:postalInfo>
-		  <contact:name>{{ name }}</contact:name>
-		  <contact:org>{{ org }}</contact:org>
-		  <contact:addr>
-			<contact:street>{{ street1 }}</contact:street>
-			<contact:street>{{ street2 }}</contact:street>
-			<contact:street>{{ street3 }}</contact:street>
-			<contact:city>{{ city }}</contact:city>
-			<contact:sp>{{ state }}</contact:sp>
-			<contact:pc>{{ postcode }}</contact:pc>
-			<contact:cc>{{ country }}</contact:cc>
-		  </contact:addr>
-		</contact:postalInfo>
-		<contact:voice>{{ phonenumber }}</contact:voice>
-		<contact:fax></contact:fax>
-		<contact:email>{{ email }}</contact:email>
-	  </contact:create>
-	</create>
-	<clTRID>{{ clTRID }}</clTRID>
+        <contact:id>{{ id }}</contact:id>
+        <contact:postalInfo>
+          <contact:name>{{ name }}</contact:name>
+          <contact:org>{{ org }}</contact:org>
+          <contact:addr>
+            <contact:street>{{ street1 }}</contact:street>
+            <contact:street>{{ street2 }}</contact:street>
+            <contact:street>{{ street3 }}</contact:street>
+            <contact:city>{{ city }}</contact:city>
+            <contact:sp>{{ state }}</contact:sp>
+            <contact:pc>{{ postcode }}</contact:pc>
+            <contact:cc>{{ country }}</contact:cc>
+          </contact:addr>
+        </contact:postalInfo>
+        <contact:voice>{{ phonenumber }}</contact:voice>
+        <contact:fax></contact:fax>
+        <contact:email>{{ email }}</contact:email>
+      </contact:create>
+    </create>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -961,31 +992,31 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<update>
-	  <contact:update xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
+    <update>
+      <contact:update xmlns:contact="http://www.nic.cz/xml/epp/contact-1.6"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/contact-1.6 contact-1.6.2.xsd">
-		<contact:id>{{ id }}</contact:id>
-		<contact:chg>
-		  <contact:postalInfo>
-			<contact:name>{{ name }}</contact:name>
-			<contact:org>{{ org }}</contact:org>
-			<contact:addr>
-			  <contact:street>{{ street1 }}</contact:street>
-			  <contact:street>{{ street2 }}</contact:street>
-			  <contact:street>{{ street3 }}</contact:street>
-			  <contact:city>{{ city }}</contact:city>
-			  <contact:sp>{{ state }}</contact:sp>
-			  <contact:pc>{{ postcode }}</contact:pc>
-			  <contact:cc>{{ country }}</contact:cc>
-			</contact:addr>
-		  </contact:postalInfo>
-		  <contact:voice>{{ voice }}</contact:voice>
-		  <contact:fax></contact:fax>
-		  <contact:email>{{ email }}</contact:email>
-		</contact:chg>
-	  </contact:update>
-	</update>
-	<clTRID>{{ clTRID }}</clTRID>
+        <contact:id>{{ id }}</contact:id>
+        <contact:chg>
+          <contact:postalInfo>
+            <contact:name>{{ name }}</contact:name>
+            <contact:org>{{ org }}</contact:org>
+            <contact:addr>
+              <contact:street>{{ street1 }}</contact:street>
+              <contact:street>{{ street2 }}</contact:street>
+              <contact:street>{{ street3 }}</contact:street>
+              <contact:city>{{ city }}</contact:city>
+              <contact:sp>{{ state }}</contact:sp>
+              <contact:pc>{{ postcode }}</contact:pc>
+              <contact:cc>{{ country }}</contact:cc>
+            </contact:addr>
+          </contact:postalInfo>
+          <contact:voice>{{ voice }}</contact:voice>
+          <contact:fax></contact:fax>
+          <contact:email>{{ email }}</contact:email>
+        </contact:chg>
+      </contact:update>
+    </update>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -1313,21 +1344,21 @@ class FredEpp implements EppRegistryInterface
                 $clTRID = str_replace('.', '', round(microtime(1), 3));
                 $to[] = htmlspecialchars($this->prefix . '-domain-updateNS-' . $clTRID);
                 $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-	<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-	  <command>
-		<update>
-		  <domain:update xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+    <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+      <command>
+        <update>
+          <domain:update xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-			<domain:name>{{ name }}</domain:name>
-		{{ add }}
-		{{ rem }}
-		  </domain:update>
-		</update>
-		<clTRID>{{ clTRID }}</clTRID>
-	  </command>
-	</epp>');
+            <domain:name>{{ name }}</domain:name>
+        {{ add }}
+        {{ rem }}
+          </domain:update>
+        </update>
+        <clTRID>{{ clTRID }}</clTRID>
+      </command>
+    </epp>');
                 $r = $this->writeRequest($xml);
                 $code = (int)$r->response->result->attributes()->code;
                 $msg = (string)$r->response->result->msg;
@@ -1363,21 +1394,21 @@ class FredEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
-			if ($params['contacttype'] === 'registrant') {
+            if ($params['contacttype'] === 'registrant') {
             $from[] = '/{{ add }}/';
             $to[] = "";
             $from[] = '/{{ rem }}/';
             $to[] = "";
             $from[] = '/{{ chg }}/';
             $to[] = "<domain:chg><domain:registrant>".htmlspecialchars($params['new_contactid'])."</domain:registrant></domain:chg>\n";
-			} else {
+            } else {
             $from[] = '/{{ add }}/';
             $to[] = "<domain:add><domain:contact type=\"".htmlspecialchars($params['contacttype'])."\">".htmlspecialchars($params['new_contactid'])."</domain:contact></domain:add>\n";
             $from[] = '/{{ rem }}/';
             $to[] = "<domain:rem><domain:contact type=\"".htmlspecialchars($params['contacttype'])."\">".htmlspecialchars($params['old_contactid'])."</domain:contact></domain:rem>\n";
             $from[] = '/{{ chg }}/';
-            $to[] = "";	
-			}
+            $to[] = "";    
+            }
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-updateContact-' . $clTRID);
@@ -1385,8 +1416,8 @@ class FredEpp implements EppRegistryInterface
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
  <command>
    <update>
      <domain:update xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
@@ -1416,7 +1447,7 @@ class FredEpp implements EppRegistryInterface
 
         return $return;
     }
-	
+    
 /**
      * domainUpdateStatus
      */
@@ -1432,7 +1463,7 @@ class FredEpp implements EppRegistryInterface
  throw new EppException("Status update not supported!");
 
     }
-	
+    
     /**
      * domainUpdateAuthinfo
      */
@@ -1508,59 +1539,59 @@ class FredEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
-			switch (htmlspecialchars($params['op'])) {
-				case 'request':
-					$from[] = '/{{ years }}/';
-					$to[] = (int)($params['years']);
-					$from[] = '/{{ authInfoPw }}/';
-					$to[] = htmlspecialchars($params['authInfoPw']);
-					$xmltype = 'req';
-					break;
-				case 'query':
-					$from[] = '/{{ type }}/';
-					$to[] = 'query';
-					$xmltype = 'oth';
-					break;
-				case 'cancel':
-					$from[] = '/{{ type }}/';
-					$to[] = 'cancel';
-					$xmltype = 'oth';
-					break;
-				case 'reject':
-					$from[] = '/{{ type }}/';
-					$to[] = 'reject';
-					$xmltype = 'oth';
-					break;
-				case 'approve':
-					$xmltype = 'apr';
-					break;
-				default:
-					throw new EppException('Invalid value for transfer:op specified.');
-					break;
-			}
+            switch (htmlspecialchars($params['op'])) {
+                case 'request':
+                    $from[] = '/{{ years }}/';
+                    $to[] = (int)($params['years']);
+                    $from[] = '/{{ authInfoPw }}/';
+                    $to[] = htmlspecialchars($params['authInfoPw']);
+                    $xmltype = 'req';
+                    break;
+                case 'query':
+                    $from[] = '/{{ type }}/';
+                    $to[] = 'query';
+                    $xmltype = 'oth';
+                    break;
+                case 'cancel':
+                    $from[] = '/{{ type }}/';
+                    $to[] = 'cancel';
+                    $xmltype = 'oth';
+                    break;
+                case 'reject':
+                    $from[] = '/{{ type }}/';
+                    $to[] = 'reject';
+                    $xmltype = 'oth';
+                    break;
+                case 'approve':
+                    $xmltype = 'apr';
+                    break;
+                default:
+                    throw new EppException('Invalid value for transfer:op specified.');
+                    break;
+            }
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
-			if ($xmltype === 'req') {
-				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-			<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-			  <command>
-				<transfer op="request">
-				  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+            if ($xmltype === 'req') {
+                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+              <command>
+                <transfer op="request">
+                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
        xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-					<domain:name>{{ name }}</domain:name>
-					<domain:authInfo>{{ authInfoPw }}</domain:authInfo>
-				  </domain:transfer>
-				</transfer>
-				<clTRID>{{ clTRID }}</clTRID>
-			  </command>
-			</epp>');
-			
-			$r = $this->writeRequest($xml);
+                    <domain:name>{{ name }}</domain:name>
+                    <domain:authInfo>{{ authInfoPw }}</domain:authInfo>
+                  </domain:transfer>
+                </transfer>
+                <clTRID>{{ clTRID }}</clTRID>
+              </command>
+            </epp>');
+            
+            $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
@@ -1583,24 +1614,24 @@ class FredEpp implements EppRegistryInterface
                 'acDate' => $acDate,
                 'exDate' => $exDate
             );
-			
-			} else if ($xmltype === 'apr') {
-				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-			<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-			  <command>
-				<transfer op="approve">
-				  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+            
+            } else if ($xmltype === 'apr') {
+                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+              <command>
+                <transfer op="approve">
+                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
        xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-					<domain:name>{{ name }}</domain:name>
-				  </domain:transfer>
-				</transfer>
-				<clTRID>{{ clTRID }}</clTRID>
-			  </command>
-			</epp>');
-			
-	    $r = $this->writeRequest($xml);
+                    <domain:name>{{ name }}</domain:name>
+                  </domain:transfer>
+                </transfer>
+                <clTRID>{{ clTRID }}</clTRID>
+              </command>
+            </epp>');
+            
+        $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->Data;
@@ -1617,24 +1648,24 @@ class FredEpp implements EppRegistryInterface
                 'reID' => $reID,
                 'reDate' => $reDate
             );
-			
-			} else if ($xmltype === 'oth') {
-				$xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-			<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-			  <command>
-				<transfer op="{{ type }}">
-				  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+            
+            } else if ($xmltype === 'oth') {
+                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+              <command>
+                <transfer op="{{ type }}">
+                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
        xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-					<domain:name>{{ name }}</domain:name>
-				  </domain:transfer>
-				</transfer>
-				<clTRID>{{ clTRID }}</clTRID>
-			  </command>
-			</epp>');
-			
-	    $r = $this->writeRequest($xml);
+                    <domain:name>{{ name }}</domain:name>
+                  </domain:transfer>
+                </transfer>
+                <clTRID>{{ clTRID }}</clTRID>
+              </command>
+            </epp>');
+            
+        $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
 
@@ -1642,8 +1673,8 @@ class FredEpp implements EppRegistryInterface
                 'code' => $code,
                 'msg' => $msg
             );
-			
-			} 
+            
+            } 
         } catch (\Exception $e) {
             $return = array(
                 'error' => $e->getMessage()
@@ -1726,7 +1757,7 @@ class FredEpp implements EppRegistryInterface
 
         return $return;
     }
-	
+    
     /**
      * domainCheckClaims
      */
@@ -1741,7 +1772,7 @@ class FredEpp implements EppRegistryInterface
 
  throw new EppException("Launch extension not supported!");
     }
-	
+    
     /**
      * domainUpdateDNSSEC
      */
@@ -1756,7 +1787,7 @@ class FredEpp implements EppRegistryInterface
 
  throw new EppException("DNSSEC extension not supported!");
     }
-	
+    
     /**
      * domainCreateClaims
      */
@@ -1771,7 +1802,7 @@ class FredEpp implements EppRegistryInterface
 
  throw new EppException("Launch extension not supported!");
     }
-	
+    
     /**
      * domainCreateDNSSEC
      */
@@ -1814,13 +1845,13 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<info>
-	  <domain:info xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+    <info>
+      <domain:info xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-		<domain:name>{{ name }}</domain:name>
-	  </domain:info>
-	</info>
-	<clTRID>{{ clTRID }}</clTRID>
+        <domain:name>{{ name }}</domain:name>
+      </domain:info>
+    </info>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -1842,15 +1873,15 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<renew>
-	  <domain:renew xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+    <renew>
+      <domain:renew xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
           xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-		<domain:name>{{ name }}</domain:name>
-		<domain:curExpDate>{{ expDate }}</domain:curExpDate>
-		<domain:period unit="y">{{ regperiod }}</domain:period>
-	  </domain:renew>
-	</renew>
-	<clTRID>{{ clTRID }}</clTRID>
+        <domain:name>{{ name }}</domain:name>
+        <domain:curExpDate>{{ expDate }}</domain:curExpDate>
+        <domain:period unit="y">{{ regperiod }}</domain:period>
+      </domain:renew>
+    </renew>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -1902,13 +1933,13 @@ class FredEpp implements EppRegistryInterface
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
   <command>
-	<delete>
-	  <domain:delete xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+    <delete>
+      <domain:delete xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
        xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-		<domain:name>{{ name }}</domain:name>
-	  </domain:delete>
-	</delete>
-	<clTRID>{{ clTRID }}</clTRID>
+        <domain:name>{{ name }}</domain:name>
+      </domain:delete>
+    </delete>
+    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -1988,10 +2019,10 @@ class FredEpp implements EppRegistryInterface
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
-	    $messages = (int)($r->response->msgQ->attributes()->count ?? 0);
-	    $last_id = (int)($r->response->msgQ->attributes()->id ?? 0);
-	    $qDate = (string)($r->response->msgQ->qDate ?? '');
-	    $last_msg = (string)($r->response->msgQ->msg ?? '');
+        $messages = (int)($r->response->msgQ->attributes()->count ?? 0);
+        $last_id = (int)($r->response->msgQ->attributes()->id ?? 0);
+        $qDate = (string)($r->response->msgQ->qDate ?? '');
+        $last_msg = (string)($r->response->msgQ->msg ?? '');
 
             $return = array(
                 'code' => $code,
@@ -2058,21 +2089,15 @@ class FredEpp implements EppRegistryInterface
 
     public function _response_log($content)
     {
-        $handle = fopen(dirname(__FILE__) . '/../../log/response.log', 'a');
-        ob_start();
-        echo "\n==================================\n";
-        ob_end_clean();
-        fwrite($handle, $content);
-        fclose($handle);
+        // Add formatted content to the log
+        $this->responseLogger->info($content);
+        $this->commonLogger->info($content);
     }
 
     public function _request_log($content)
     {
-        $handle = fopen(dirname(__FILE__) . '/../../log/request.log', 'a');
-        ob_start();
-        echo "\n==================================\n";
-        ob_end_clean();
-        fwrite($handle, $content);
-        fclose($handle);
+        // Add formatted content to the log
+        $this->requestLogger->info($content);
+        $this->commonLogger->info($content);
     }
 }

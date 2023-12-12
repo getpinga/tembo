@@ -38,4 +38,3 @@ catch(EppException $e)
 {
     echo 'Error: ', $e->getMessage();
 }
-?>

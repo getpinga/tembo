@@ -33,7 +33,8 @@ try
 		echo 'ROID: ' . $domainInfo['roid'] . PHP_EOL;
 		echo 'Status: ' . $domainInfo['status'][1] . PHP_EOL;
 		echo 'Registrant: ' . $domainInfo['registrant'] . PHP_EOL;
-                $contact_types = array("admin", "billing", "tech");
+
+        $contact_types = array("admin", "billing", "tech");
 		foreach ($contact_types as $type) {
 		  $contact = array_values(array_filter($domainInfo['contact'], function($c) use ($type) {
 			return $c["type"] == $type;
@@ -69,4 +70,3 @@ catch(EppException $e)
 {
     echo 'Error: ', $e->getMessage();
 }
-?>
