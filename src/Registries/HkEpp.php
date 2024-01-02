@@ -1114,7 +1114,8 @@ class HkEpp implements EppRegistryInterface
             foreach ($r->cd as $cd) {
                 $i++;
                 $domains[$i]['name'] = (string)$cd->name;
-                $domains[$i]['avail'] = (int)$cd->name->attributes()->avail;
+                $availStr = (string)$cd->name->attributes()->avail;
+                $domains[$i]['avail'] = ($availStr === 'true' || $availStr === '1') ? true : false;
                 $domains[$i]['reason'] = (string)$cd->reason;
             }
 
@@ -2142,100 +2143,22 @@ class HkEpp implements EppRegistryInterface
             );
         }
 
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ name }}/';
-            $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ period }}/';
-            $to[] = (int)($params['period']);
-            if (isset($params['nss'])) {
-                $text = '';
-                foreach ($params['nss'] as $hostObj) {
-                    $text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
-                }
-                $from[] = '/{{ hostObjs }}/';
-                $to[] = $text;
-            } else {
-                $from[] = '/{{ hostObjs }}/';
-                $to[] = '';
-            }
-            $from[] = '/{{ registrant }}/';
-            $to[] = htmlspecialchars($params['registrant']);
-            $text = '';
-        foreach ($params['contacts'] as $contactType => $contactID) {
-            $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
-        }
-            $from[] = '/{{ contacts }}/';
-            $to[] = $text;
-            $from[] = '/{{ authInfoPw }}/';
-            $to[] = htmlspecialchars($params['authInfoPw']);
-            $from[] = '/{{ noticeID }}/';
-            $to[] = htmlspecialchars($params['noticeID']);
-            $from[] = '/{{ notAfter }}/';
-            $to[] = htmlspecialchars($params['notAfter']);
-            $from[] = '/{{ acceptedDate }}/';
-            $to[] = htmlspecialchars($params['acceptedDate']);
-            $from[] = '/{{ clTRID }}/';
-            $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-createClaims-' . $clTRID);
-            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
-            $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <create>
-      <domain:create
-       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
-        <domain:name>{{ name }}</domain:name>
-        <domain:period unit="y">{{ period }}</domain:period>
-        <domain:ns>
-          {{ hostObjs }}
-        </domain:ns>
-        <domain:registrant>{{ registrant }}</domain:registrant>
-        {{ contacts }}
-        <domain:authInfo>
-          <domain:pw>{{ authInfoPw }}</domain:pw>
-        </domain:authInfo>
-      </domain:create>
-      <extension>
-         <launch:create xmlns:launch="urn:ietf:params:xml:ns:launch-1.0">
-            <launch:phase>claims</launch:phase>
-            <launch:notice>
-               <launch:noticeID>{{ noticeID }}</launch:noticeID>
-               <launch:notAfter>{{ notAfter }}</launch:notAfter>
-               <launch:acceptedDate>{{ acceptedDate }}</launch:acceptedDate>
-            </launch:notice>
-         </launch:create>
-      </extension>
-    </create>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->creData;
-            $name = (string)$r->name;
-            $crDate = (string)$r->crDate;
-            $exDate = (string)$r->exDate;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg,
-                'name' => $name,
-                'crDate' => $crDate,
-                'exDate' => $exDate
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
+        throw new EppException("Launch extension not supported!");
+    }
+    
+    /**
+     * domainCreateSunrise
+     */
+    public function domainCreateSunrise($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
             );
         }
 
-        return $return;
+        throw new EppException("Launch extension not supported!");
     }
 
     /**

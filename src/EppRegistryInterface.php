@@ -39,6 +39,7 @@ interface EppRegistryInterface
     public function domainCreate(array $params);
     public function domainCreateDNSSEC(array $params);
     public function domainCreateClaims(array $params);
+    public function domainCreateSunrise(array $params);
     public function domainUpdateNS(array $params);
     public function domainUpdateContact(array $params);   
     public function domainUpdateStatus(array $params);

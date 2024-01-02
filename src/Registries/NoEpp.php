@@ -1162,7 +1162,8 @@ class NoEpp implements EppRegistryInterface
             foreach ($r->cd as $cd) {
                 $i++;
                 $domains[$i]['name'] = (string)$cd->name;
-                $domains[$i]['avail'] = (int)$cd->name->attributes()->avail;
+                $availStr = (string)$cd->name->attributes()->avail;
+                $domains[$i]['avail'] = ($availStr === 'true' || $availStr === '1') ? true : false;
                 $domains[$i]['reason'] = (string)$cd->reason;
             }
 
@@ -2101,7 +2102,22 @@ class NoEpp implements EppRegistryInterface
             );
         }
 
- throw new EppException("Launch extension not supported!");
+        throw new EppException("Launch extension not supported!");
+    }
+    
+    /**
+     * domainCreateSunrise
+     */
+    public function domainCreateSunrise($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        throw new EppException("Launch extension not supported!");
     }
 
     /**

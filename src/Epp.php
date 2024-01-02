@@ -1113,7 +1113,8 @@ class Epp
             foreach ($r->cd as $cd) {
                 $i++;
                 $domains[$i]['name'] = (string)$cd->name;
-                $domains[$i]['avail'] = (int)$cd->name->attributes()->avail;
+                $availStr = (string)$cd->name->attributes()->avail;
+                $domains[$i]['avail'] = ($availStr === 'true' || $availStr === '1') ? true : false;
                 $domains[$i]['reason'] = (string)$cd->reason;
             }
 
