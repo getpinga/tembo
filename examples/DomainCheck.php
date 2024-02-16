@@ -14,7 +14,7 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
         'domains' => array('test.example','tembo.example')
@@ -27,27 +27,27 @@ try
     }
     else
     {
-		echo "DomainCheck result: " . $domainCheck['code'] . ": " . $domainCheck['msg'] . PHP_EOL;
-		$x=1;
-		foreach ($domainCheck['domains'] as $domain)
-		{
-			if ($domain['avail'])
-			{
-				echo "Domain ".$x.": " . $domain['name'] . " is available" . PHP_EOL;
-			}
-			else
-			{
-				echo "Domain ".$x.": " . $domain['name'] . " is not available because: " . $domain['reason'] . PHP_EOL;
-			}
-			$x++;
-		}
+        echo "DomainCheck result: " . $domainCheck['code'] . ": " . $domainCheck['msg'] . PHP_EOL;
+        $x=1;
+        foreach ($domainCheck['domains'] as $domain)
+        {
+            if ($domain['avail'])
+            {
+                echo "Domain ".$x.": " . $domain['name'] . " is available" . PHP_EOL;
+            }
+            else
+            {
+                echo "Domain ".$x.": " . $domain['name'] . " is not available because: " . $domain['reason'] . PHP_EOL;
+            }
+            $x++;
+        }
     }
 
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

@@ -14,13 +14,13 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
         'domainname' => 'test.example'
     );
     $domainReport = $epp->domainReport($params);
-	
+    
     if (array_key_exists('error', $domainReport))
     {
         echo 'DomainReport Error: ' . $domainReport['error'] . PHP_EOL;
@@ -29,12 +29,12 @@ try
     {
         echo "DomainReport result: " . $domainReport['code'] . ": " . $domainReport['msg'] . PHP_EOL;
     }
-	
+    
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

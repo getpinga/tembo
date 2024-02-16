@@ -14,13 +14,13 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
         'domainname' => 'test.example'
     );
     $domainDelete = $epp->domainDelete($params);
-	
+    
     if (array_key_exists('error', $domainDelete))
     {
         echo 'DomainDelete Error: ' . $domainDelete['error'] . PHP_EOL;
@@ -29,12 +29,12 @@ try
     {
         echo "DomainDelete result: " . $domainDelete['code'] . ": " . $domainDelete['msg'] . PHP_EOL;
     }
-	
+    
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

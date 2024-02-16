@@ -11,40 +11,40 @@
 // Include the Composer autoloader
 require_once '../vendor/autoload.php';
 require_once 'Connection.php';
-
+    
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
-         'domainname' => 'example1.com',
+         'domainname' => 'test.example',
          'years' => 1,
          'authInfoPw' => 'Domainpw123@',
          'op' => 'request'
     );
     $domainTransfer = $epp->domainTransfer($params);
-	
+    
     if (array_key_exists('error', $domainTransfer))
     {
         echo 'DomainTransfer Error: ' . $domainTransfer['error'] . PHP_EOL;
     }
     else
     {
-		echo 'DomainTransfer Result: ' . $domainTransfer['code'] . ': ' . $domainTransfer['msg'] . PHP_EOL;
-		echo 'Name: ' . $domainTransfer['name'] . PHP_EOL;
-		echo 'Transfer Status: ' . $domainTransfer['trStatus'] . PHP_EOL;
-		echo 'Gaining Registrar: ' . $domainTransfer['reID'] . PHP_EOL;
-		echo 'Requested On: ' . $domainTransfer['reDate'] . PHP_EOL;
-		echo 'Losing Registrar: ' . $domainTransfer['acID'] . PHP_EOL;
-		echo 'Transfer Confirmed On: ' . $domainTransfer['acDate'] . PHP_EOL;
-		echo 'New Expiration Date: ' . $domainTransfer['exDate'] . PHP_EOL;
+        echo 'DomainTransfer Result: ' . $domainTransfer['code'] . ': ' . $domainTransfer['msg'] . PHP_EOL;
+        echo 'Name: ' . $domainTransfer['name'] . PHP_EOL;
+        echo 'Transfer Status: ' . $domainTransfer['trStatus'] . PHP_EOL;
+        echo 'Gaining Registrar: ' . $domainTransfer['reID'] . PHP_EOL;
+        echo 'Requested On: ' . $domainTransfer['reDate'] . PHP_EOL;
+        echo 'Losing Registrar: ' . $domainTransfer['acID'] . PHP_EOL;
+        echo 'Transfer Confirmed On: ' . $domainTransfer['acDate'] . PHP_EOL;
+        echo 'New Expiration Date: ' . $domainTransfer['exDate'] . PHP_EOL;
     }
 
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

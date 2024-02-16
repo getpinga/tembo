@@ -14,8 +14,8 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
-	
+    $epp = connectEpp('generic');
+    
     $startTime = time();
     $endTime = $startTime + 1800; // 30 minutes from start time
 
@@ -24,11 +24,11 @@ try
         echo 'Keep-alive Result: ' . PHP_EOL . $hello . PHP_EOL;
         sleep(600); // wait for 10 minutes
     }
-	
+    
     $logout = $epp->logout();
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

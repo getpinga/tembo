@@ -14,8 +14,8 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
-	
+    $epp = connectEpp('generic');
+    
     $params = array(
         'domainname' => 'test.example',
         'period' => 1,
@@ -37,16 +37,16 @@ try
     else
     {
         echo 'DomainCreate Result: ' . $domainCreate['code'] . ': ' . $domainCreate['msg'] . PHP_EOL;
-		echo 'New Domain: ' . $domainCreate['name'] . PHP_EOL;
-		echo 'Created On: ' . $domainCreate['crDate'] . PHP_EOL;
-		echo 'Expires On: ' . $domainCreate['exDate'] . PHP_EOL;
+        echo 'New Domain: ' . $domainCreate['name'] . PHP_EOL;
+        echo 'Created On: ' . $domainCreate['crDate'] . PHP_EOL;
+        echo 'Expires On: ' . $domainCreate['exDate'] . PHP_EOL;
     }
 
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

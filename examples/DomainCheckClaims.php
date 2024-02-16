@@ -14,7 +14,7 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
         'domainname' => 'test.example'
@@ -27,18 +27,18 @@ try
     }
     else
     {
-		echo "DomainCheckClaims result: " . $domainCheckClaims['code'] . ": " . $domainCheckClaims['msg'] . PHP_EOL;
-    echo "Domain Name: " . $domainCheckClaims['domain'] . PHP_EOL;
-    echo "Domain Status: " . $domainCheckClaims['status'] . PHP_EOL;
-    echo "Domain Phase: " . $domainCheckClaims['phase'] . PHP_EOL;
-    echo "Domain Claim Key: " . $domainCheckClaims['claimKey'] . PHP_EOL;
+        echo "DomainCheckClaims result: " . $domainCheckClaims['code'] . ": " . $domainCheckClaims['msg'] . PHP_EOL;
+        echo "Domain Name: " . $domainCheckClaims['domain'] . PHP_EOL;
+        echo "Domain Status: " . $domainCheckClaims['status'] . PHP_EOL;
+        echo "Domain Phase: " . $domainCheckClaims['phase'] . PHP_EOL;
+        echo "Domain Claim Key: " . $domainCheckClaims['claimKey'] . PHP_EOL;
     }
 
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

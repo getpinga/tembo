@@ -14,14 +14,14 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
         'domainname' => 'test.example',
         'regperiod' => 1
     );
     $domainRenew = $epp->domainRenew($params);
-	
+    
     if (array_key_exists('error', $domainRenew))
     {
         echo 'DomainRenew Error: ' . $domainRenew['error'] . PHP_EOL;
@@ -29,15 +29,15 @@ try
     else
     {
         echo "DomainRenew result: " . $domainRenew['code'] . ": " . $domainRenew['msg'] . PHP_EOL;
-		echo 'Domain Name: ' . $domainRenew['name'] . PHP_EOL;
-		echo 'New Expiration Date: ' . $domainRenew['exDate'] . PHP_EOL;
+        echo 'Domain Name: ' . $domainRenew['name'] . PHP_EOL;
+        echo 'New Expiration Date: ' . $domainRenew['exDate'] . PHP_EOL;
     }
-	
+    
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

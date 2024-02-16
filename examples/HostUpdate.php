@@ -14,10 +14,10 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
-	
+    $epp = connectEpp('generic');
+    
     $params = array(
-        'hostname' => 'ns1.example.com',
+        'hostname' => 'ns1.test.example',
         'currentipaddress' => '4.4.4.4',
         'newipaddress' => '8.8.8.8'
     );
@@ -35,8 +35,8 @@ try
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

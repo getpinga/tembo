@@ -14,23 +14,23 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
-	
+    $epp = connectEpp('generic');
+    
     $params = array(
         'id' => 'tembo007',
         'type' => 'int',
-        'firstname' => 'Petko',
-        'lastname' => 'Petkov',
-        'companyname' => 'Petkovi OOD',
-        'address1' => 'bul. Vitosha 1',
-        'address2' => 'ap. 1',
-        'city' => 'Sofia',
-        'state' => 'Sofia-Grad',
-        'postcode' => '1000',
-        'country' => 'BG',
-        'fullphonenumber' => '+359.1234567',
-        'email' => 'test@petkovi.bg',
-        'authInfoPw' => 'ABCSofi@345'
+        'firstname' => 'Svyatoslav',
+        'lastname' => 'Petrenko',
+        'companyname' => 'TOV TEMBO',
+        'address1' => 'vul. Stryiska 1',
+        'address2' => 'kv. 1',
+        'city' => 'Lviv',
+        'state' => 'Lviv',
+        'postcode' => '48000',
+        'country' => 'UA',
+        'fullphonenumber' => '+380.1234567',
+        'email' => 'test@tembo.ua',
+        'authInfoPw' => 'ABCLviv@345'
     );
     $contactCreate = $epp->contactCreate($params);
 
@@ -46,8 +46,8 @@ try
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

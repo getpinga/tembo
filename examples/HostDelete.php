@@ -14,13 +14,13 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
-        'hostname' => 'ns1.example.com'
+        'hostname' => 'ns1.test.example'
     );
     $hostDelete = $epp->hostDelete($params);
-	
+    
     if (array_key_exists('error', $hostDelete))
     {
         echo 'HostDelete Error: ' . $hostDelete['error'] . PHP_EOL;
@@ -29,12 +29,12 @@ try
     {
         echo "HostDelete result: " . $hostDelete['code'] . ": " . $hostDelete['msg'] . PHP_EOL;
     }
-	
+    
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }

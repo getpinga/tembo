@@ -14,7 +14,8 @@ require_once '../vendor/autoload.php';
 use Pinga\Tembo\EppRegistryFactory;
 
 function connectEpp(string $registry) {
-    try{
+    try 
+    {
         $epp = EppRegistryFactory::create($registry);
         $info = array(
             //For EPP-over-HTTPS,  'host' => 'https://registry.example.com/epp',
@@ -49,7 +50,9 @@ function connectEpp(string $registry) {
             echo 'Login Result: ' . $login['code'] . ': ' . $login['msg'][0] . PHP_EOL;
         }
         return $epp;
-    }catch(EppException $e){
-        return "Error : ".$e->getMessage();
+    } catch(\Pinga\Tembo\Exception\EppException $e) {
+        return "Error : ".$e->getMessage() . PHP_EOL;
+    } catch(Throwable $e) {
+        return "Error : ".$e->getMessage() . PHP_EOL;
     }
 }

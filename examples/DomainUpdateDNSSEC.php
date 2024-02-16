@@ -14,7 +14,7 @@ require_once 'Connection.php';
 
 try
 {
-	$epp = connectEpp('generic');
+    $epp = connectEpp('generic');
 
     $params = array(
         'domainname' => 'test.example',
@@ -26,7 +26,7 @@ try
         'digest_1' => 'F4D6E26B3483C3D7B3EE17799B0570497FAF33BCB12B9B9CE573DDB491E16948'
     );
     $domainUpdateDNSSEC = $epp->domainUpdateDNSSEC($params);
-	
+    
     if (array_key_exists('error', $domainUpdateDNSSEC))
     {
         echo 'DomainUpdateDNSSEC Error: ' . $domainUpdateDNSSEC['error'] . PHP_EOL;
@@ -35,12 +35,12 @@ try
     {
         echo "DomainUpdateDNSSEC result: " . $domainUpdateDNSSEC['code'] . ": " . $domainUpdateDNSSEC['msg'] . PHP_EOL;
     }
-	
+    
     $logout = $epp->logout();
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
-}
-catch(EppException $e)
-{
-    echo 'Error: ', $e->getMessage();
+} catch(\Pinga\Tembo\Exception\EppException $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
+} catch(Throwable $e) {
+    return "Error : ".$e->getMessage() . PHP_EOL;
 }
