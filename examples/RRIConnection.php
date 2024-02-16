@@ -190,7 +190,7 @@ try {
         echo 'Logout: ' . PHP_EOL . $logout . PHP_EOL;
 
     } catch(\Pinga\Tembo\Exception\EppException $e) {
-        return "Error : ".$e->getMessage() . PHP_EOL;
+        echo "Error : ".$e->getMessage() . PHP_EOL;
     } catch(Throwable $e) {
-        return "Error : ".$e->getMessage() . PHP_EOL;
+        echo "Error : ".$e->getMessage() . PHP_EOL;
     }

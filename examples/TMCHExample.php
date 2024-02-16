@@ -86,5 +86,4 @@ foreach ($claims as $claim) {
     $note .= PHP_EOL;
 }
 
-
 echo $note;

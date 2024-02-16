@@ -64,7 +64,7 @@ try
 
     echo 'Logout Result: ' . $logout['code'] . ': ' . $logout['msg'][0] . PHP_EOL;
 } catch(\Pinga\Tembo\Exception\EppException $e) {
-    return "Error : ".$e->getMessage() . PHP_EOL;
+    echo "Error : ".$e->getMessage() . PHP_EOL;
 } catch(Throwable $e) {
-    return "Error : ".$e->getMessage() . PHP_EOL;
+    echo "Error : ".$e->getMessage() . PHP_EOL;
 }
