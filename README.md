@@ -94,7 +94,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | TMCH | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (32 backends and counting)
+## Registry Support (33 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -108,6 +108,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Domicilium | .im | | ✅ | |
 | DOMREG | .lt | LT | 🚧 | work on extensions |
 | DRS.UA | all | | ✅ | |
+| EURid | .eu | EU | ✅ | |
 | FORTH-ICS | .gr, .ελ | GR | ✅ | |
 | FRED | .cz/any | FRED | ✅ | domain update, DNSSEC |
 | GoDaddy Registry | all | | ✅ | |
@@ -147,5 +148,7 @@ Would you like to see any registry added as a WHMCS/FOSSBilling module? Or an EP
 | Registry | TLDs | Status | Project |
 |----------|----------|----------|----------|
 | Generic RFC EPP | any | ✅ | [fossbilling-epp-rfc](https://github.com/getpinga/fossbilling-epp-rfc) |
-| Hostmaster | .ua | ✅ | [fossbilling-epp-ua](https://github.com/getpinga/fossbilling-epp-ua) |
+| AFNIC | .fr/others | ✅ | [fossbilling-epp-fr](https://github.com/getpinga/fossbilling-epp-fr) |
+| Caucasus Online | .ge | ✅ | [fossbilling-epp-ge](https://github.com/getpinga/fossbilling-epp-ge) |
 | FRED | .cz/any | ✅ | [fossbilling-epp-fred](https://github.com/getpinga/fossbilling-epp-fred) |
+| Hostmaster | .ua | ✅ | [fossbilling-epp-ua](https://github.com/getpinga/fossbilling-epp-ua) |

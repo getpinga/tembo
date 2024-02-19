@@ -30,7 +30,8 @@ try
         'country' => 'UA',
         'fullphonenumber' => '+380.1234567',
         'email' => 'test@tembo.ua',
-        'authInfoPw' => 'ABCLviv@345'
+        'authInfoPw' => 'ABCLviv@345',
+        //'euType' => 'tech',
     );
     $contactCreate = $epp->contactCreate($params);
 
