@@ -937,7 +937,7 @@ class EuEpp implements EppRegistryInterface
             }
             $ns = array();
             $i = 0;
-            foreach ($r->ns->hostObj as $hostObj) {
+            foreach ($r->ns->hostAttr as $hostObj) {
                 $i++;
                 $ns[$i] = (string)$hostObj;
             }
@@ -1024,7 +1024,7 @@ class EuEpp implements EppRegistryInterface
 
             $add = $rem = array();
             $i = 0;
-            foreach ($r->ns->hostObj as $ns) {
+            foreach ($r->ns->hostAttr as $ns) {
                 $i++;
                 $ns = (string)$ns;
                 if (!$ns) {
@@ -1054,14 +1054,14 @@ class EuEpp implements EppRegistryInterface
                 $from = $to = array();
                 $text = '';
                 foreach ($add as $k => $v) {
-                    $text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
+                    $text.= '<domain:hostAttr><domain:hostName>' . $v . '</domain:hostName></domain:hostAttr>' . "\n";
                 }
 
                 $from[] = '/{{ add }}/';
                 $to[] = (empty($text) ? '' : "<domain:add><domain:ns>\n{$text}</domain:ns></domain:add>\n");
                 $text = '';
                 foreach ($rem as $k => $v) {
-                    $text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
+                    $text.= '<domain:hostAttr><domain:hostName>' . $v . '</domain:hostName></domain:hostAttr>' . "\n";
                 }
 
                 $from[] = '/{{ rem }}/';
@@ -1701,7 +1701,7 @@ class EuEpp implements EppRegistryInterface
             if (isset($params['nss'])) {
                 $text = '';
                 foreach ($params['nss'] as $hostObj) {
-                    $text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
+                    $text .= '<domain:hostAttr><domain:hostName>' . $hostObj . '</domain:hostName></domain:hostAttr>' . "\n";
                 }
                 $from[] = '/{{ hostObjs }}/';
                 $to[] = $text;
