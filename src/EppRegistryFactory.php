@@ -14,20 +14,21 @@ use Pinga\Tembo\Registries\EuEpp;
 use Pinga\Tembo\Registries\FrEpp;
 use Pinga\Tembo\Registries\FredEpp;
 use Pinga\Tembo\Registries\GrEpp;
+use Pinga\Tembo\Registries\HkEpp;
+use Pinga\Tembo\Registries\HrEpp;
 use Pinga\Tembo\Registries\LvEpp;
 use Pinga\Tembo\Registries\NoEpp;
 use Pinga\Tembo\Registries\PlEpp;
 use Pinga\Tembo\Registries\PtEpp;
 use Pinga\Tembo\Registries\SeEpp;
 use Pinga\Tembo\Registries\UaEpp;
-use Pinga\Tembo\Registries\HkEpp;
 use Pinga\Tembo\Registries\VrsnEpp;
 
 class EppRegistryFactory
 {
     public static function create($registry)
     {
-        switch ($registry) {  
+        switch ($registry) {
             case 'EU':
                 return new EuEpp();
                 break;
@@ -39,6 +40,12 @@ class EppRegistryFactory
                 break;
             case 'GR':
                 return new GrEpp();
+                break;
+            case 'HK':
+                return new HkEpp();
+                break;
+            case 'HR':
+                return new HrEpp();
                 break;
             case 'LV':
                 return new LvEpp();
@@ -57,9 +64,6 @@ class EppRegistryFactory
                 break;
             case 'UA':
                 return new UaEpp();
-                break;
-            case 'HK':
-                return new HkEpp();
                 break;
             case 'VRSN':
                 return new VrsnEpp();

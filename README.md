@@ -94,12 +94,13 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | TMCH | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (33 backends and counting)
+## Registry Support (34 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
 | Generic RFC EPP | any | | ✅ | |
 | AFNIC | .fr/others | FR | ✅ | |
+| CARNET | .hr | HR | ✅ | |
 | Caucasus Online | .ge | | ✅ | |
 | CentralNic | all | | ✅ | |
 | CoCCA | all | | ✅ | |

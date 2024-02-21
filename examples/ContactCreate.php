@@ -32,6 +32,8 @@ try
         'email' => 'test@tembo.ua',
         'authInfoPw' => 'ABCLviv@345',
         //'euType' => 'tech',
+        //'nin_type' => 'person',
+        //'nin' => '1234567789',
     );
     $contactCreate = $epp->contactCreate($params);
 
