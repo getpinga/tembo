@@ -28,12 +28,12 @@ try {
         $conn =  $epp->connect($info);
         
         // Login
-        $login = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: LOGIN\nuser: $user\npassword: $password\n");
+        $login = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: LOGIN\nuser: $user\npassword: $password\n");
         echo 'Login: ' . PHP_EOL . $login . PHP_EOL;
         
         // Contact Create
         $contact = "Action: Create\n";
-        $contact .= "Version: 3.0\n";
+        $contact .= "Version: 4.0\n";
         $contact .= "Ctid: " . uniqid() . "\n";
         $contact .= "Handle: DENIC-1000002-" . uniqid() . "\n";
         $contact .= "Type: person\n";
@@ -49,17 +49,17 @@ try {
         
         // Contact Check
         $handle = 'DENIC-1000002-MAX';
-        //$con_check = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: check\nhandle: $handle\n");
+        //$con_check = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: check\nhandle: $handle\n");
         //echo 'Contact Check: ' . PHP_EOL . $con_check . PHP_EOL;
         
         // Contact Info
         $handle = 'DENIC-1000002-MAX';
-        //$con_info = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: info\nhandle: $handle\n");
+        //$con_info = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: info\nhandle: $handle\n");
         //echo 'Contact Info: ' . PHP_EOL . $con_info . PHP_EOL;
         
         // Domain Create
         $domain = "Action: Create\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Domain: de-example.de\n";
         $domain .= "Holder: DENIC-1000002-HOLDER\n";
         $domain .= "Abusecontact: DENIC-1000002-ABUSE\n";
@@ -71,18 +71,18 @@ try {
         
         // Domain Check
         $domain = 'de-example.de';
-        //$dom_check = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: check\nDomain: $domain\n");
+        //$dom_check = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: check\nDomain: $domain\n");
         //echo 'Domain Check: ' . PHP_EOL . $dom_check . PHP_EOL;
         
         // Domain Info
         $domain = 'domain-check.de';
         $authinfo = 'abc123';
-        //$dom_info = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: info\nrecursive: true\nAuthInfo: $authinfo\ndomain: $domain\n");
+        //$dom_info = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: info\nrecursive: true\nAuthInfo: $authinfo\ndomain: $domain\n");
         //echo 'Domain Info: ' . PHP_EOL . $dom_info . PHP_EOL;
         
         // Domain Update
         $domain = "Action: update\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         $domain .= "Holder: DENIC-1000002-HOLDER\n";
@@ -96,7 +96,7 @@ try {
         
         // Domain Delete
         $domain = "Action: delete\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         $domain .= "Holder: DENIC-1000002-HOLDER\n";
@@ -105,7 +105,7 @@ try {
         
         // Domain Restore
         $domain = "Action: restore\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         //$dom_restore = $epp->RRI_SendAndRead($conn, $domain);
@@ -113,7 +113,7 @@ try {
         
         // Create AuthInfo1
         $domain = "Action: CREATE-AUTHINFO1\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         $domain .= "AuthInfoHash:     4213d924230224fd719218b4acbd92f96ebe4344f3d5d1478dede1aa44e4cf4b\n";
@@ -123,7 +123,7 @@ try {
         
         // Create AuthInfo2
         $domain = "Action: CREATE-AUTHINFO2\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         //$dom_authinfo2 = $epp->RRI_SendAndRead($conn, $domain);
@@ -131,7 +131,7 @@ try {
         
         // Delete AuthInfo1
         $domain = "Action: DELETE-AUTHINFO1\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         //$dom_authinfo1 = $epp->RRI_SendAndRead($conn, $domain);
@@ -139,7 +139,7 @@ try {
         
         // Domain Chprov
         $domain = "Action: CHPROV\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         $domain .= "Holder: DENIC-1000002-HOLDER\n";
@@ -153,7 +153,7 @@ try {
         
         // Domain Transit
         $domain = "Action: TRANSIT\n";
-        $domain .= "Version: 3.0\n";
+        $domain .= "Version: 4.0\n";
         $domain .= "Ctid: " . uniqid() . "\n";
         $domain .= "Domain: de-example.de\n";
         //choose one of the following 2
@@ -165,7 +165,7 @@ try {
         // Queue Read
         // MsgType can be one of: chprovAuthInfo, authInfoExpire, authInfo2Notify, authInfo2Delete, expireWarning, expire, domainDelete
         $queue = "Action: QUEUE-READ\n";
-        $queue .= "Version: 3.0\n";
+        $queue .= "Version: 4.0\n";
         //$queue .= "MsgType: (!choose!)\n";
         //$queue_read = $epp->RRI_SendAndRead($conn, $queue);
         //echo 'Queue Read: ' . PHP_EOL . $queue_read . PHP_EOL;
@@ -173,7 +173,7 @@ try {
         // Queue Delete
         // MsgType can be one of: chprovAuthInfo, authInfoExpire, authInfo2Notify, authInfo2Delete, expireWarning, expire, domainDelete
         $queue = "Action: QUEUE-DELETE\n";
-        $queue .= "Version: 3.0\n";
+        $queue .= "Version: 4.0\n";
         $queue .= "Msgid: (!message_id!)\n";
         //$queue .= "MsgType: (!choose!)\n";
         $queue .= "Ctid: " . uniqid() . "\n";
@@ -182,11 +182,11 @@ try {
         
         // Registrar Info
         $registrar = 'DENIC-99995';
-        //$reg_info = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: info\nRegacc: $registrar\n");
+        //$reg_info = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: info\nRegacc: $registrar\n");
         //echo 'Registrar Info: ' . PHP_EOL . $reg_info . PHP_EOL;
 
         // Logout
-        $logout = $epp->RRI_SendAndRead($conn, "version: 3.0\naction: LOGOUT\n");
+        $logout = $epp->RRI_SendAndRead($conn, "version: 4.0\naction: LOGOUT\n");
         echo 'Logout: ' . PHP_EOL . $logout . PHP_EOL;
 
     } catch(\Pinga\Tembo\Exception\EppException $e) {
