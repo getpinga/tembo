@@ -94,7 +94,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | TMCH | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (34 backends and counting)
+## Registry Support (36 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -119,18 +119,20 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | IIS | .se, .nu | SE | ✅ | |
 | HKIRC | .hk | HK | ✅ | |
 | NASK | .pl | PL | ✅ | |
+| Namingo | all | | ✅ | |
 | NIC Chile | .cl | | ✅ | |
+| NIC Mexico | .mx | MX | ✅ | |
 | NIC.LV | .lv | LV | ✅ | |
 | NORID | .no | NO | ✅ | |
 | .PT | .pt | PT | ✅ | |
 | Registr.io | all | | ✅ | |
 | Registro.it | .it | IT | 🚧 | work on extensions |
-| RoTLD | .ro | | ✅ | more tests |
-| RyCE | all | | ✅ | more tests |
+| RoTLD | .ro | | ✅ | |
+| RyCE | all | | ✅ | |
 | SIDN | all | | ✅ | more tests |
 | SWITCH | .ch, .li | | ✅ | |
 | Verisign | all | VRSN | ✅ | |
-| ZADNA | .za |  | ✅ | more tests |
+| ZADNA | .za |  | ✅ | |
 | ZDNS | all |  | ✅ | |
 
 ## Integration with billing systems

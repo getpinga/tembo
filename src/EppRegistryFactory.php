@@ -17,6 +17,7 @@ use Pinga\Tembo\Registries\GrEpp;
 use Pinga\Tembo\Registries\HkEpp;
 use Pinga\Tembo\Registries\HrEpp;
 use Pinga\Tembo\Registries\LvEpp;
+use Pinga\Tembo\Registries\MxEpp;
 use Pinga\Tembo\Registries\NoEpp;
 use Pinga\Tembo\Registries\PlEpp;
 use Pinga\Tembo\Registries\PtEpp;
@@ -49,6 +50,9 @@ class EppRegistryFactory
                 break;
             case 'LV':
                 return new LvEpp();
+                break;
+            case 'MX':
+                return new MxEpp();
                 break;
             case 'NO':
                 return new NoEpp();
