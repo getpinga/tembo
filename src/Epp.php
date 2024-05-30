@@ -1,8 +1,8 @@
 <?php
 /**
- * Tembo EPP client library
+ * Namingo EPP client library
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2023-2024 by Taras Kondratyuk (https://namingo.org)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -124,9 +124,18 @@ class Epp
         if (fwrite($this->resource, pack('N', (strlen($xml) + 4)) . $xml) === false) {
             throw new EppException('Error writing to the connection.');
         }
-        $r = simplexml_load_string($this->readResponse());
-        if (isset($r->response) && $r->response->result->attributes()->code >= 2000) {
-            throw new EppException($r->response->result->msg);
+        $responseXml = $this->readResponse();
+        // Try to load the XML without namespace first
+        $r = simplexml_load_string($responseXml);
+        if ($r === false || !isset($r->response)) {
+            // If loading without namespace fails, try loading with the epp namespace
+            $r = simplexml_load_string($responseXml, null, 0, 'epp', true);
+        }
+        if ($r === false) {
+            throw new EppException('Error parsing the XML response.');
+        }
+        if (isset($r->response->result) && (int)$r->response->result->attributes()->code >= 2000) {
+            throw new EppException((string)$r->response->result->msg);
         }
         return $r;
     }
@@ -188,10 +197,10 @@ class Epp
             $from[] = '/{{ clID }}/';
             $to[] = htmlspecialchars($params['clID']);
             $from[] = '/{{ pwd }}/';
-            $to[] = htmlspecialchars($params['pw']);    
+            $to[] = '<![CDATA[' . $params['pw'] . ']]>';
             if (isset($params['newpw']) && !empty($params['newpw'])) {
             $from[] = '/{{ newpw }}/';
-            $to[] = PHP_EOL . '      <newPW>' . htmlspecialchars($params['newpw']) . '</newPW>';
+            $to[] = PHP_EOL . '      <newPW><![CDATA[' . $params['newpw'] . ']]></newPW>';
             } else {
             $from[] = '/{{ newpw }}/';
             $to[] = '';
@@ -2693,6 +2702,38 @@ class Epp
             $return = array(
                 'code' => $code,
                 'msg' => $msg
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+    
+    /**
+     * rawXml
+     */
+    public function rawXml($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $r = $this->writeRequest($params['xml']);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'xml' => $r->asXML()
             );
         } catch (\Exception $e) {
             $return = array(

@@ -53,4 +53,6 @@ interface EppRegistryInterface
 
     public function pollReq();
     public function pollAck(array $params);
+
+    public function rawXml(array $params);
 }

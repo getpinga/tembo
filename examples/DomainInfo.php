@@ -31,7 +31,12 @@ try
         echo 'DomainInfo Result: ' . $domainInfo['code'] . ': ' . $domainInfo['msg'] . PHP_EOL;
         echo 'Name: ' . $domainInfo['name'] . PHP_EOL;
         echo 'ROID: ' . $domainInfo['roid'] . PHP_EOL;
-        echo 'Status: ' . $domainInfo['status'][1] . PHP_EOL;
+        $status = $domainInfo['status'] ?? 'No status available';
+        if (is_array($status)) {
+            echo 'Status: ' . implode(', ', $status) . PHP_EOL;
+        } else {
+            echo 'Status: ' . $status . PHP_EOL;
+        }
         echo 'Registrant: ' . $domainInfo['registrant'] . PHP_EOL;
 
         $contact_types = array("admin", "billing", "tech");

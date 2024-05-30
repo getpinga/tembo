@@ -13,7 +13,7 @@ require_once '../vendor/autoload.php';
 
 use Pinga\Tembo\EppRegistryFactory;
 
-function connectEpp(string $registry) {
+function connectEpp2(string $registry) {
     try 
     {
         $epp = EppRegistryFactory::create($registry);
@@ -38,9 +38,9 @@ function connectEpp(string $registry) {
         );
         $epp->connect($info);
         $login = $epp->login(array(
-            'clID' => 'testregistrar1',
-            'pw' => 'testpassword1',
-            //'newpw' => 'testpassword2',
+            'clID' => 'testregistrar2',
+            'pw' => 'testpassword2',
+            //'newpw' => 'testpassword3',
             'prefix' => 'tembo'
         ));
         if (array_key_exists('error', $login)) {

@@ -43,9 +43,9 @@ class UaEpp implements EppRegistryInterface
 
         // Create handlers - The second parameter is the max number of files to keep (0 means unlimited)
         // The third parameter is the log level
-        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/response-ua.log', 0, Logger::DEBUG);
-        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/request-ua.log', 0, Logger::DEBUG);
-        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/common-ua.log', 0, Logger::DEBUG);
+        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/response-ua.log', 0, Logger::DEBUG);
+        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/request-ua.log', 0, Logger::DEBUG);
+        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/common-ua.log', 0, Logger::DEBUG);
 
         // Set the formatter to the handlers
         $responseHandler->setFormatter($formatter);
@@ -189,10 +189,10 @@ class UaEpp implements EppRegistryInterface
             $from[] = '/{{ clID }}/';
             $to[] = htmlspecialchars($params['clID']);
             $from[] = '/{{ pwd }}/';
-            $to[] = htmlspecialchars($params['pw']);
+            $to[] = '<![CDATA[' . $params['pw'] . ']]>';
             if (isset($params['newpw']) && !empty($params['newpw'])) {
             $from[] = '/{{ newpw }}/';
-            $to[] = PHP_EOL . '      <newPW>' . htmlspecialchars($params['newpw']) . '</newPW>';
+            $to[] = PHP_EOL . '      <newPW><![CDATA[' . $params['newpw'] . ']]></newPW>';
             } else {
             $from[] = '/{{ newpw }}/';
             $to[] = '';
@@ -2453,6 +2453,38 @@ class UaEpp implements EppRegistryInterface
             $return = array(
                 'code' => $code,
                 'msg' => $msg
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
+    }
+
+    /**
+     * rawXml
+     */
+    public function rawXml($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        $return = array();
+        try {
+            $r = $this->writeRequest($params['xml']);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'xml' => $r->asXML()
             );
         } catch (\Exception $e) {
             $return = array(
