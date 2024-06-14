@@ -840,11 +840,6 @@ class HkEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['companyname']);
             $from[] = '/{{ street1 }}/';
             $to[] = htmlspecialchars($params['address1']);
-            $from[] = '/{{ street2 }}/';
-            $to[] = htmlspecialchars($params['address2']);
-            $from[] = '/{{ street3 }}/';
-            $street3 = (isset($params['address3']) ? $params['address3'] : '');
-            $to[] = htmlspecialchars($street3);
             $from[] = '/{{ city }}/';
             $to[] = htmlspecialchars($params['city']);
             $from[] = '/{{ state }}/';
@@ -855,10 +850,28 @@ class HkEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['country']);
             $from[] = '/{{ phonenumber }}/';
             $to[] = htmlspecialchars($params['fullphonenumber']);
+            $from[] = '/{{ fax }}/';
+            $to[] = htmlspecialchars($params['fax']);
             $from[] = '/{{ email }}/';
             $to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ authInfo }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
+            $from[] = '/{{ surname }}/';
+            $to[] = htmlspecialchars($params['surname']);
+            $from[] = '/{{ cttype }}/';
+            $to[] = htmlspecialchars($params['cttype']);
+            $from[] = '/{{ type_e }}/';
+            $to[] = htmlspecialchars($params['type_e']);
+            $from[] = '/{{ docType }}/';
+            $to[] = htmlspecialchars($params['docType']);
+            $from[] = '/{{ docNum }}/';
+            $to[] = htmlspecialchars($params['docNum']);
+            $from[] = '/{{ docCC }}/';
+            $to[] = htmlspecialchars($params['docCC']);
+            $from[] = '/{{ industry }}/';
+            $to[] = htmlspecialchars($params['industry']);
+            $from[] = '/{{ mobile }}/';
+            $to[] = htmlspecialchars($params['mobile']);
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);
@@ -872,14 +885,11 @@ class HkEpp implements EppRegistryInterface
     <create>
       <contact:create
        xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
-        <contact:id>{{ id }}</contact:id>
         <contact:postalInfo type="{{ type }}">
           <contact:name>{{ name }}</contact:name>
           <contact:org>{{ org }}</contact:org>
           <contact:addr>
             <contact:street>{{ street1 }}</contact:street>
-            <contact:street>{{ street2 }}</contact:street>
-            <contact:street>{{ street3 }}</contact:street>
             <contact:city>{{ city }}</contact:city>
             <contact:sp>{{ state }}</contact:sp>
             <contact:pc>{{ postcode }}</contact:pc>
@@ -887,13 +897,28 @@ class HkEpp implements EppRegistryInterface
           </contact:addr>
         </contact:postalInfo>
         <contact:voice>{{ phonenumber }}</contact:voice>
-        <contact:fax></contact:fax>
+        <contact:fax>{{ fax }}</contact:fax>
         <contact:email>{{ email }}</contact:email>
         <contact:authInfo>
           <contact:pw>{{ authInfo }}</contact:pw>
         </contact:authInfo>
       </contact:create>
     </create>
+    <extension>
+      <ext:extension xmlns:ext="urn:ietf:params:xml:ns:ext-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:ext-1.0 ext-1.0.xsd">
+        <surname>{{ surname }}</surname>
+        <cttype>{{ cttype }}</cttype>
+        <type>{{ type_e }}</type>
+        <chineseOrg/>
+        <docType>{{ docType }}</docType>
+        <docNum>{{ docNum }}</docNum>
+        <docOriginCC>{{ docCC }}</docOriginCC>
+        <under18>1</under18>
+        <industryType>{{ industry }}</industryType>
+        <otherDoc/>
+        <mbNumber>{{ mobile }}</mbNumber>
+      </ext:extension>
+    </extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -959,6 +984,16 @@ class HkEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['fullphonenumber']);
             $from[] = '/{{ email }}/';
             $to[] = htmlspecialchars($params['email']);
+            $from[] = '/{{ docType }}/';
+            $to[] = htmlspecialchars($params['docType']);
+            $from[] = '/{{ docNum }}/';
+            $to[] = htmlspecialchars($params['docNum']);
+            $from[] = '/{{ docCC }}/';
+            $to[] = htmlspecialchars($params['docCC']);
+            $from[] = '/{{ industry }}/';
+            $to[] = htmlspecialchars($params['industry']);
+            $from[] = '/{{ mobile }}/';
+            $to[] = htmlspecialchars($params['mobile']);
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-update-' . $microtime);
@@ -992,6 +1027,19 @@ class HkEpp implements EppRegistryInterface
         </contact:chg>
       </contact:update>
     </update>
+    <extension>
+      <ext:extension xmlns:ext="urn:ietf:params:xml:ns:ext-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:ext-1.0 ext-1.0.xsd">
+        <surname/>
+        <chineseOrg/>
+        <docType>{{ docType }}</docType>
+        <docNum>{{ docNum }}</docNum>
+        <docOriginCC>{{ docCC }}</docOriginCC>
+        <under18>1</under18>
+        <industryType>{{ industry }}</industryType>
+        <otherDoc/>
+        <mbNumber>{{ mobile }}</mbNumber>
+      </ext:extension>
+    </extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -1235,7 +1283,7 @@ class HkEpp implements EppRegistryInterface
       <domain:info
        xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
        xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
-        <domain:name>{{ domainname }}</domain:name>
+        <domain:name hosts="all">{{ domainname }}</domain:name>
       </domain:info>
     </info>
     <clTRID>{{ clTRID }}</clTRID>
@@ -1814,6 +1862,11 @@ class HkEpp implements EppRegistryInterface
                     </domain:authInfo>
                   </domain:transfer>
                 </transfer>
+                <extension>
+                  <ext:extension xmlns:ext="urn:ietf:params:xml:ns:ext-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:ext-1.0 ext-1.0.xsd">
+                    <BundleDomainName/>
+                  </ext:extension>
+                </extension>
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
@@ -1949,8 +2002,6 @@ class HkEpp implements EppRegistryInterface
         }
             $from[] = '/{{ contacts }}/';
             $to[] = $text;
-            $from[] = '/{{ authInfoPw }}/';
-            $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-create-' . $clTRID);
@@ -1972,16 +2023,16 @@ class HkEpp implements EppRegistryInterface
         <domain:registrant>{{ registrant }}</domain:registrant>
         {{ contacts }}
         <domain:promotion/>
-        <domain:authInfo>
-          <domain:pw/>
-        </domain:authInfo>
       </domain:create>
     </create>
-<extension>
-<ext:extension xmlns:ext="urn:ietf:params:xml:ns:ext-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:ext-1.0 ext-1.0.xsd">
-<cttype>O</cttype>
-</ext:extension>
-</extension>
+    <extension>
+     <ext:extension xmlns:ext="urn:ietf:params:xml:ns:ext-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:ext-1.0 ext-1.0.xsd">
+      <cttype>O</cttype>
+      <ResellerInformation/>
+      <FreeBundle/>
+      <NewBundleDomainName/>
+     </ext:extension>
+    </extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -2226,6 +2277,13 @@ class HkEpp implements EppRegistryInterface
         <domain:period unit="y">{{ regperiod }}</domain:period>
       </domain:renew>
     </renew>
+    <extension>
+      <ext:extension xmlns:ext="urn:ietf:params:xml:ns:ext-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:ext-1.0 ext-1.0.xsd">
+        <BundleDomainName/>
+        <FreeBundle/>
+        <NewBundleDomainName/>
+      </ext:extension>
+    </extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');

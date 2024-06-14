@@ -2,7 +2,7 @@
 /**
  * Tembo EPP client test file
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2024 by Taras Kondratyuk (https://getpinga.com)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -15,6 +15,7 @@ require_once 'Connection.php';
 try
 {
     $epp = connectEpp('generic');
+    $clTRID = str_replace('.', '', round(microtime(1), 3));
 
     $params = array(
         'xml' => '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -28,7 +29,7 @@ try
         <domain:name>example.net</domain:name>
       </domain:check>
     </check>
-    <clTRID>ABC-12345</clTRID>
+    <clTRID>'.$clTRID.'</clTRID>
   </command>
 </epp>
 ');
