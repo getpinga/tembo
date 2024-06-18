@@ -2213,17 +2213,15 @@ class VrsnEpp implements EppRegistryInterface
           <domain:pw>{{ authInfoPw }}</domain:pw>
         </domain:authInfo>
       </domain:create>
+    </create>
     <extension>
       <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
-        <secDNS:add>
-          {{ dnssec_data }}
-        </secDNS:add>
+        {{ dnssec_data }}
       </secDNS:create>
-    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
-      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
-    </namestoreExt:namestoreExt>
+      <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+        <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+      </namestoreExt:namestoreExt>
     </extension>
-    </create>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');

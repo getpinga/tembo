@@ -2079,9 +2079,7 @@ xsi:schemaLocation="http://eppdev.dns.pt/schemas/ptdomain-1.0 ptdomain-1.0.xsd">
         <ptdomain:ownerConf>false</ptdomain:ownerConf>
       </ptdomain:create>
       <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
-        <secDNS:add>
-          {{ dnssec_data }}
-        </secDNS:add>
+        {{ dnssec_data }}
       </secDNS:create>
     </extension>
     <clTRID>{{ clTRID }}</clTRID>

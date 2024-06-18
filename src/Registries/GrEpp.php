@@ -2030,9 +2030,7 @@ class GrEpp implements EppRegistryInterface
     </create>
     <extension>
       <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
-        <secDNS:add>
-          {{ dnssec_data }}
-        </secDNS:add>
+        {{ dnssec_data }}
       </secDNS:create>
     </extension>
     <clTRID>{{ clTRID }}</clTRID>

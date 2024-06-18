@@ -2055,14 +2055,12 @@ class LvEpp implements EppRegistryInterface
           <domain:pw>{{ authInfoPw }}</domain:pw>
         </domain:authInfo>
       </domain:create>
+    </create>
     <extension>
       <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
-        <secDNS:add>
-          {{ dnssec_data }}
-        </secDNS:add>
+        {{ dnssec_data }}
       </secDNS:create>
     </extension>
-    </create>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');

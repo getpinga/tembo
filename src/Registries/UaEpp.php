@@ -2021,9 +2021,7 @@ class UaEpp implements EppRegistryInterface
     </create>
     <extension>
       <secDNS:create xmlns:secDNS="http://hostmaster.ua/epp/secDNS-1.1">
-        <secDNS:add>
-          {{ dnssec_data }}
-        </secDNS:add>
+        {{ dnssec_data }}
       </secDNS:create>
     </extension>
     <clTRID>{{ clTRID }}</clTRID>

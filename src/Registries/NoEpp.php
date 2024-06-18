@@ -2057,11 +2057,9 @@ class NoEpp implements EppRegistryInterface
      <no-ext-domain:acceptDate>{{ reg_date }}</no-ext-domain:acceptDate>
     </no-ext-domain:applicantDataset>
    </no-ext-domain:create>
-      <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
-        <secDNS:add>
-          {{ dnssec_data }}
-        </secDNS:add>
-      </secDNS:create>
+   <secDNS:create xmlns:secDNS="urn:ietf:params:xml:ns:secDNS-1.1">
+     {{ dnssec_data }}
+   </secDNS:create>
   </extension>
   <clTRID>{{ clTRID }}</clTRID>
  </command>
