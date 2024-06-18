@@ -1868,7 +1868,7 @@ class VrsnEpp implements EppRegistryInterface
 
         return $return;
     }
-
+    
     /**
      * domainTransfer
      */
@@ -1937,39 +1937,14 @@ class VrsnEpp implements EppRegistryInterface
                     </domain:authInfo>
                   </domain:transfer>
                 </transfer>
-  <extension>
-    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
-      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
-    </namestoreExt:namestoreExt>
-  </extension>
+                <extension>
+                  <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+                    <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+                  </namestoreExt:namestoreExt>
+                </extension>
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
-            
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
-            $name = (string)$r->name;
-            $trStatus = (string)$r->trStatus;
-            $reID = (string)$r->reID;
-            $reDate = (string)$r->reDate;
-            $acID = (string)$r->acID;
-            $acDate = (string)$r->acDate;
-            $exDate = (string)$r->exDate;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg,
-                'name' => $name,
-                'trStatus' => $trStatus,
-                'reID' => $reID,
-                'reDate' => $reDate,
-                'acID' => $acID,
-                'acDate' => $acDate,
-                'exDate' => $exDate
-            );
-            
             } else if ($xmltype === 'apr') {
                 $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1982,33 +1957,14 @@ class VrsnEpp implements EppRegistryInterface
                     <domain:name>{{ name }}</domain:name>
                   </domain:transfer>
                 </transfer>
-  <extension>
-    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
-      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
-    </namestoreExt:namestoreExt>
-  </extension>
+                <extension>
+                  <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+                    <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+                  </namestoreExt:namestoreExt>
+                </extension>
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
-            
-        $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->Data;
-            $name = (string)$r->name;
-            $trStatus = (string)$r->trStatus;
-            $reID = (string)$r->reID;
-            $reDate = (string)$r->reDate;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg,
-                'name' => $name,
-                'trStatus' => $trStatus,
-                'reID' => $reID,
-                'reDate' => $reDate
-            );
-            
             } else if ($xmltype === 'oth') {
                 $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -2021,25 +1977,40 @@ class VrsnEpp implements EppRegistryInterface
                     <domain:name>{{ name }}</domain:name>
                   </domain:transfer>
                 </transfer>
-  <extension>
-    <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
-      <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
-    </namestoreExt:namestoreExt>
-  </extension>
+                <extension>
+                  <namestoreExt:namestoreExt xmlns:namestoreExt="http://www.verisign-grs.com/epp/namestoreExt-1.1">
+                    <namestoreExt:subProduct>dotCOM</namestoreExt:subProduct>
+                  </namestoreExt:namestoreExt>
+                </extension>
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
+            }
             
-        $r = $this->writeRequest($xml);
+            $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
+            $name = (string)($r->name ?? 'N/A');
+            $trStatus = (string)($r->trStatus ?? 'N/A');
+            $reID = (string)($r->reID ?? 'N/A');
+            $reDate = (string)($r->reDate ?? 'N/A');
+            $acID = (string)($r->acID ?? 'N/A');
+            $acDate = (string)($r->acDate ?? 'N/A');
+            $exDate = (string)($r->exDate ?? 'N/A');
 
             $return = array(
                 'code' => $code,
-                'msg' => $msg
+                'msg' => $msg,
+                'name' => $name,
+                'trStatus' => $trStatus,
+                'reID' => $reID,
+                'reDate' => $reDate,
+                'acID' => $acID,
+                'acDate' => $acDate,
+                'exDate' => $exDate
             );
-            
-            } 
+
         } catch (\Exception $e) {
             $return = array(
                 'error' => $e->getMessage()

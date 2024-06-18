@@ -24,20 +24,33 @@ try
     );
     $domainTransfer = $epp->domainTransfer($params);
     
-    if (array_key_exists('error', $domainTransfer))
-    {
+    if (array_key_exists('error', $domainTransfer)) {
         echo 'DomainTransfer Error: ' . $domainTransfer['error'] . PHP_EOL;
-    }
-    else
-    {
-        echo 'DomainTransfer Result: ' . $domainTransfer['code'] . ': ' . $domainTransfer['msg'] . PHP_EOL;
-        echo 'Name: ' . $domainTransfer['name'] . PHP_EOL;
-        echo 'Transfer Status: ' . $domainTransfer['trStatus'] . PHP_EOL;
-        echo 'Gaining Registrar: ' . $domainTransfer['reID'] . PHP_EOL;
-        echo 'Requested On: ' . $domainTransfer['reDate'] . PHP_EOL;
-        echo 'Losing Registrar: ' . $domainTransfer['acID'] . PHP_EOL;
-        echo 'Transfer Confirmed On: ' . $domainTransfer['acDate'] . PHP_EOL;
-        echo 'New Expiration Date: ' . $domainTransfer['exDate'] . PHP_EOL;
+    } else {
+        if (array_key_exists('code', $domainTransfer) && array_key_exists('msg', $domainTransfer)) {
+            echo 'DomainTransfer Result: ' . $domainTransfer['code'] . ': ' . $domainTransfer['msg'] . PHP_EOL;
+        }
+        if (array_key_exists('name', $domainTransfer)) {
+            echo 'Name: ' . $domainTransfer['name'] . PHP_EOL;
+        }
+        if (array_key_exists('trStatus', $domainTransfer)) {
+            echo 'Transfer Status: ' . $domainTransfer['trStatus'] . PHP_EOL;
+        }
+        if (array_key_exists('reID', $domainTransfer)) {
+            echo 'Gaining Registrar: ' . $domainTransfer['reID'] . PHP_EOL;
+        }
+        if (array_key_exists('reDate', $domainTransfer)) {
+            echo 'Requested On: ' . $domainTransfer['reDate'] . PHP_EOL;
+        }
+        if (array_key_exists('acID', $domainTransfer)) {
+            echo 'Losing Registrar: ' . $domainTransfer['acID'] . PHP_EOL;
+        }
+        if (array_key_exists('acDate', $domainTransfer)) {
+            echo 'Transfer Confirmed On: ' . $domainTransfer['acDate'] . PHP_EOL;
+        }
+        if (array_key_exists('exDate', $domainTransfer)) {
+            echo 'New Expiration Date: ' . $domainTransfer['exDate'] . PHP_EOL;
+        }
     }
 
     $logout = $epp->logout();

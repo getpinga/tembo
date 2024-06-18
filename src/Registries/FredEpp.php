@@ -1522,7 +1522,7 @@ class FredEpp implements EppRegistryInterface
 
         return $return;
     }
-
+    
     /**
      * domainTransfer
      */
@@ -1583,7 +1583,7 @@ class FredEpp implements EppRegistryInterface
               <command>
                 <transfer op="request">
                   <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
-       xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+                    xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
                     <domain:name>{{ name }}</domain:name>
                     <domain:authInfo>{{ authInfoPw }}</domain:authInfo>
                   </domain:transfer>
@@ -1591,18 +1591,49 @@ class FredEpp implements EppRegistryInterface
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
+            } else if ($xmltype === 'apr') {
+                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+              <command>
+                <transfer op="approve">
+                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+                    xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+                    <domain:name>{{ name }}</domain:name>
+                  </domain:transfer>
+                </transfer>
+                <clTRID>{{ clTRID }}</clTRID>
+              </command>
+            </epp>');
+            } else if ($xmltype === 'oth') {
+                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+              <command>
+                <transfer op="{{ type }}">
+                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
+                    xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
+                    <domain:name>{{ name }}</domain:name>
+                  </domain:transfer>
+                </transfer>
+                <clTRID>{{ clTRID }}</clTRID>
+              </command>
+            </epp>');
+            }
             
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->trnData;
-            $name = (string)$r->name;
-            $trStatus = (string)$r->trStatus;
-            $reID = (string)$r->reID;
-            $reDate = (string)$r->reDate;
-            $acID = (string)$r->acID;
-            $acDate = (string)$r->acDate;
-            $exDate = (string)$r->exDate;
+            $name = (string)($r->name ?? 'N/A');
+            $trStatus = (string)($r->trStatus ?? 'N/A');
+            $reID = (string)($r->reID ?? 'N/A');
+            $reDate = (string)($r->reDate ?? 'N/A');
+            $acID = (string)($r->acID ?? 'N/A');
+            $acDate = (string)($r->acDate ?? 'N/A');
+            $exDate = (string)($r->exDate ?? 'N/A');
 
             $return = array(
                 'code' => $code,
@@ -1615,67 +1646,7 @@ class FredEpp implements EppRegistryInterface
                 'acDate' => $acDate,
                 'exDate' => $exDate
             );
-            
-            } else if ($xmltype === 'apr') {
-                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-              <command>
-                <transfer op="approve">
-                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
-       xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-                    <domain:name>{{ name }}</domain:name>
-                  </domain:transfer>
-                </transfer>
-                <clTRID>{{ clTRID }}</clTRID>
-              </command>
-            </epp>');
-            
-        $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->Data;
-            $name = (string)$r->name;
-            $trStatus = (string)$r->trStatus;
-            $reID = (string)$r->reID;
-            $reDate = (string)$r->reDate;
 
-            $return = array(
-                'code' => $code,
-                'msg' => $msg,
-                'name' => $name,
-                'trStatus' => $trStatus,
-                'reID' => $reID,
-                'reDate' => $reDate
-            );
-            
-            } else if ($xmltype === 'oth') {
-                $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-            <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-              <command>
-                <transfer op="{{ type }}">
-                  <domain:transfer xmlns:domain="http://www.nic.cz/xml/epp/domain-1.4"
-       xsi:schemaLocation="http://www.nic.cz/xml/epp/domain-1.4 domain-1.4.2.xsd">
-                    <domain:name>{{ name }}</domain:name>
-                  </domain:transfer>
-                </transfer>
-                <clTRID>{{ clTRID }}</clTRID>
-              </command>
-            </epp>');
-            
-        $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg
-            );
-            
-            } 
         } catch (\Exception $e) {
             $return = array(
                 'error' => $e->getMessage()
