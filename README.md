@@ -145,6 +145,7 @@ Would you like to see any registry added as a WHMCS/FOSSBilling module? Or an EP
 |----------|----------|----------|----------|
 | Generic RFC EPP | any | ✅ | [whmcs-epp-rfc](https://github.com/getpinga/whmcs-epp-rfc) |
 | Hostmaster | .ua | ✅ | [whmcs-epp-ua](https://github.com/getpinga/whmcs-epp-ua) |
+| EURid | .eu | ✅ | [whmcs-epp-eurid](https://github.com/getpinga/whmcs-epp-eurid) |
 
 ### FOSSBilling
 
