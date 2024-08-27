@@ -226,6 +226,7 @@ class Epp
         <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
         <svcExtension>
           <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
+          <extURI>urn:ietf:params:xml:ns:rgp-1.0</extURI>
         </svcExtension>
       </svcs>
     </login>
