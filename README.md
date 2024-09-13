@@ -1,30 +1,16 @@
-# Tembo EPP Client
+# Namingo EPP Client
 
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
 [![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
-Welcome to our open source PHP EPP client!
+**Namingo EPP** is an open-source PHP EPP client that enables seamless connection to EPP servers for domain registration and management. It supports multiple EPP extensions, integrates easily with any PHP framework, and is fully customizable for various domain registries.
 
-Our client allows you to easily connect to EPP servers and manage domain registration and other EPP services. Whether you are using Pinga or any other PHP framework, our client integrates seamlessly to provide a flexible and powerful solution for managing your EPP needs.
-
-Some of the key features of our client include:
-
-- Support for multiple EPP extensions: Connect to a wide range of EPP servers and take advantage of various EPP services
-
-- Easy integration: Integrates smoothly with Pinga or any other PHP framework
-
-- Customizable configuration: Adjust settings to meet your specific needs and easily modify the client to work with any domain registry
-
-- Advanced security: Protect your data with TLS encryption
-
-- Open source and freely available: Use and modify our client as you see fit
-
-Whether you are a developer looking to enhance your application with EPP functionality or a domain registrar seeking a reliable EPP client, our open source solution is the perfect choice. Join us and revolutionize your EPP management today!
+The client also provides EPP modules for WHMCS and FOSSBilling, supporting all essential features for efficient domain management.
 
 ## Installation
 
-To install the Pinga Tembo EPP client, follow these steps:
+To begin, simply follow the steps below. This installation process is optimized for a VPS running Ubuntu 22.04/24.04 or Debian 12.
 
 1. Navigate to your project directory and run the following command:
 
