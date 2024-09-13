@@ -49,13 +49,22 @@ try
                 echo $type . ": " . $contact[0]["id"] . "\n";
             }
         }
-        asort($domainInfo['ns']);
-        foreach ($domainInfo['ns'] as $server) {
-            echo "Name Server: $server\n";
+        if (isset($domainInfo['ns']) && is_array($domainInfo['ns'])) {
+            asort($domainInfo['ns']);
+            foreach ($domainInfo['ns'] as $server) {
+                echo "Name Server: $server\n";
+            }
+        } else {
+            echo "No Name Servers available.\n";
         }
-        asort($domainInfo['host']);
-        foreach ($domainInfo['host'] as $host) {
-            echo "Host: $host\n";
+
+        if (isset($domainInfo['host']) && is_array($domainInfo['host'])) {
+            asort($domainInfo['host']);
+            foreach ($domainInfo['host'] as $host) {
+                echo "Host: $host\n";
+            }
+        } else {
+            echo "No Hosts available.\n";
         }
         echo 'Current Registrar: ' . $domainInfo['clID'] . PHP_EOL;
         echo 'Original Registrar: ' . $domainInfo['crID'] . PHP_EOL;
