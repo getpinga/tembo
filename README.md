@@ -80,7 +80,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | TMCH | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (36 backends and counting)
+## Registry Support (37 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -117,6 +117,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | RyCE | all | | ✅ | |
 | SIDN | all | | ✅ | more tests |
 | SWITCH | .ch, .li | | ✅ | |
+| Traficom | .fi | FI | ✅ | only org contacts; more tests |
 | Verisign | all | VRSN | ✅ | |
 | ZADNA | .za |  | ✅ | |
 | ZDNS | all |  | ✅ | |

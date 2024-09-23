@@ -11,6 +11,7 @@
 namespace Pinga\Tembo;
 
 use Pinga\Tembo\Registries\EuEpp;
+use Pinga\Tembo\Registries\FiEpp;
 use Pinga\Tembo\Registries\FrEpp;
 use Pinga\Tembo\Registries\FredEpp;
 use Pinga\Tembo\Registries\GrEpp;
@@ -32,6 +33,9 @@ class EppRegistryFactory
         switch ($registry) {
             case 'EU':
                 return new EuEpp();
+                break;
+            case 'FI':
+                return new FiEpp();
                 break;
             case 'FR':
                 return new FrEpp();
