@@ -1767,7 +1767,6 @@ class FiEpp implements EppRegistryInterface
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
-            } 
             $r = $this->writeRequest($xml);
             $code = (int)$r->response->result->attributes()->code;
             $msg = (string)$r->response->result->msg;
