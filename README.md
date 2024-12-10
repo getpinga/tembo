@@ -143,7 +143,7 @@ Would you like to see any registry added as a WHMCS/FOSSBilling module? Or an EP
 
 ## Troubleshooting
 
-## EPP Server Access
+### EPP Server Access
 
 If you're unsure whether your system can access the EPP server, you can test the connection using OpenSSL. Try one or both of the following commands:
 
@@ -161,7 +161,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 
 Replace `epp.example.com` with your EPP server's hostname and adjust the paths to your certificate files (`cacert.pem`, `cert.pem`, and `key.pem`) as needed. These tests can help identify issues with SSL/TLS configurations or network connectivity.
 
-## Generating an SSL Certificate and Key
+### Generating an SSL Certificate and Key
 
 If you do not have an SSL certificate and private key for secure communication with the registry, you can generate one using OpenSSL.
 
@@ -172,7 +172,7 @@ openssl req -new -x509 -key key.pem -out cert.pem -days 365
 
 **Note:** For production environments, it's recommended to use a certificate signed by a trusted Certificate Authority (CA) instead of a self-signed certificate.
 
-## EPP-over-HTTPS Issues
+### EPP-over-HTTPS Issues
 
 If you experience login or other issues with EPP-over-HTTPS registries such as `.eu`, `.fi`, `.hr`, `.it`, or `.lv`, it might be caused by a corrupted or outdated cookie file. Follow these steps to fix it:
 
@@ -182,6 +182,6 @@ rm -f /tmp/eppcookie.txt
 
 After deleting the cookie file, try logging in again. This will force the creation of a new cookie file and may resolve the issue.
 
-## Need More Help?
+### Need More Help?
 
 If the steps above don’t resolve your issue, refer to the EPP Client logs (`/path/to/tembo/log`) to identify the specific problem.
