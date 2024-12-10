@@ -1,8 +1,8 @@
-<?php    
+<?php
 /**
  * Namingo EPP client library
  *
- * Written in 2023-2024 by Taras Kondratyuk (https://namingo.org)
+ * Written in 2024 by Taras Kondratyuk (https://namingo.org)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -1296,6 +1296,7 @@ class FiEpp implements EppRegistryInterface
 
         $return = array();
         try {
+            // Step 1: Fetch current nameservers via domain info
             $from = $to = array();
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['domainname']);
@@ -1303,89 +1304,133 @@ class FiEpp implements EppRegistryInterface
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $clTRID);
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-      <command>
-        <info>
-          <domain:info
-           xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-           xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
-            <domain:name hosts="all">{{ name }}</domain:name>
-          </domain:info>
-        </info>
-        <clTRID>{{ clTRID }}</clTRID>
-      </command>
-    </epp>');
+        <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+          <command>
+            <info>
+              <domain:info
+               xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+               xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+                <domain:name hosts="all">{{ name }}</domain:name>
+              </domain:info>
+            </info>
+            <clTRID>{{ clTRID }}</clTRID>
+          </command>
+        </epp>');
             $r = $this->writeRequest($xml);
             $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
 
+            // Step 2: Parse existing nameservers
+            $currentNs = array();
+            foreach ($r->ns->hostAttr as $hostAttr) {
+                $hostName = (string)$hostAttr->hostName;
+
+                // Initialize IPv4 and IPv6 as empty
+                $ipv4 = '';
+                $ipv6 = '';
+
+                // Parse <domain:hostAddr> elements
+                foreach ($hostAttr->hostAddr as $hostAddr) {
+                    $ipType = (string)$hostAddr->attributes()->ip; // Get the 'ip' attribute (v4 or v6)
+                    if ($ipType === 'v4') {
+                        $ipv4 = (string)$hostAddr;
+                    } elseif ($ipType === 'v6') {
+                        $ipv6 = (string)$hostAddr;
+                    }
+                }
+
+                // Add to the current nameservers list
+                $currentNs[$hostName] = array_filter([
+                    'hostName' => $hostName,
+                    'ipv4' => $ipv4,
+                    'ipv6' => $ipv6
+                ]);
+            }
+
+            // Step 3: Determine changes (additions, removals)
             $add = $rem = array();
-            $i = 0;
-            foreach ($r->ns->hostObj as $ns) {
-                $i++;
-                $ns = (string)$ns;
-                if (!$ns) {
-                    continue;
-                }
+            foreach ($params['nss'] as $ns) {
+                if (is_array($ns)) {
+                    $hostName = $ns['hostName'];
+                    $ipv4 = $ns['ipv4'] ?? '';
+                    $ipv6 = $ns['ipv6'] ?? '';
+                    $nsKey = $hostName . ($ipv4 ? "|v4:$ipv4" : '') . ($ipv6 ? "|v6:$ipv6" : '');
 
-                $rem["ns{$i}"] = $ns;
-            }
-
-            foreach ($params as $k => $v) {
-                if (!$v) {
-                    continue;
-                }
-
-                if (!preg_match("/^ns\d$/i", $k)) {
-                    continue;
-                }
-
-                if ($k0 = array_search($v, $rem)) {
-                    unset($rem[$k0]);
+                    if (!isset($currentNs[$hostName]) || $currentNs[$hostName] != $ns) {
+                        $add[$nsKey] = $ns;
+                    }
                 } else {
-                    $add[$k] = $v;
+                    // Handle simple hostObj case
+                    if (!isset($currentNs[$ns])) {
+                        $add[$ns] = ['hostName' => $ns];
+                    }
                 }
             }
 
+            foreach ($currentNs as $hostName => $nsData) {
+                if (!in_array($hostName, array_column($params['nss'], 'hostName'))) {
+                    $rem[$hostName] = $nsData;
+                }
+            }
+
+            // Step 4: Generate update XML
             if (!empty($add) || !empty($rem)) {
                 $from = $to = array();
-                $text = '';
-                foreach ($add as $k => $v) {
-                    $text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
+                $addXml = '';
+                foreach ($add as $ns) {
+                    $addXml .= '<domain:hostAttr>';
+                    $addXml .= '<domain:hostName>' . htmlspecialchars($ns['hostName']) . '</domain:hostName>';
+                    if (!empty($ns['ipv4'])) {
+                        $addXml .= '<domain:hostAddr ip="v4">' . htmlspecialchars($ns['ipv4']) . '</domain:hostAddr>';
+                    }
+                    if (!empty($ns['ipv6'])) {
+                        $addXml .= '<domain:hostAddr ip="v6">' . htmlspecialchars($ns['ipv6']) . '</domain:hostAddr>';
+                    }
+                    $addXml .= '</domain:hostAttr>' . "\n";
                 }
 
                 $from[] = '/{{ add }}/';
-                $to[] = (empty($text) ? '' : "<domain:add><domain:ns>\n{$text}</domain:ns></domain:add>\n");
-                $text = '';
-                foreach ($rem as $k => $v) {
-                    $text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
+                $to[] = (empty($addXml) ? '' : "<domain:add><domain:ns>\n{$addXml}</domain:ns></domain:add>\n");
+
+                $remXml = '';
+                foreach ($rem as $ns) {
+                    $remXml .= '<domain:hostAttr>';
+                    $remXml .= '<domain:hostName>' . htmlspecialchars($ns['hostName']) . '</domain:hostName>';
+                    if (!empty($ns['ipv4'])) {
+                        $remXml .= '<domain:hostAddr ip="v4">' . htmlspecialchars($ns['ipv4']) . '</domain:hostAddr>';
+                    }
+                    if (!empty($ns['ipv6'])) {
+                        $remXml .= '<domain:hostAddr ip="v6">' . htmlspecialchars($ns['ipv6']) . '</domain:hostAddr>';
+                    }
+                    $remXml .= '</domain:hostAttr>' . "\n";
                 }
 
                 $from[] = '/{{ rem }}/';
-                $to[] = (empty($text) ? '' : "<domain:rem><domain:ns>\n{$text}</domain:ns></domain:rem>\n");
+                $to[] = (empty($remXml) ? '' : "<domain:rem><domain:ns>\n{$remXml}</domain:ns></domain:rem>\n");
                 $from[] = '/{{ name }}/';
                 $to[] = htmlspecialchars($params['domainname']);
                 $from[] = '/{{ clTRID }}/';
                 $clTRID = str_replace('.', '', round(microtime(1), 3));
                 $to[] = htmlspecialchars($this->prefix . '-domain-updateNS-' . $clTRID);
+
                 $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-      <command>
-        <update>
-          <domain:update
-           xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-           xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
-            <domain:name>{{ name }}</domain:name>
-        {{ add }}
-        {{ rem }}
-          </domain:update>
-        </update>
-        <clTRID>{{ clTRID }}</clTRID>
-      </command>
-    </epp>');
+        <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+          <command>
+            <update>
+              <domain:update
+               xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
+               xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
+                <domain:name>{{ name }}</domain:name>
+            {{ add }}
+            {{ rem }}
+              </domain:update>
+            </update>
+            <clTRID>{{ clTRID }}</clTRID>
+          </command>
+        </epp>');
                 $r = $this->writeRequest($xml);
                 $code = (int)$r->response->result->attributes()->code;
                 $msg = (string)$r->response->result->msg;
@@ -1912,13 +1957,22 @@ class FiEpp implements EppRegistryInterface
             $to[] = (int)($params['period']);
             if (isset($params['nss'])) {
                 $text = '';
-                foreach ($params['nss'] as $hostObj) {
-                    $text .= '<domain:hostAttr><domain:hostName>' . $hostObj . '</domain:hostName></domain:hostAttr>' . "\n";
+                foreach ($params['nss'] as $hostAttr) {
+                    $text .= '<domain:hostAttr>';
+                    $text .= '<domain:hostName>' . htmlspecialchars($hostAttr['hostName']) . '</domain:hostName>';
+                    if (!empty($hostAttr['ipv4'])) {
+                        $text .= '<domain:hostAddr ip="v4">' . htmlspecialchars($hostAttr['ipv4']) . '</domain:hostAddr>';
+                    }
+                    if (!empty($hostAttr['ipv6'])) {
+                        $text .= '<domain:hostAddr ip="v6">' . htmlspecialchars($hostAttr['ipv6']) . '</domain:hostAddr>';
+                    }
+                    
+                    $text .= '</domain:hostAttr>' . "\n";
                 }
-                $from[] = '/{{ hostObjs }}/';
+                $from[] = '/{{ hostAttr }}/';
                 $to[] = $text;
             } else {
-                $from[] = '/{{ hostObjs }}/';
+                $from[] = '/{{ hostAttr }}/';
                 $to[] = '';
             }
             $from[] = '/{{ registrant }}/';
@@ -1928,25 +1982,25 @@ class FiEpp implements EppRegistryInterface
             if ($params['dnssec_records'] == 1) {
                 $from[] = '/{{ dnssec_data }}/';
                 $to[] = "<secDNS:dsData>
-            <secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
-            <secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
-            <secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
-            <secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
-          </secDNS:dsData>";
+                    <secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+                    <secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+                    <secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+                    <secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+                  </secDNS:dsData>";
             } else if ($params['dnssec_records'] == 2) {
                 $from[] = '/{{ dnssec_data }}/';
                 $to[] = "<secDNS:dsData>
-            <secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
-            <secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
-            <secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
-            <secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
-          </secDNS:dsData>
-          <secDNS:dsData>
-            <secDNS:keyTag>".htmlspecialchars($params['keyTag_2'])."</secDNS:keyTag>
-            <secDNS:alg>".htmlspecialchars($params['alg_2'])."</secDNS:alg>
-            <secDNS:digestType>".htmlspecialchars($params['digestType_2'])."</secDNS:digestType>
-            <secDNS:digest>".htmlspecialchars($params['digest_2'])."</secDNS:digest>
-          </secDNS:dsData>";
+                    <secDNS:keyTag>".htmlspecialchars($params['keyTag_1'])."</secDNS:keyTag>
+                    <secDNS:alg>".htmlspecialchars($params['alg_1'])."</secDNS:alg>
+                    <secDNS:digestType>".htmlspecialchars($params['digestType_1'])."</secDNS:digestType>
+                    <secDNS:digest>".htmlspecialchars($params['digest_1'])."</secDNS:digest>
+                  </secDNS:dsData>
+                  <secDNS:dsData>
+                    <secDNS:keyTag>".htmlspecialchars($params['keyTag_2'])."</secDNS:keyTag>
+                    <secDNS:alg>".htmlspecialchars($params['alg_2'])."</secDNS:alg>
+                    <secDNS:digestType>".htmlspecialchars($params['digestType_2'])."</secDNS:digestType>
+                    <secDNS:digest>".htmlspecialchars($params['digest_2'])."</secDNS:digest>
+                  </secDNS:dsData>";
             }
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
@@ -1964,7 +2018,7 @@ class FiEpp implements EppRegistryInterface
         <domain:name>{{ name }}</domain:name>
         <domain:period unit="y">{{ period }}</domain:period>
         <domain:ns>
-          {{ hostObjs }}
+          {{ hostAttr }}
         </domain:ns>
         <domain:registrant>{{ registrant }}</domain:registrant>
         <domain:authInfo>

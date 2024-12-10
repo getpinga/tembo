@@ -10,39 +10,37 @@ The client also provides EPP modules for WHMCS and FOSSBilling, supporting all e
 
 ## Installation
 
-To begin, simply follow the steps below. This installation process is optimized for a VPS running Ubuntu 22.04/24.04 or Debian 12.
+To begin, follow these steps for setting up the EPP Client. This installation process is optimized for a VPS running Ubuntu 22.04/24.04 or Debian 12.
 
-1. Navigate to your project directory and run the following command:
+### 1. Install PHP
 
-```composer require pinga/tembo```
+Make sure PHP is installed on your server. Use the appropriate commands for your operating system.
 
-2. In your PHP code, include the **Connection.php** file from the Tembo package:
-
-```
-require_once 'Connection.php';
-```
-
-3. To create test certificates (cert.pem and key.pem), if the registry does not have mandatory SSL certificates, you can use:
-
-```
-openssl genrsa -out key.pem 2048
+```bash
+apt install -y curl software-properties-common ufw
+add-apt-repository ppa:ondrej/php
+apt update
+apt install -y bzip2 composer git net-tools php8.3 php8.3-bz2 php8.3-cli php8.3-common php8.3-curl php8.3-fpm php8.3-gd php8.3-gmp php8.3-imagick php8.3-intl php8.3-mbstring php8.3-opcache php8.3-readline php8.3-soap php8.3-xml unzip wget whois
 ```
 
-```
-openssl req -new -x509 -key key.pem -out cert.pem -days 365
+### 2. Install Tembo Package
+
+Navigate to your project directory and run the following command:
+
+```bash
+composer require pinga/tembo
 ```
 
-4. You can now use the EppClient class and its functions in your code. You can refer to the **examples** directory for examples of how the package can be used.
+### 3. Configure Access to the Registry
 
-5. To test if you have access to the EPP server from your system, you may use:
+Edit the `examples/Connection.php` file to configure your registry access credentials.
+If the registry requires SSL certificates and you don't have them, refer to the troubleshooting section for steps to generate `cert.pem` and `key.pem`.
 
-```
-openssl s_client -showcerts -connect epp.example.com:700
-```
+### Using the EPP Client
 
-```
-openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem -key key.pem
-```
+- You can use the commands provided in the `examples` directory to interact with the EPP server.
+
+- Alternatively, include the `Connection.php` file in your project and build your custom application using the `EppClient` class and its functions.
 
 ## Supported EPP Commands
 
@@ -114,9 +112,9 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | Registro.it | .it | IT | ✅ | |
 | RoTLD | .ro | | ✅ | |
 | RyCE | all | | ✅ | |
-| SIDN | all | | ✅ | more tests |
+| SIDN | all | | ✅ | |
 | SWITCH | .ch, .li | | ✅ | |
-| Traficom | .fi | FI | ✅ | only org contacts; more tests |
+| Traficom | .fi | FI | ✅ | only org contacts |
 | Verisign | all | VRSN | ✅ | |
 | ZADNA | .za |  | ✅ | |
 | ZDNS | all |  | ✅ | |
@@ -142,3 +140,48 @@ Would you like to see any registry added as a WHMCS/FOSSBilling module? Or an EP
 | Caucasus Online | .ge | ✅ | [fossbilling-epp-ge](https://github.com/getpinga/fossbilling-epp-ge) |
 | FRED | .cz/any | ✅ | [fossbilling-epp-fred](https://github.com/getpinga/fossbilling-epp-fred) |
 | Hostmaster | .ua | ✅ | [fossbilling-epp-ua](https://github.com/getpinga/fossbilling-epp-ua) |
+
+## Troubleshooting
+
+## EPP Server Access
+
+If you're unsure whether your system can access the EPP server, you can test the connection using OpenSSL. Try one or both of the following commands:
+
+1. Basic Connectivity Test:
+
+```bash
+openssl s_client -showcerts -connect epp.example.com:700
+```
+
+2. Test with Client Certificates:
+
+```bash
+openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem -key key.pem
+```
+
+Replace `epp.example.com` with your EPP server's hostname and adjust the paths to your certificate files (`cacert.pem`, `cert.pem`, and `key.pem`) as needed. These tests can help identify issues with SSL/TLS configurations or network connectivity.
+
+## Generating an SSL Certificate and Key
+
+If you do not have an SSL certificate and private key for secure communication with the registry, you can generate one using OpenSSL.
+
+```bash
+openssl genrsa -out key.pem 2048
+openssl req -new -x509 -key key.pem -out cert.pem -days 365
+```
+
+**Note:** For production environments, it's recommended to use a certificate signed by a trusted Certificate Authority (CA) instead of a self-signed certificate.
+
+## EPP-over-HTTPS Issues
+
+If you experience login or other issues with EPP-over-HTTPS registries such as `.eu`, `.fi`, `.hr`, `.it`, or `.lv`, it might be caused by a corrupted or outdated cookie file. Follow these steps to fix it:
+
+```bash
+rm -f /tmp/eppcookie.txt
+```
+
+After deleting the cookie file, try logging in again. This will force the creation of a new cookie file and may resolve the issue.
+
+## Need More Help?
+
+If the steps above don’t resolve your issue, refer to the EPP Client logs (`/path/to/tembo/log`) to identify the specific problem.
