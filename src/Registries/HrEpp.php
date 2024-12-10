@@ -1617,7 +1617,16 @@ class HrEpp implements EppRegistryInterface
             if (isset($params['nss'])) {
                 $text = '';
                 foreach ($params['nss'] as $hostAttr) {
-                    $text .= '<domain:hostAttr><domain:hostName>' . $hostAttr . '</domain:hostName></domain:hostAttr>' . "\n";
+                    $text .= '<domain:hostAttr>';
+                    $text .= '<domain:hostName>' . htmlspecialchars($hostAttr['hostName']) . '</domain:hostName>';
+                    if (!empty($hostAttr['ipv4'])) {
+                        $text .= '<domain:hostAddr ip="v4">' . htmlspecialchars($hostAttr['ipv4']) . '</domain:hostAddr>';
+                    }
+                    if (!empty($hostAttr['ipv6'])) {
+                        $text .= '<domain:hostAddr ip="v6">' . htmlspecialchars($hostAttr['ipv6']) . '</domain:hostAddr>';
+                    }
+                    
+                    $text .= '</domain:hostAttr>' . "\n";
                 }
                 $from[] = '/{{ hostAttr }}/';
                 $to[] = $text;

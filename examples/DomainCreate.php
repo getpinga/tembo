@@ -2,7 +2,7 @@
 /**
  * Tembo EPP client test file
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2024 by Taras Kondratyuk (https://getpinga.com)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -19,7 +19,22 @@ try
     $params = array(
         'domainname' => 'test.example',
         'period' => 1,
+        // For TLDs that require the <domain:hostAttr> element (e.g., when assigning nameservers with specific IP addresses),
+        // comment out the next line and uncomment the one below to include hostAttr details in the EPP request.
         'nss' => array('ns1.google.com','ns2.google.com'),
+        /*'nss' => array(
+            array(
+                'hostName' => 'ns.test.it',
+                'ipv4' => '192.168.100.10'
+            ),
+            array(
+                'hostName' => 'ns2.test.it',
+                'ipv4' => '192.168.100.20'
+            ),
+            array(
+                'hostName' => 'ns3.foo.com'
+            )
+        ),*/
         'registrant' => 'tembo007',
         'contacts' => array(
            'admin' => 'tembo007',

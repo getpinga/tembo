@@ -80,7 +80,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | TMCH | ✅ |
 | REGRR | ❌ |
 
-## Registry Support (37 backends and counting)
+## Registry Support (36 backends and counting)
 
 | Registry | TLDs | Extension | Status | TODO |
 |----------|----------|----------|----------|----------|
@@ -111,8 +111,7 @@ openssl s_client -connect epp.example.com:700 -CAfile cacert.pem -cert cert.pem 
 | NIC.LV | .lv | LV | ✅ | |
 | NORID | .no | NO | ✅ | |
 | .PT | .pt | PT | ✅ | |
-| Registr.io | all | | ✅ | |
-| Registro.it | .it | IT | 🚧 | work on extensions |
+| Registro.it | .it | IT | ✅ | |
 | RoTLD | .ro | | ✅ | |
 | RyCE | all | | ✅ | |
 | SIDN | all | | ✅ | more tests |

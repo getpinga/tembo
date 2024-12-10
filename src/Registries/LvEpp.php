@@ -1866,23 +1866,30 @@ class LvEpp implements EppRegistryInterface
             $to[] = (int)($params['period']);
             if (isset($params['nss'])) {
                 $text = '';
-                foreach ($params['nss'] as $hostObj) {
-                    $text .= '<domain:hostAttr>
-            <domain:hostName>' . $hostObj . '</domain:hostName>
-          </domain:hostAttr>';
+                foreach ($params['nss'] as $hostAttr) {
+                    $text .= '<domain:hostAttr>';
+                    $text .= '<domain:hostName>' . htmlspecialchars($hostAttr['hostName']) . '</domain:hostName>';
+                    if (!empty($hostAttr['ipv4'])) {
+                        $text .= '<domain:hostAddr ip="v4">' . htmlspecialchars($hostAttr['ipv4']) . '</domain:hostAddr>';
+                    }
+                    if (!empty($hostAttr['ipv6'])) {
+                        $text .= '<domain:hostAddr ip="v6">' . htmlspecialchars($hostAttr['ipv6']) . '</domain:hostAddr>';
+                    }
+                    
+                    $text .= '</domain:hostAttr>' . "\n";
                 }
-                $from[] = '/{{ hostObjs }}/';
+                $from[] = '/{{ hostAttr }}/';
                 $to[] = $text;
             } else {
-                $from[] = '/{{ hostObjs }}/';
+                $from[] = '/{{ hostAttr }}/';
                 $to[] = '';
             }
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
             $text = '';
-        foreach ($params['contacts'] as $contactType => $contactID) {
-            $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
-        }
+            foreach ($params['contacts'] as $contactType => $contactID) {
+                $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
+            }
             $from[] = '/{{ contacts }}/';
             $to[] = $text;
             $from[] = '/{{ authInfoPw }}/';
@@ -1903,7 +1910,7 @@ class LvEpp implements EppRegistryInterface
         <domain:name>{{ name }}</domain:name>
         <domain:period unit="y">1</domain:period>
         <domain:ns>
-        {{ hostObjs }}
+        {{ hostAttr }}
         </domain:ns>
         <domain:registrant>{{ registrant }}</domain:registrant>
         {{ contacts }}

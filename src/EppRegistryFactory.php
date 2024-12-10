@@ -17,6 +17,7 @@ use Pinga\Tembo\Registries\FredEpp;
 use Pinga\Tembo\Registries\GrEpp;
 use Pinga\Tembo\Registries\HkEpp;
 use Pinga\Tembo\Registries\HrEpp;
+use Pinga\Tembo\Registries\ItEpp;
 use Pinga\Tembo\Registries\LvEpp;
 use Pinga\Tembo\Registries\MxEpp;
 use Pinga\Tembo\Registries\NoEpp;
@@ -51,6 +52,9 @@ class EppRegistryFactory
                 break;
             case 'HR':
                 return new HrEpp();
+                break;
+            case 'IT':
+                return new ItEpp();
                 break;
             case 'LV':
                 return new LvEpp();

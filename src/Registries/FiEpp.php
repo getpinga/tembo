@@ -1817,13 +1817,22 @@ class FiEpp implements EppRegistryInterface
             $to[] = (int)($params['period']);
             if (isset($params['nss'])) {
                 $text = '';
-                foreach ($params['nss'] as $hostObj) {
-                    $text .= '<domain:hostAttr><domain:hostName>' . $hostObj . '</domain:hostName></domain:hostAttr>' . "\n";
+                foreach ($params['nss'] as $hostAttr) {
+                    $text .= '<domain:hostAttr>';
+                    $text .= '<domain:hostName>' . htmlspecialchars($hostAttr['hostName']) . '</domain:hostName>';
+                    if (!empty($hostAttr['ipv4'])) {
+                        $text .= '<domain:hostAddr ip="v4">' . htmlspecialchars($hostAttr['ipv4']) . '</domain:hostAddr>';
+                    }
+                    if (!empty($hostAttr['ipv6'])) {
+                        $text .= '<domain:hostAddr ip="v6">' . htmlspecialchars($hostAttr['ipv6']) . '</domain:hostAddr>';
+                    }
+                    
+                    $text .= '</domain:hostAttr>' . "\n";
                 }
-                $from[] = '/{{ hostObjs }}/';
+                $from[] = '/{{ hostAttr }}/';
                 $to[] = $text;
             } else {
-                $from[] = '/{{ hostObjs }}/';
+                $from[] = '/{{ hostAttr }}/';
                 $to[] = '';
             }
             $from[] = '/{{ registrant }}/';
@@ -1847,7 +1856,7 @@ class FiEpp implements EppRegistryInterface
         <domain:name>{{ name }}</domain:name>
         <domain:period unit="y">{{ period }}</domain:period>
         <domain:ns>
-          {{ hostObjs }}
+          {{ hostAttr }}
         </domain:ns>
         <domain:registrant>{{ registrant }}</domain:registrant>
         <domain:authInfo>

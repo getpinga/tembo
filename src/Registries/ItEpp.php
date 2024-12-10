@@ -2,7 +2,7 @@
 /**
  * Tembo EPP client library
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2024 by Taras Kondratyuk (https://getpinga.com)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -17,7 +17,7 @@ use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
 
-class EuEpp implements EppRegistryInterface
+class ItEpp implements EppRegistryInterface
 {
     private $resource;
     private $isLoggedIn;
@@ -43,9 +43,9 @@ class EuEpp implements EppRegistryInterface
 
         // Create handlers - The second parameter is the max number of files to keep (0 means unlimited)
         // The third parameter is the log level
-        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/response-eu.log', 0, Logger::DEBUG);
-        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/request-eu.log', 0, Logger::DEBUG);
-        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/common-eu.log', 0, Logger::DEBUG);
+        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/response-it.log', 0, Logger::DEBUG);
+        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/request-it.log', 0, Logger::DEBUG);
+        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/common-it.log', 0, Logger::DEBUG);
 
         // Set the formatter to the handlers
         $responseHandler->setFormatter($formatter);
@@ -64,36 +64,33 @@ class EuEpp implements EppRegistryInterface
     public function connect($params = array())
     {
         $host = (string)$params['host'];
-        $port = (int)$params['port'];
-        $timeout = (int)$params['timeout'];
-        $tls = (string)$params['tls'];
-        $bind = (string)$params['bind'];
-        $bindip = (string)$params['bindip'];
-        if ($tls !== '1.3' && $tls !== '1.2' && $tls !== '1.1') {
-            throw new EppException('Invalid TLS version specified.');
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $host);
+        curl_setopt($ch, CURLOPT_PORT, (int)$params['port']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, (int)$params['timeout']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (bool)$params['verify_peer']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $params['verify_host']);
+        if ($params['cafile']) {
+            curl_setopt($ch, CURLOPT_CAINFO, (string)$params['cafile']);
         }
-        $opts = array(
-            'ssl' => array(
-            'verify_peer' => (bool)$params['verify_peer'],
-            'verify_peer_name' => (bool)$params['verify_peer_name'],
-            'verify_host' => (bool)$params['verify_host'],
-            'cafile' => (string)$params['cafile'],
-            'local_cert' => (string)$params['local_cert'],
-            'local_pk' => (string)$params['local_pk'],
-            'passphrase' => (string)$params['passphrase'],
-            'allow_self_signed' => (bool)$params['allow_self_signed'],
-            'min_tls_version' => $tls
-            )
-        );
-        if ($bind) {
-            $opts['socket'] = array('bindto' => $bindip);
+        curl_setopt($ch, CURLOPT_SSLCERT, (string)$params['local_cert']);
+        curl_setopt($ch, CURLOPT_SSLKEY, (string)$params['local_pk']);
+        if ($params['passphrase']) {
+            curl_setopt($ch, CURLOPT_SSLKEYPASSWD, (string)$params['passphrase']);
         }
-        $context = stream_context_create($opts);
-        $this->resource = stream_socket_client("tls://{$host}:{$port}", $errno, $errmsg, $timeout, STREAM_CLIENT_CONNECT, $context);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_COOKIEJAR, sys_get_temp_dir() . '/eppcookie.txt');
+        curl_setopt($ch, CURLOPT_COOKIEFILE, sys_get_temp_dir() . '/eppcookie.txt');
+        $this->resource = curl_exec($ch);
+
         if (!$this->resource) {
             throw new EppException("Cannot connect to server '{$host}': {$errmsg}");
         }
 
+        $this->ch = $ch;
         return $this->readResponse();
     }
 
@@ -102,17 +99,16 @@ class EuEpp implements EppRegistryInterface
      */
     public function readResponse()
     {
-        $hdr = stream_get_contents($this->resource, 4);
-        if ($hdr === false) {
-            throw new EppException('Connection appears to have closed.');
+        try {
+            $return = curl_exec($this->ch);
+            $xml = preg_replace('/></', ">\n<", $return);
+            $this->_response_log($xml);
+        } catch (\EppException $e) {
+            $code = curl_errno($this->ch);
+            $msg = curl_error($this->ch);
+            throw new \EppException($msg, $code);
         }
-        if (strlen($hdr) < 4) {
-            throw new EppException('Failed to read header from the connection.');
-        }
-        $unpacked = unpack('N', $hdr);
-        $xml = fread($this->resource, ($unpacked[1] - 4));
-        $xml = preg_replace('/></', ">\n<", $xml);
-        $this->_response_log($xml);
+
         return $xml;
     }
 
@@ -122,13 +118,13 @@ class EuEpp implements EppRegistryInterface
     public function writeRequest($xml)
     {
         $this->_request_log($xml);
-        if (fwrite($this->resource, pack('N', (strlen($xml) + 4)) . $xml) === false) {
-            throw new EppException('Error writing to the connection.');
-        }
+        curl_setopt($this->ch, CURLOPT_POST, true);
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $xml);
         $r = simplexml_load_string($this->readResponse());
-        if (isset($r->response) && $r->response->result->attributes()->code >= 2000) {
+        if ($r->response->result->attributes()->code >= 2000) {
             throw new EppException($r->response->result->msg);
         }
+
         return $r;
     }
 
@@ -137,10 +133,7 @@ class EuEpp implements EppRegistryInterface
      */
     public function disconnect()
     {
-        if (!fclose($this->resource)) {
-            throw new EppException('Error closing the connection.');
-        }
-        $this->resource = null;
+        return curl_close($this->ch);
     }
 
     /**
@@ -189,10 +182,10 @@ class EuEpp implements EppRegistryInterface
             $from[] = '/{{ clID }}/';
             $to[] = htmlspecialchars($params['clID']);
             $from[] = '/{{ pwd }}/';
-            $to[] = '<![CDATA[' . $params['pw'] . ']]>';   
+            $to[] = $params['pw'];
             if (isset($params['newpw']) && !empty($params['newpw'])) {
             $from[] = '/{{ newpw }}/';
-            $to[] = PHP_EOL . '      <newPW><![CDATA[' . $params['newpw'] . ']]></newPW>';
+            $to[] = PHP_EOL . '      <newPW>'. $params['newpw'] .'</newPW>';
             } else {
             $from[] = '/{{ newpw }}/';
             $to[] = '';
@@ -212,27 +205,17 @@ class EuEpp implements EppRegistryInterface
         <version>1.0</version>
         <lang>en</lang>
       </options>
-        <svcs>
-          <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
-          <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
-          <objURI>http://www.eurid.eu/xml/epp/nsgroup-1.1</objURI>
-          <objURI>http://www.eurid.eu/xml/epp/keygroup-1.1</objURI>
-          <objURI>http://www.eurid.eu/xml/epp/registrarFinance-1.0</objURI>
-          <objURI>http://www.eurid.eu/xml/epp/registrarHitPoints-1.0</objURI>
-          <objURI>http://www.eurid.eu/xml/epp/registrationLimit-1.1</objURI>
-          <objURI>http://www.eurid.eu/xml/epp/dnssecEligibility-1.0</objURI>
-          <svcExtension>
-            <extURI>http://www.eurid.eu/xml/epp/contact-ext-1.3</extURI>
-            <extURI>http://www.eurid.eu/xml/epp/domain-ext-2.3</extURI>
-            <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
-            <extURI>http://www.eurid.eu/xml/epp/idn-1.0</extURI>
-            <extURI>http://www.eurid.eu/xml/epp/authInfo-1.1</extURI>
-            <extURI>http://www.eurid.eu/xml/epp/poll-1.2</extURI>
-            <extURI>http://www.eurid.eu/xml/epp/homoglyph-1.0</extURI>
-          </svcExtension>
-        </svcs>
+      <svcs>
+        <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
+        <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
+        <svcExtension>
+          <extURI>http://www.nic.it/ITNIC-EPP/extepp-2.0</extURI>
+          <extURI>http://www.nic.it/ITNIC-EPP/extcon-1.0</extURI>
+          <extURI>http://www.nic.it/ITNIC-EPP/extdom-2.0</extURI>
+          <extURI>urn:ietf:params:xml:ns:rgp-1.0</extURI>
+        </svcExtension>
+      </svcs>
     </login>
-    <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
             $r = $this->writeRequest($xml);
@@ -344,8 +327,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Host is not supported!");
+
+        throw new EppException("Hosts not supported!");
     }
 
     /**
@@ -359,8 +342,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Host is not supported!");
+
+        throw new EppException("Hosts not supported!");
     }
 
     /**
@@ -374,8 +357,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Host is not supported!");
+
+        throw new EppException("Hosts not supported!");
     }
     
     /**
@@ -389,8 +372,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Host is not supported!");
+
+        throw new EppException("Hosts not supported!");
     }
 
     /**
@@ -404,8 +387,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Host is not supported!");
+
+        throw new EppException("Hosts not supported!");
     }
 
     /**
@@ -419,8 +402,58 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Contact check is not supported!");
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ id }}/';
+            $id = $params['contact'];
+            $to[] = htmlspecialchars($id);
+            $from[] = '/{{ clTRID }}/';
+            $microtime = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-contact-check-' . $microtime);
+            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+            $to[] = '';
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+    <check>
+      <contact:check
+        xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
+        xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
+        <contact:id>{{ id }}</contact:id>
+      </contact:check>
+    </check>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+            $r = $r->response->resData->children('urn:ietf:params:xml:ns:contact-1.0')->chkData;
+
+            $i = 0;
+            foreach ($r->cd as $cd) {
+                $i++;
+                $contacts[$i]['id'] = (string)$cd->id;
+                $contacts[$i]['avail'] = (int)$cd->id->attributes()->avail;
+                $contacts[$i]['reason'] = (string)$cd->reason;
+            }
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg,
+                'contacts' => $contacts
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
     }
 
     /**
@@ -434,15 +467,12 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
+
         $return = array();
         try {
             $from = $to = array();
             $from[] = '/{{ id }}/';
             $to[] = htmlspecialchars($params['contact']);
-            $from[] = '/{{ authInfo }}/';
-            $authInfo = (isset($params['authInfoPw']) ? "<contact:authInfo>\n<contact:pw><![CDATA[{$params['authInfoPw']}]]></contact:pw>\n</contact:authInfo>" : '');
-            $to[] = $authInfo;
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-info-' . $microtime);
@@ -457,7 +487,6 @@ class EuEpp implements EppRegistryInterface
       <contact:info
        xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
         <contact:id>{{ id }}</contact:id>
-        {{ authInfo }}
       </contact:info>
     </info>
     <clTRID>{{ clTRID }}</clTRID>
@@ -543,21 +572,18 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
+
         $return = array();
         try {
             $from = $to = array();
+            $from[] = '/{{ type }}/';
+            $to[] = htmlspecialchars($params['type']);
             $from[] = '/{{ id }}/';
             $to[] = htmlspecialchars($params['id']);
-            $from[] = '/{{ type }}/';
-            $to[] = htmlspecialchars($params['euType']);
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['firstname'] . ' ' . $params['lastname']);
             $from[] = '/{{ org }}/';
             $to[] = htmlspecialchars($params['companyname']);
-            $isNatural = htmlspecialchars($params['companyname']) ? 'false' : 'true';
-            $from[] = '/{{ isNatural }}/';
-            $to[] = $isNatural;
             $from[] = '/{{ street1 }}/';
             $to[] = htmlspecialchars($params['address1']);
             $from[] = '/{{ street2 }}/';
@@ -575,13 +601,30 @@ class EuEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['country']);
             $from[] = '/{{ phonenumber }}/';
             $to[] = htmlspecialchars($params['fullphonenumber']);
+            $from[] = '/{{ fax }}/';
+            $to[] = htmlspecialchars($params['fax']);
             $from[] = '/{{ email }}/';
             $to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ authInfo }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
+            $from[] = '/{{ consentForPublishing }}/';
+            $to[] = htmlspecialchars($params['consentForPublishing']);
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);
+
+            $registrantXml = '';
+            if (!empty($params['nationalityCode']) && !empty($params['entityType']) && !empty($params['regCode'])) {
+                $registrantXml = '
+                <extcon:registrant>
+                  <extcon:nationalityCode>' . htmlspecialchars($params['nationalityCode']) . '</extcon:nationalityCode>
+                  <extcon:entityType>' . htmlspecialchars($params['entityType']) . '</extcon:entityType>
+                  <extcon:regCode>' . htmlspecialchars($params['regCode']) . '</extcon:regCode>
+                </extcon:registrant>';
+            }
+            $from[] = '/{{ registrant }}/';
+            $to[] = $registrantXml;
+
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -593,7 +636,7 @@ class EuEpp implements EppRegistryInterface
       <contact:create
        xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
         <contact:id>{{ id }}</contact:id>
-        <contact:postalInfo type="loc">
+        <contact:postalInfo type="{{ type }}">
           <contact:name>{{ name }}</contact:name>
           <contact:org>{{ org }}</contact:org>
           <contact:addr>
@@ -607,20 +650,20 @@ class EuEpp implements EppRegistryInterface
           </contact:addr>
         </contact:postalInfo>
         <contact:voice>{{ phonenumber }}</contact:voice>
-        <contact:fax></contact:fax>
+        <contact:fax>{{ fax }}</contact:fax>
         <contact:email>{{ email }}</contact:email>
         <contact:authInfo>
-          <contact:pw>{{ authInfo }}</contact:pw>
+          <contact:pw></contact:pw>
         </contact:authInfo>
       </contact:create>
     </create>
-      <extension>
-        <contact-ext:create xmlns:contact-ext="http://www.eurid.eu/xml/epp/contact-ext-1.3">
-          <contact-ext:type>{{ type }}</contact-ext:type>
-          <contact-ext:lang>en</contact-ext:lang>
-          <contact-ext:naturalPerson>{{ isNatural }}</contact-ext:naturalPerson>
-        </contact-ext:create>
-      </extension>
+    <extension>
+      <extcon:create xmlns:extcon="http://www.nic.it/ITNIC-EPP/extcon-1.0"
+       xsi:schemaLocation="http://www.nic.it/ITNIC-EPP/extcon-1.0 extcon1.0.xsd">
+        <extcon:consentForPublishing>{{ consentForPublishing }}</extcon:consentForPublishing>
+        {{ registrant }}
+      </extcon:create>
+    </extension>
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -655,10 +698,12 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
+
         $return = array();
         try {
             $from = $to = array();
+            $from[] = '/{{ type }}/';
+            $to[] = htmlspecialchars($params['type']);
             $from[] = '/{{ id }}/';
             $to[] = htmlspecialchars($params['id']);
             $from[] = '/{{ name }}/';
@@ -682,6 +727,8 @@ class EuEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['country']);
             $from[] = '/{{ voice }}/';
             $to[] = htmlspecialchars($params['fullphonenumber']);
+            $from[] = '/{{ fax }}/';
+            $to[] = htmlspecialchars($params['fax']);
             $from[] = '/{{ email }}/';
             $to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ clTRID }}/';
@@ -689,6 +736,21 @@ class EuEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($this->prefix . '-contact-update-' . $microtime);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
+            
+            $extensionBlock = '';
+            if (isset($params['consentForPublishing']) && $params['consentForPublishing'] !== '') {
+                $consentValue = htmlspecialchars($params['consentForPublishing']);
+                $extensionBlock = '
+        <extension>
+          <extcon:update xmlns:extcon="http://www.nic.it/ITNIC-EPP/extcon-1.0"
+           xsi:schemaLocation="http://www.nic.it/ITNIC-EPP/extcon-1.0 extcon1.0.xsd">
+            <extcon:consentForPublishing>' . $consentValue . '</extcon:consentForPublishing>
+          </extcon:update>
+        </extension>';
+            }
+            $from[] = '/{{ extension }}/';
+            $to[] = $extensionBlock;
+
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -698,7 +760,7 @@ class EuEpp implements EppRegistryInterface
       <contact:update xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
         <contact:id>{{ id }}</contact:id>
         <contact:chg>
-          <contact:postalInfo type="loc">
+          <contact:postalInfo type="{{ type }}">
             <contact:name>{{ name }}</contact:name>
             <contact:org>{{ org }}</contact:org>
             <contact:addr>
@@ -712,11 +774,12 @@ class EuEpp implements EppRegistryInterface
             </contact:addr>
           </contact:postalInfo>
           <contact:voice>{{ voice }}</contact:voice>
-          <contact:fax></contact:fax>
+          <contact:fax>{{ fax }}</contact:fax>
           <contact:email>{{ email }}</contact:email>
         </contact:chg>
       </contact:update>
     </update>
+    {{ extension }}
     <clTRID>{{ clTRID }}</clTRID>
   </command>
 </epp>');
@@ -748,7 +811,7 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
+
         $return = array();
         try {
             $from = $to = array();
@@ -805,7 +868,6 @@ class EuEpp implements EppRegistryInterface
         try {
             $from = $to = array();
             $text = '';
-            $tld_text = '';
             foreach ($params['domains'] as $name) {
                 $text .= '<domain:name>' . $name . '</domain:name>' . "\n";
             }
@@ -870,8 +932,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Domain check claims is not supported!");
+
+        throw new EppException("Launch extension not supported!");
     }
 
     /**
@@ -891,9 +953,14 @@ class EuEpp implements EppRegistryInterface
             $from = $to = array();
             $from[] = '/{{ domainname }}/';
             $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ authInfo }}/';
-            $authInfo = (!empty($params['authInfoPw']) ? "<domain:authInfo>\n<domain:pw><![CDATA[{$params['authInfoPw']}]]></domain:pw>\n</domain:authInfo>" : '');
-            $to[] = $authInfo;
+            if (!empty($params['authInfoPw'])) {
+                $from[] = '/{{ authInfo }}/';
+                $authInfo = "<domain:authInfo>\n<domain:pw>{$params['authInfoPw']}</domain:pw>\n</domain:authInfo>";
+                $to[] = $authInfo;
+            } else {
+                $from[] = '/{{ authInfo }}/';
+                $to[] = '';
+            }
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-info-' . $microtime);
@@ -937,9 +1004,9 @@ class EuEpp implements EppRegistryInterface
             }
             $ns = array();
             $i = 0;
-            foreach ($r->ns->hostAttr as $hostObj) {
+            foreach ($r->ns->hostAttr as $hostAttr) {
                 $i++;
-                $ns[$i] = (string)$hostObj;
+                $ns[$i] = (string)$hostAttr->hostName;
             }
             $host = array();
             $i = 0;
@@ -1024,7 +1091,7 @@ class EuEpp implements EppRegistryInterface
 
             $add = $rem = array();
             $i = 0;
-            foreach ($r->ns->hostAttr as $ns) {
+            foreach ($r->ns->hostObj as $ns) {
                 $i++;
                 $ns = (string)$ns;
                 if (!$ns) {
@@ -1054,14 +1121,14 @@ class EuEpp implements EppRegistryInterface
                 $from = $to = array();
                 $text = '';
                 foreach ($add as $k => $v) {
-                    $text.= '<domain:hostAttr><domain:hostName>' . $v . '</domain:hostName></domain:hostAttr>' . "\n";
+                    $text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
                 }
 
                 $from[] = '/{{ add }}/';
                 $to[] = (empty($text) ? '' : "<domain:add><domain:ns>\n{$text}</domain:ns></domain:add>\n");
                 $text = '';
                 foreach ($rem as $k => $v) {
-                    $text.= '<domain:hostAttr><domain:hostName>' . $v . '</domain:hostName></domain:hostAttr>' . "\n";
+                    $text.= '<domain:hostObj>' . $v . '</domain:hostObj>' . "\n";
                 }
 
                 $from[] = '/{{ rem }}/';
@@ -1117,7 +1184,7 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
+
         $return = array();
         try {
             $from = $to = array();
@@ -1419,7 +1486,7 @@ class EuEpp implements EppRegistryInterface
 
         return $return;
     }
-
+    
     /**
      * domainTransfer
      */
@@ -1439,8 +1506,6 @@ class EuEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['domainname']);
             switch (htmlspecialchars($params['op'])) {
                 case 'request':
-                    $from[] = '/{{ years }}/';
-                    $to[] = (int)($params['years']);
                     $from[] = '/{{ authInfoPw }}/';
                     $to[] = htmlspecialchars($params['authInfoPw']);
                     $xmltype = 'req';
@@ -1449,19 +1514,27 @@ class EuEpp implements EppRegistryInterface
                     $from[] = '/{{ type }}/';
                     $to[] = 'query';
                     $xmltype = 'oth';
+                    $from[] = '/{{ authInfoPw }}/';
+                    $to[] = htmlspecialchars($params['authInfoPw']);
                     break;
                 case 'cancel':
                     $from[] = '/{{ type }}/';
                     $to[] = 'cancel';
                     $xmltype = 'oth';
+                    $from[] = '/{{ authInfoPw }}/';
+                    $to[] = htmlspecialchars($params['authInfoPw']);
                     break;
                 case 'reject':
                     $from[] = '/{{ type }}/';
                     $to[] = 'reject';
                     $xmltype = 'oth';
+                    $from[] = '/{{ authInfoPw }}/';
+                    $to[] = htmlspecialchars($params['authInfoPw']);
                     break;
                 case 'approve':
                     $xmltype = 'apr';
+                    $from[] = '/{{ authInfoPw }}/';
+                    $to[] = htmlspecialchars($params['authInfoPw']);
                     break;
                 default:
                     throw new EppException('Invalid value for transfer:op specified.');
@@ -1472,6 +1545,25 @@ class EuEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($this->prefix . '-domain-transfer-' . $clTRID);
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
+
+            $extension = '';
+            if (!empty($params['newRegistrant']) && !empty($params['newAuthInfo'])) {
+                $extension = '
+        <extension>
+          <extdom:trade xmlns:extdom="http://www.nic.it/ITNIC-EPP/extdom-2.0"
+           xsi:schemaLocation="http://www.nic.it/ITNIC-EPP/extdom-2.0 extdom-2.0.xsd">
+            <extdom:transferTrade>
+              <extdom:newRegistrant>' . htmlspecialchars($params['newRegistrant']) . '</extdom:newRegistrant>
+              <extdom:newAuthInfo>
+                <extdom:pw>' . htmlspecialchars($params['newAuthInfo']) . '</extdom:pw>
+              </extdom:newAuthInfo>
+            </extdom:transferTrade>
+          </extdom:trade>
+        </extension>';
+            }
+            $from[] = '/{{ extension }}/';
+            $to[] = $extension;
+
             if ($xmltype === 'req') {
                 $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
             <epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
@@ -1482,12 +1574,12 @@ class EuEpp implements EppRegistryInterface
                   <domain:transfer
                    xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
                     <domain:name>{{ name }}</domain:name>
-                    <domain:period unit="y">{{ years }}</domain:period>
                     <domain:authInfo>
                       <domain:pw>{{ authInfoPw }}</domain:pw>
                     </domain:authInfo>
                   </domain:transfer>
                 </transfer>
+                {{ extension }}
                 <clTRID>{{ clTRID }}</clTRID>
               </command>
             </epp>');
@@ -1501,6 +1593,9 @@ class EuEpp implements EppRegistryInterface
                   <domain:transfer
                    xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
                     <domain:name>{{ name }}</domain:name>
+                    <domain:authInfo>
+                      <domain:pw>{{ authInfoPw }}</domain:pw>
+                    </domain:authInfo>
                   </domain:transfer>
                 </transfer>
                 <clTRID>{{ clTRID }}</clTRID>
@@ -1516,6 +1611,9 @@ class EuEpp implements EppRegistryInterface
                   <domain:transfer
                    xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
                     <domain:name>{{ name }}</domain:name>
+                    <domain:authInfo>
+                      <domain:pw>{{ authInfoPw }}</domain:pw>
+                    </domain:authInfo>
                   </domain:transfer>
                 </transfer>
                 <clTRID>{{ clTRID }}</clTRID>
@@ -1599,9 +1697,7 @@ class EuEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['registrant']);
             $text = '';
             foreach ($params['contacts'] as $contactType => $contactID) {
-                if ($contactType == 'billing' || $contactType == 'tech') {
-                    $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
-                }
+                $text .= '<domain:contact type="' . $contactType . '">' . $contactID . '</domain:contact>' . "\n";
             }
             $from[] = '/{{ contacts }}/';
             $to[] = $text;
@@ -1660,6 +1756,36 @@ class EuEpp implements EppRegistryInterface
     }
     
     /**
+     * domainCreateClaims
+     */
+    public function domainCreateClaims($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        throw new EppException("Launch extension not supported!");
+    }
+    
+    /**
+     * domainCreateSunrise
+     */
+    public function domainCreateSunrise($params = array())
+    {
+        if (!$this->isLoggedIn) {
+            return array(
+                'code' => 2002,
+                'msg' => 'Command use error'
+            );
+        }
+
+        throw new EppException("Launch extension not supported!");
+    }
+    
+    /**
      * domainCreateDNSSEC
      */
     public function domainCreateDNSSEC($params = array())
@@ -1681,7 +1807,7 @@ class EuEpp implements EppRegistryInterface
             if (isset($params['nss'])) {
                 $text = '';
                 foreach ($params['nss'] as $hostObj) {
-                    $text .= '<domain:hostAttr><domain:hostName>' . $hostObj . '</domain:hostName></domain:hostAttr>' . "\n";
+                    $text .= '<domain:hostObj>' . $hostObj . '</domain:hostObj>' . "\n";
                 }
                 $from[] = '/{{ hostObjs }}/';
                 $to[] = $text;
@@ -1689,8 +1815,14 @@ class EuEpp implements EppRegistryInterface
                 $from[] = '/{{ hostObjs }}/';
                 $to[] = '';
             }
-            $from[] = '/{{ authInfoPw }}/';
-            $to[] = htmlspecialchars($params['authInfoPw']);
+            $from[] = '/{{ registrant }}/';
+            $to[] = htmlspecialchars($params['registrant']);
+            $text = '';
+            foreach ($params['contacts'] as $id => $contactType) {
+                $text .= '<domain:contact type="' . $contactType . '">' . $id . '</domain:contact>' . "\n";
+            }
+            $from[] = '/{{ contacts }}/';
+            $to[] = $text;
             if ($params['dnssec_records'] == 1) {
                 $from[] = '/{{ dnssec_data }}/';
                 $to[] = "<secDNS:dsData>
@@ -1714,6 +1846,8 @@ class EuEpp implements EppRegistryInterface
             <secDNS:digest>".htmlspecialchars($params['digest_2'])."</secDNS:digest>
           </secDNS:dsData>";
             }
+            $from[] = '/{{ authInfoPw }}/';
+            $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ clTRID }}/';
             $clTRID = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-domain-createDNSSEC-' . $clTRID);
@@ -1732,6 +1866,8 @@ class EuEpp implements EppRegistryInterface
         <domain:ns>
           {{ hostObjs }}
         </domain:ns>
+        <domain:registrant>{{ registrant }}</domain:registrant>
+        {{ contacts }}
         <domain:authInfo>
           <domain:pw>{{ authInfoPw }}</domain:pw>
         </domain:authInfo>
@@ -1768,36 +1904,6 @@ class EuEpp implements EppRegistryInterface
 
         return $return;
     }
-    
-    /**
-     * domainCreateClaims
-     */
-    public function domainCreateClaims($params = array())
-    {
-        if (!$this->isLoggedIn) {
-            return array(
-                'code' => 2002,
-                'msg' => 'Command use error'
-            );
-        }
-        
-        throw new EppException("Domain create claims is not supported!");
-    }
-    
-    /**
-     * domainCreateSunrise
-     */
-    public function domainCreateSunrise($params = array())
-    {
-        if (!$this->isLoggedIn) {
-            return array(
-                'code' => 2002,
-                'msg' => 'Command use error'
-            );
-        }
-
-        throw new EppException("Launch extension not supported!");
-    }
 
     /**
      * domainRenew
@@ -1811,82 +1917,7 @@ class EuEpp implements EppRegistryInterface
             );
         }
 
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ name }}/';
-            $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ clTRID }}/';
-            $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
-            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
-            $to[] = '';
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <info>
-      <domain:info
-       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
-       xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
-        <domain:name hosts="all">{{ name }}</domain:name>
-      </domain:info>
-    </info>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->infData;
-
-            $expDate = (string)$r->exDate;
-            $expDate = preg_replace("/^(\d+\-\d+\-\d+)\D.*$/", "$1", $expDate);
-            $from = $to = array();
-            $from[] = '/{{ name }}/';
-            $to[] = htmlspecialchars($params['domainname']);
-            $from[] = '/{{ regperiod }}/';
-            $to[] = htmlspecialchars($params['regperiod']);
-            $from[] = '/{{ expDate }}/';
-            $to[] = htmlspecialchars($expDate);
-            $from[] = '/{{ clTRID }}/';
-            $clTRID = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-domain-renew-' . $clTRID);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <renew>
-      <domain:renew
-       xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
-        <domain:name>{{ name }}</domain:name>
-        <domain:curExpDate>{{ expDate }}</domain:curExpDate>
-        <domain:period unit="y">{{ regperiod }}</domain:period>
-      </domain:renew>
-    </renew>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-            $r = $r->response->resData->children('urn:ietf:params:xml:ns:domain-1.0')->renData;
-            $name = (string)$r->name;
-            $exDate = (string)$r->exDate;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg,
-                'name' => $name,
-                'exDate' => $exDate
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $return;
+        throw new EppException("Manual domain renew not supported!");
     }
 
     /**
@@ -1953,8 +1984,51 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Domain restore is not supported!");
+
+        $return = array();
+        try {
+            $from = $to = array();
+            $from[] = '/{{ name }}/';
+            $to[] = htmlspecialchars($params['domainname']);
+            $from[] = '/{{ clTRID }}/';
+            $clTRID = str_replace('.', '', round(microtime(1), 3));
+            $to[] = htmlspecialchars($this->prefix . '-domain-restore-' . $clTRID);
+            $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
+            $to[] = '';
+            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
+  <command>
+   <update>
+     <domain:update xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+       <domain:name>{{ name }}</domain:name>
+       <domain:chg/>
+     </domain:update>
+   </update>
+   <extension>
+     <rgp:update xmlns:rgp="urn:ietf:params:xml:ns:rgp-1.0">
+       <rgp:restore op="request"/>
+     </rgp:update>
+   </extension>
+    <clTRID>{{ clTRID }}</clTRID>
+  </command>
+</epp>');
+            $r = $this->writeRequest($xml);
+            $code = (int)$r->response->result->attributes()->code;
+            $msg = (string)$r->response->result->msg;
+
+            $return = array(
+                'code' => $code,
+                'msg' => $msg
+            );
+        } catch (\Exception $e) {
+            $return = array(
+                'error' => $e->getMessage()
+            );
+        }
+
+        return $return;
     }
 
     /**
@@ -1968,8 +2042,8 @@ class EuEpp implements EppRegistryInterface
                 'msg' => 'Command use error'
             );
         }
-        
-        throw new EppException("Domain report is not supported!");
+
+        throw new EppException("RGP report not supported!");
     }
 
     /**
