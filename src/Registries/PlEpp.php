@@ -664,9 +664,12 @@ class PlEpp implements EppRegistryInterface
         $return = array();
         try {
             $from = $to = array();
-            $from[] = '/{{ id }}/';
-            $id = $params['contact'];
-            $to[] = htmlspecialchars($id);
+            $text = '';
+            foreach ($params['contact'] as $id) {
+                $text .= '<contact:id>' . htmlspecialchars($id) . '</contact:id>' . "\n";
+            }
+            $from[] = '/{{ ids }}/';
+            $to[] = $text;
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-check-' . $microtime);
@@ -683,7 +686,7 @@ class PlEpp implements EppRegistryInterface
  xmlns:contact="http://www.dns.pl/nask-epp-schema/contact-2.1"
  xsi:schemaLocation="http://www.dns.pl/nask-epp-schema/contact-2.1
  contact-2.1.xsd">
- <contact:id>{{ id }}</contact:id>
+ {{ ids }}
  </contact:check>
  </check>
  <clTRID>{{ clTRID }}</clTRID>
@@ -698,7 +701,8 @@ class PlEpp implements EppRegistryInterface
             foreach ($r->cd as $cd) {
                 $i++;
                 $contacts[$i]['id'] = (string)$cd->id;
-                $contacts[$i]['avail'] = (int)$cd->id->attributes()->avail;
+                $availStr = (string)$cd->id->attributes()->avail;
+                $contacts[$i]['avail'] = ($availStr === 'true' || $availStr === '1') ? true : false;
                 $contacts[$i]['reason'] = (string)$cd->reason;
             }
 

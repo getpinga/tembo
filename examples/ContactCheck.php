@@ -2,7 +2,7 @@
 /**
  * Tembo EPP client test file
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2024 by Taras Kondratyuk (https://getpinga.com)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -17,7 +17,7 @@ try
     $epp = connectEpp('generic');
 
     $params = array(
-        'contact' => 'tembo007'
+        'contact' => array('tembo007', 'tembo009')
     );
     $contactCheck = $epp->contactCheck($params);
     
@@ -37,7 +37,14 @@ try
             }
             else
             {
-                echo "Contact ".$x.": ID " . $contact['id'] . " is not available because: " . $contact['reason'] . PHP_EOL;
+                if (!empty($contact['reason']))
+                {
+                    echo "Contact " . $x . ": ID " . $contact['id'] . " is not available because: " . $contact['reason'] . PHP_EOL;
+                }
+                else
+                {
+                    echo "Contact " . $x . ": ID " . $contact['id'] . " is not available" . PHP_EOL;
+                }
             }
             $x++;
         }

@@ -650,9 +650,12 @@ class SeEpp implements EppRegistryInterface
         $return = array();
         try {
             $from = $to = array();
-            $from[] = '/{{ id }}/';
-            $id = $params['contact'];
-            $to[] = htmlspecialchars($id);
+            $text = '';
+            foreach ($params['contact'] as $id) {
+                $text .= '<contact:id>' . htmlspecialchars($id) . '</contact:id>' . "\n";
+            }
+            $from[] = '/{{ ids }}/';
+            $to[] = $text;
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-check-' . $microtime);
@@ -667,7 +670,7 @@ class SeEpp implements EppRegistryInterface
       <contact:check
         xmlns:contact="urn:ietf:params:xml:ns:contact-1.0"
         xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd">
-        <contact:id>{{ id }}</contact:id>
+        {{ ids }}
       </contact:check>
     </check>
     <clTRID>{{ clTRID }}</clTRID>
@@ -681,7 +684,8 @@ class SeEpp implements EppRegistryInterface
             foreach ($r->cd as $cd) {
                 $i++;
                 $contacts[$i]['id'] = (string)$cd->id;
-                $contacts[$i]['avail'] = (int)$cd->id->attributes()->avail;
+                $availStr = (string)$cd->id->attributes()->avail;
+                $contacts[$i]['avail'] = ($availStr === 'true' || $availStr === '1') ? true : false;
                 $contacts[$i]['reason'] = (string)$cd->reason;
             }
 
