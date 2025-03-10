@@ -840,8 +840,10 @@ class LvEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['id']);
             $from[] = '/{{ name }}/';
             $to[] = htmlspecialchars($params['firstname'] . ' ' . $params['lastname']);
+            $org = isset($params['companyname']) && $params['companyname'] !== '' ? htmlspecialchars($params['companyname']) : '';
+
             $from[] = '/{{ org }}/';
-            $to[] = htmlspecialchars($params['companyname']);
+            $to[] = $org;
             $from[] = '/{{ street1 }}/';
             $to[] = htmlspecialchars($params['address1']);
             $from[] = '/{{ street2 }}/';
@@ -863,13 +865,21 @@ class LvEpp implements EppRegistryInterface
             $to[] = htmlspecialchars($params['email']);
             $from[] = '/{{ authInfo }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
-            $from[] = '/{{ vatNr }}/';
-            $to[] = htmlspecialchars($params['vatNr']);
-            $from[] = '/{{ regNr }}/';
-            $to[] = htmlspecialchars($params['regNr']);
             $from[] = '/{{ clTRID }}/';
             $microtime = str_replace('.', '', round(microtime(1), 3));
             $to[] = htmlspecialchars($this->prefix . '-contact-create-' . $microtime);
+            
+            $vatNr = isset($params['vatNr']) && $params['vatNr'] !== '' ? '<lvcontact:vatNr>' . htmlspecialchars($params['vatNr']) . '</lvcontact:vatNr>' : '';
+            $regNr = isset($params['regNr']) && $params['regNr'] !== '' ? '<lvcontact:regNr>' . htmlspecialchars($params['regNr']) . '</lvcontact:regNr>' : '';
+
+            $from[] = '/{{ vatNr }}/';
+            $to[] = $vatNr;
+            $from[] = '/{{ regNr }}/';
+            $to[] = $regNr;
+
+            $from[] = "/<lvcontact:create[^>]*>\s*<\/lvcontact:create>/";
+            $to[] = '';
+
             $from[] = "/<\w+:\w+>\s*<\/\w+:\w+>\s+/ims";
             $to[] = '';
             $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -895,7 +905,6 @@ class LvEpp implements EppRegistryInterface
           </contact:addr>
         </contact:postalInfo>
         <contact:voice>{{ phonenumber }}</contact:voice>
-        <contact:fax></contact:fax>
         <contact:email>{{ email }}</contact:email>
         <contact:authInfo>
           <contact:pw>{{ authInfo }}</contact:pw>
@@ -904,8 +913,8 @@ class LvEpp implements EppRegistryInterface
     </create>
     <extension>
       <lvcontact:create xmlns:lvcontact="http://www.nic.lv/epp/schema/lvcontact-ext-1.0">
-        <lvcontact:vatNr>{{ vatNr }}</lvcontact:vatNr>
-        <lvcontact:regNr>{{ regNr }}</lvcontact:regNr>
+        {{ vatNr }}
+        {{ regNr }}
       </lvcontact:create>
     </extension>
     <clTRID>{{ clTRID }}</clTRID>
@@ -1197,7 +1206,6 @@ class LvEpp implements EppRegistryInterface
        xmlns:domain="urn:ietf:params:xml:ns:domain-1.0"
        xsi:schemaLocation="urn:ietf:params:xml:ns:domain-1.0 domain-1.0.xsd">
         <domain:name hosts="all">{{ domainname }}</domain:name>
-        {{ authInfo }}
       </domain:info>
     </info>
     <clTRID>{{ clTRID }}</clTRID>
