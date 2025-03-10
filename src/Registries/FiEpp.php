@@ -1886,8 +1886,6 @@ class FiEpp implements EppRegistryInterface
             }
             $from[] = '/{{ registrant }}/';
             $to[] = htmlspecialchars($params['registrant']);
-            $from[] = '/{{ tech }}/';
-            $to[] = htmlspecialchars($params['tech']);
             $from[] = '/{{ authInfoPw }}/';
             $to[] = htmlspecialchars($params['authInfoPw']);
             $from[] = '/{{ clTRID }}/';
