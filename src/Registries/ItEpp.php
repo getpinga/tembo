@@ -213,6 +213,8 @@ class ItEpp implements EppRegistryInterface
           <extURI>http://www.nic.it/ITNIC-EPP/extcon-1.0</extURI>
           <extURI>http://www.nic.it/ITNIC-EPP/extdom-2.0</extURI>
           <extURI>urn:ietf:params:xml:ns:rgp-1.0</extURI>
+          <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
+          <extURI>http://www.nic.it/ITNIC-EPP/extsecDNS-1.0</extURI> 
         </svcExtension>
       </svcs>
     </login>
