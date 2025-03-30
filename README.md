@@ -185,3 +185,24 @@ After deleting the cookie file, try logging in again. This will force the creati
 ### Need More Help?
 
 If the steps above don’t resolve your issue, refer to the EPP Client logs (`/path/to/tembo/log`) to identify the specific problem.
+
+## Benchmarking an EPP Server
+
+To run tests against an EPP server using the Tembo EPP client, follow these steps:
+
+### 1. Configure Your Connection
+
+Edit the file `benchmark/Connection.php` - this file should contain the connection details for the server you want to test. It uses the same format as `examples/Connection.php`.
+
+### 2. Run the Benchmark
+
+From the root directory, run `php benchmark/Benchmark.php` - this will execute a series of domain check commands to test your server’s response and performance.
+
+### 3. Customize the Benchmark
+
+You can modify `benchmark/Benchmark.php` to:
+- Add your own EPP commands
+- Change the number of requests
+- Adjust the test logic
+
+Use this script as a starting point to test and tune your EPP server setup.
