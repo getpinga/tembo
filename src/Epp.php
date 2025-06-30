@@ -2,7 +2,7 @@
 /**
  * Namingo EPP client library
  *
- * Written in 2023-2024 by Taras Kondratyuk (https://namingo.org)
+ * Written in 2023-2025 by Taras Kondratyuk (https://namingo.org)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -16,11 +16,11 @@ use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
 
-class Epp
+abstract class Epp implements EppRegistryInterface
 {
-    private $resource;
-    private $isLoggedIn;
-    private $prefix;
+    protected $resource;
+    protected $isLoggedIn;
+    protected $prefix;
 
     public function __construct()
     {
@@ -42,9 +42,9 @@ class Epp
 
         // Create handlers - The second parameter is the max number of files to keep (0 means unlimited)
         // The third parameter is the log level
-        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/response.log', 0, Logger::DEBUG);
-        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/request.log', 0, Logger::DEBUG);
-        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../log/common.log', 0, Logger::DEBUG);
+        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/response.log', 0, Logger::DEBUG);
+        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/request.log', 0, Logger::DEBUG);
+        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/common.log', 0, Logger::DEBUG);
 
         // Set the formatter to the handlers
         $responseHandler->setFormatter($formatter);
@@ -191,109 +191,146 @@ class Epp
      */
     public function login($params = array())
     {
-        $return = array();
+        $return = [];
+
         try {
-            $from = $to = array();
-            $from[] = '/{{ clID }}/';
-            $to[] = htmlspecialchars($params['clID']);
-            $from[] = '/{{ pwd }}/';
-            $to[] = '<![CDATA[' . $params['pw'] . ']]>';
-            if (isset($params['newpw']) && !empty($params['newpw'])) {
-            $from[] = '/{{ newpw }}/';
-            $to[] = PHP_EOL . '      <newPW><![CDATA[' . $params['newpw'] . ']]></newPW>';
-            } else {
-            $from[] = '/{{ newpw }}/';
-            $to[] = '';
-            }
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($params['prefix'] . '-login-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <login>
-      <clID>{{ clID }}</clID>
-      <pw>{{ pwd }}</pw>{{ newpw }}
-      <options>
-        <version>1.0</version>
-        <lang>en</lang>
-      </options>
-      <svcs>
-        <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
-        <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
-        <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
-        <svcExtension>
-          <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
-          <extURI>urn:ietf:params:xml:ns:rgp-1.0</extURI>
-        </svcExtension>
-      </svcs>
-    </login>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            if ($code == 1000) {
-                $this->isLoggedIn = true;
-                $this->prefix = $params['prefix'];
+            $prefix = $params['prefix'] ?? 'tembo';
+            $clID = $params['clID'] ?? '';
+            $pw = $params['pw'] ?? '';
+            $newpw = $params['newpw'] ?? null;
+            $clTRID = htmlspecialchars($prefix . '-login-' . str_replace('.', '', round(microtime(true), 3)));
+
+            $xml = new \XMLWriter();
+            $xml->openMemory();
+            $xml->startDocument('1.0', 'UTF-8');
+
+            $xml->startElement('epp');
+            $xml->writeAttribute('xmlns', 'urn:ietf:params:xml:ns:epp-1.0');
+            $xml->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+            $xml->writeAttribute('xsi:schemaLocation', 'urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd');
+
+            $xml->startElement('command');
+            $xml->startElement('login');
+
+            $xml->writeElement('clID', $clID);
+            $xml->startElement('pw');
+            $xml->writeCData($pw);
+            $xml->endElement(); // pw
+
+            if (!empty($newpw)) {
+                $xml->startElement('newPW');
+                $xml->writeCData($newpw);
+                $xml->endElement(); // newPW
             }
 
-            $return = array(
+            $xml->startElement('options');
+            $xml->writeElement('version', '1.0');
+            $xml->writeElement('lang', 'en');
+            $xml->endElement(); // options
+
+            $xml->startElement('svcs');
+
+            $this->addLoginObjects($xml);
+            $this->addLoginExtensions($xml);
+
+            $xml->endElement(); // svcs
+            $xml->endElement(); // login
+
+            $xml->writeElement('clTRID', $clTRID);
+
+            $xml->endElement(); // command
+            $xml->endElement(); // epp
+
+            $xmlString = $xml->outputMemory();
+
+            $r = $this->writeRequest($xmlString);
+            $code = (int)$r->response->result->attributes()->code;
+
+            if ($code === 1000) {
+                $this->isLoggedIn = true;
+                $this->prefix = $prefix;
+            }
+
+            $return = [
                 'code' => $code,
                 'msg' => $r->response->result->msg
-            );
+            ];
         } catch (\Exception $e) {
-            $return = array(
+            $return = [
                 'error' => $e->getMessage()
-            );
+            ];
         }
 
         return $return;
+    }
+    
+    protected function addLoginObjects(\XMLWriter $xml): void
+    {
+        $xml->writeElement('objURI', 'urn:ietf:params:xml:ns:domain-1.0');
+        $xml->writeElement('objURI', 'urn:ietf:params:xml:ns:contact-1.0');
+        $xml->writeElement('objURI', 'urn:ietf:params:xml:ns:host-1.0');
+    }
+
+    protected function addLoginExtensions(\XMLWriter $xml): void
+    {
+        $xml->startElement('svcExtension');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:secDNS-1.1');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:rgp-1.0');
+        $xml->endElement(); // svcExtension
     }
 
     /**
      * logout
      */
-    public function logout($params = array())
+    public function logout(array $params = []): array
     {
         if (!$this->isLoggedIn) {
-            return array(
+            return [
                 'code' => 2002,
                 'msg' => 'Command use error'
-            );
+            ];
         }
 
-        $return = array();
+        $return = [];
+
         try {
-            $from = $to = array();
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-logout-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <logout/>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            if ($code == 1500) {
+            $clTRID = htmlspecialchars(
+                ($this->prefix ?? 'tembo') . '-logout-' . str_replace('.', '', round(microtime(true), 3))
+            );
+
+            $xml = new \XMLWriter();
+            $xml->openMemory();
+            $xml->startDocument('1.0', 'UTF-8');
+
+            $xml->startElement('epp');
+            $xml->writeAttribute('xmlns', 'urn:ietf:params:xml:ns:epp-1.0');
+            $xml->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+            $xml->writeAttribute('xsi:schemaLocation', 'urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd');
+
+            $xml->startElement('command');
+            $xml->writeElement('logout', null);
+            $xml->writeElement('clTRID', $clTRID);
+            $xml->endElement(); // command
+
+            $xml->endElement(); // epp
+
+            $xmlString = $xml->outputMemory();
+
+            $r = $this->writeRequest($xmlString);
+            $code = (int) $r->response->result->attributes()->code;
+
+            if ($code === 1500) {
                 $this->isLoggedIn = false;
             }
 
-            $return = array(
+            $return = [
                 'code' => $code,
                 'msg' => $r->response->result->msg
-            );
+            ];
         } catch (\Exception $e) {
-            $return = array(
+            $return = [
                 'error' => $e->getMessage()
-            );
+            ];
         }
 
         return $return;
@@ -305,30 +342,32 @@ class Epp
     public function hello()
     {
         if (!$this->isLoggedIn) {
-            return array(
+            return [
                 'code' => 2002,
                 'msg' => 'Command use error'
-            );
+            ];
         }
 
-        $return = array();
         try {
-            $from = $to = array();
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-hello-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
-   <hello/>
-</epp>');
-            $r = $this->writeRequest($xml);
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
+            $xml = new \XMLWriter();
+            $xml->openMemory();
+            $xml->startDocument('1.0', 'UTF-8');
 
-        return $r->asXML();
+            $xml->startElement('epp');
+            $xml->writeAttribute('xmlns', 'urn:ietf:params:xml:ns:epp-1.0');
+            $xml->writeElement('hello', null);
+            $xml->endElement(); // epp
+
+            $xmlString = $xml->outputMemory();
+
+            $r = $this->writeRequest($xmlString);
+
+            return $r->asXML();
+        } catch (\Exception $e) {
+            return [
+                'error' => $e->getMessage()
+            ];
+        }
     }
 
     /**

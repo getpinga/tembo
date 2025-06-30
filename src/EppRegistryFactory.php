@@ -14,6 +14,7 @@ use Pinga\Tembo\Registries\EuEpp;
 use Pinga\Tembo\Registries\FiEpp;
 use Pinga\Tembo\Registries\FrEpp;
 use Pinga\Tembo\Registries\FredEpp;
+use Pinga\Tembo\Registries\GenericEpp;
 use Pinga\Tembo\Registries\GrEpp;
 use Pinga\Tembo\Registries\HkEpp;
 use Pinga\Tembo\Registries\HrEpp;
@@ -81,7 +82,7 @@ class EppRegistryFactory
                 return new VrsnEpp();
                 break;
             default:
-                return new Epp();
+                return new GenericEpp();
         }
     }
 }

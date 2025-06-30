@@ -2,7 +2,7 @@
 /**
  * Tembo EPP client library
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2023-2025 by Taras Kondratyuk (https://getpinga.com)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -10,6 +10,7 @@
 
 namespace Pinga\Tembo\Registries;
 
+use Pinga\Tembo\Epp;
 use Pinga\Tembo\EppRegistryInterface;
 use Pinga\Tembo\Exception\EppException;
 use Pinga\Tembo\Exception\EppNotConnectedException;
@@ -17,322 +18,33 @@ use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
 
-class VrsnEpp implements EppRegistryInterface
+class VrsnEpp extends Epp
 {
-    private $resource;
-    private $isLoggedIn;
-    private $prefix;
-
-    public function __construct()
+    protected function addLoginObjects(\XMLWriter $xml): void
     {
-        if (!extension_loaded('SimpleXML')) {
-            throw new \Exception('PHP extension SimpleXML is not loaded.');
-        }
-
-        // Create the loggers
-        $this->responseLogger = new Logger('Response');
-        $this->requestLogger = new Logger('Request');
-        $this->commonLogger = new Logger('Tembo');
-
-        // Define the line format
-        $lineFormat = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
-        $dateFormat = "Y-m-d H:i:s"; // Customize the date format if needed
-
-        // Create a LineFormatter instance
-        $formatter = new LineFormatter($lineFormat, $dateFormat);
-
-        // Create handlers - The second parameter is the max number of files to keep (0 means unlimited)
-        // The third parameter is the log level
-        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/response-vrsn.log', 0, Logger::DEBUG);
-        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/request-vrsn.log', 0, Logger::DEBUG);
-        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/common-vrsn.log', 0, Logger::DEBUG);
-
-        // Set the formatter to the handlers
-        $responseHandler->setFormatter($formatter);
-        $requestHandler->setFormatter($formatter);
-        $commonHandler->setFormatter($formatter);
-
-        // Push handlers to the loggers
-        $this->responseLogger->pushHandler($responseHandler);
-        $this->requestLogger->pushHandler($requestHandler);
-        $this->commonLogger->pushHandler($commonHandler);
+        $xml->writeElement('objURI', 'urn:ietf:params:xml:ns:domain-1.0');
+        $xml->writeElement('objURI', 'urn:ietf:params:xml:ns:contact-1.0');
+        $xml->writeElement('objURI', 'urn:ietf:params:xml:ns:host-1.0');
+        $xml->writeElement('objURI', 'http://www.verisign.com/epp/registry-1.0');
+        $xml->writeElement('objURI', 'http://www.verisign.com/epp/lowbalance-poll-1.0');
+        $xml->writeElement('objURI', 'http://www.verisign.com/epp/rgp-poll-1.0');
     }
 
-    /**
-     * connect
-     */
-    public function connect($params = array())
+    protected function addLoginExtensions(\XMLWriter $xml): void
     {
-        $host = (string)$params['host'];
-        $port = (int)$params['port'];
-        $timeout = (int)$params['timeout'];
-        $tls = (string)$params['tls'];
-        $bind = (string)$params['bind'];
-        $bindip = (string)$params['bindip'];
-        if ($tls !== '1.3' && $tls !== '1.2' && $tls !== '1.1') {
-            throw new EppException('Invalid TLS version specified.');
-        }
-        $opts = array(
-            'ssl' => array(
-            'verify_peer' => (bool)$params['verify_peer'],
-            'verify_peer_name' => (bool)$params['verify_peer_name'],
-            'verify_host' => (bool)$params['verify_host'],
-            'cafile' => (string)$params['cafile'],
-            'local_cert' => (string)$params['local_cert'],
-            'local_pk' => (string)$params['local_pk'],
-            'passphrase' => (string)$params['passphrase'],
-            'allow_self_signed' => (bool)$params['allow_self_signed'],
-            'min_tls_version' => $tls
-            )
-        );
-        if ($bind) {
-            $opts['socket'] = array('bindto' => $bindip);
-        }
-        $context = stream_context_create($opts);
-        $this->resource = stream_socket_client("tls://{$host}:{$port}", $errno, $errmsg, $timeout, STREAM_CLIENT_CONNECT, $context);
-        if (!$this->resource) {
-            throw new EppException("Cannot connect to server '{$host}': {$errmsg}");
-        }
-
-        return $this->readResponse();
-    }
-
-    /**
-     * readResponse
-     */
-    public function readResponse()
-    {
-        $hdr = stream_get_contents($this->resource, 4);
-        if ($hdr === false) {
-            throw new EppException('Connection appears to have closed.');
-        }
-        if (strlen($hdr) < 4) {
-            throw new EppException('Failed to read header from the connection.');
-        }
-        $unpacked = unpack('N', $hdr);
-        $xml = fread($this->resource, ($unpacked[1] - 4));
-        $xml = preg_replace('/></', ">\n<", $xml);
-        $this->_response_log($xml);
-        return $xml;
-    }
-
-    /**
-     * writeRequest
-     */
-    public function writeRequest($xml)
-    {
-        $this->_request_log($xml);
-        if (fwrite($this->resource, pack('N', (strlen($xml) + 4)) . $xml) === false) {
-            throw new EppException('Error writing to the connection.');
-        }
-        $r = simplexml_load_string($this->readResponse());
-        if (isset($r->response) && $r->response->result->attributes()->code >= 2000) {
-            throw new EppException($r->response->result->msg);
-        }
-        return $r;
-    }
-
-    /**
-     * disconnect
-     */
-    public function disconnect()
-    {
-        if (!fclose($this->resource)) {
-            throw new EppException('Error closing the connection.');
-        }
-        $this->resource = null;
-    }
-
-    /**
-    * wrapper for functions
-    */
-    public function __call($func, $args)
-    {
-        if (!function_exists($func)) {
-            throw new \Exception("Call to undefined method Epp::$func().");
-        }
-
-        if ($func === 'connect') {
-            try {
-                $result = call_user_func_array($func, $args);
-            } catch (\ErrorException $e) {
-                throw new EppException($e->getMessage());
-            }
-
-            if (!is_resource($this->resource)) {
-                throw new EppException('An error occured while trying to connect to EPP server.');
-            }
-
-            $result = null;
-        } elseif (!is_resource($this->resource)) {
-            throw new EppNotConnectedException();
-        } else {
-            array_unshift($args, $this->resource);
-            try {
-                $result = call_user_func_array($func, $args);
-            } catch (\ErrorException $e) {
-                throw new EppException($e->getMessage());
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * login
-     */
-    public function login($params = array())
-    {
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ clID }}/';
-            $to[] = htmlspecialchars($params['clID']);
-            $from[] = '/{{ pwd }}/';
-            $to[] = '<![CDATA[' . $params['pw'] . ']]>'; 
-            if (isset($params['newpw']) && !empty($params['newpw'])) {
-            $from[] = '/{{ newpw }}/';
-            $to[] = PHP_EOL . '      <newPW><![CDATA[' . $params['newpw'] . ']]></newPW>';
-            } else {
-            $from[] = '/{{ newpw }}/';
-            $to[] = '';
-            }
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($params['prefix'] . '-login-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <login>
-      <clID>{{ clID }}</clID>
-      <pw>{{ pwd }}</pw>{{ newpw }}
-      <options>
-        <version>1.0</version>
-        <lang>en</lang>
-      </options>
-        <svcs>
-          <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
-          <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
-          <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
-          <objURI>http://www.verisign.com/epp/registry-1.0</objURI>
-          <objURI>http://www.verisign.com/epp/lowbalance-poll-1.0</objURI>
-          <objURI>http://www.verisign.com/epp/rgp-poll-1.0</objURI>
-          <svcExtension>
-            <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
-            <extURI>urn:ietf:params:xml:ns:epp:loginSec-1.0</extURI>
-            <extURI>http://www.verisign.com/epp/whoisInf-1.0</extURI>
-            <extURI>http://www.verisign.com/epp/idnLang-1.0</extURI>
-            <extURI>urn:ietf:params:xml:ns:coa-1.0</extURI>
-            <extURI>http://www.verisign-grs.com/epp/namestoreExt-1.1</extURI>
-            <extURI>http://www.verisign.com/epp/sync-1.0</extURI>
-            <extURI>http://www.verisign.com/epp/relatedDomain-1.0</extURI>
-            <extURI>urn:ietf:params:xml:ns:verificationCode-1.0</extURI>
-            <extURI>urn:ietf:params:xml:ns:rgp-1.0</extURI>
-            <extURI>urn:ietf:params:xml:ns:changePoll-1.0</extURI>
-          </svcExtension>
-        </svcs>
-    </login>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            if ($code == 1000) {
-                $this->isLoggedIn = true;
-                $this->prefix = $params['prefix'];
-            }
-
-            $return = array(
-                'code' => $code,
-                'msg' => $r->response->result->msg
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $return;
-    }
-
-    /**
-     * logout
-     */
-    public function logout($params = array())
-    {
-        if (!$this->isLoggedIn) {
-            return array(
-                'code' => 2002,
-                'msg' => 'Command use error'
-            );
-        }
-
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-logout-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd">
-  <command>
-    <logout/>
-    <clTRID>{{ clTRID }}</clTRID>
-  </command>
-</epp>');
-            $r = $this->writeRequest($xml);
-            $code = (int)$r->response->result->attributes()->code;
-            if ($code == 1500) {
-                $this->isLoggedIn = false;
-            }
-
-            $return = array(
-                'code' => $code,
-                'msg' => $r->response->result->msg
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $return;
-    }
-
-    /**
-     * hello
-     */
-    public function hello()
-    {
-        if (!$this->isLoggedIn) {
-            return array(
-                'code' => 2002,
-                'msg' => 'Command use error'
-            );
-        }
-
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-hello-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
-   <hello/>
-</epp>');
-            $r = $this->writeRequest($xml);
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $r->asXML();
+        $xml->startElement('svcExtension');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:secDNS-1.1');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:epp:loginSec-1.0');
+        $xml->writeElement('extURI', 'http://www.verisign.com/epp/whoisInf-1.0');
+        $xml->writeElement('extURI', 'http://www.verisign.com/epp/idnLang-1.0');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:coa-1.0');
+        $xml->writeElement('extURI', 'http://www.verisign-grs.com/epp/namestoreExt-1.1');
+        $xml->writeElement('extURI', 'http://www.verisign.com/epp/sync-1.0');
+        $xml->writeElement('extURI', 'http://www.verisign.com/epp/relatedDomain-1.0');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:verificationCode-1.0');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:rgp-1.0');
+        $xml->writeElement('extURI', 'urn:ietf:params:xml:ns:changePoll-1.0');
+        $xml->endElement(); // svcExtension
     }
 
     /**

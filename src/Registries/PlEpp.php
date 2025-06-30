@@ -2,7 +2,7 @@
 /**
  * Tembo EPP client library
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2023-2025 by Taras Kondratyuk (https://getpinga.com)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
@@ -10,6 +10,7 @@
 
 namespace Pinga\Tembo\Registries;
 
+use Pinga\Tembo\Epp;
 use Pinga\Tembo\EppRegistryInterface;
 use Pinga\Tembo\Exception\EppException;
 use Pinga\Tembo\Exception\EppNotConnectedException;
@@ -17,47 +18,8 @@ use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
 
-class PlEpp implements EppRegistryInterface
+class PlEpp extends Epp
 {
-    private $resource;
-    private $isLoggedIn;
-    private $prefix;
-
-    public function __construct()
-    {
-        if (!extension_loaded('SimpleXML')) {
-            throw new \Exception('PHP extension SimpleXML is not loaded.');
-        }
-
-        // Create the loggers
-        $this->responseLogger = new Logger('Response');
-        $this->requestLogger = new Logger('Request');
-        $this->commonLogger = new Logger('Tembo');
-
-        // Define the line format
-        $lineFormat = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
-        $dateFormat = "Y-m-d H:i:s"; // Customize the date format if needed
-
-        // Create a LineFormatter instance
-        $formatter = new LineFormatter($lineFormat, $dateFormat);
-
-        // Create handlers - The second parameter is the max number of files to keep (0 means unlimited)
-        // The third parameter is the log level
-        $responseHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/response-pl.log', 0, Logger::DEBUG);
-        $requestHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/request-pl.log', 0, Logger::DEBUG);
-        $commonHandler = new RotatingFileHandler(dirname(__FILE__) . '/../../log/common-pl.log', 0, Logger::DEBUG);
-
-        // Set the formatter to the handlers
-        $responseHandler->setFormatter($formatter);
-        $requestHandler->setFormatter($formatter);
-        $commonHandler->setFormatter($formatter);
-
-        // Push handlers to the loggers
-        $this->responseLogger->pushHandler($responseHandler);
-        $this->requestLogger->pushHandler($requestHandler);
-        $this->commonLogger->pushHandler($commonHandler);
-    }
-
     /**
      * connect
      */
@@ -134,41 +96,6 @@ class PlEpp implements EppRegistryInterface
     public function disconnect()
     {
         return curl_close($this->ch);
-    }
-
-    /**
-    * wrapper for functions
-    */
-    public function __call($func, $args)
-    {
-        if (!function_exists($func)) {
-            throw new \Exception("Call to undefined method Epp::$func().");
-        }
-
-        if ($func === 'connect') {
-            try {
-                $result = call_user_func_array($func, $args);
-            } catch (\ErrorException $e) {
-                throw new EppException($e->getMessage());
-            }
-
-            if (!is_resource($this->resource)) {
-                throw new EppException('An error occured while trying to connect to EPP server.');
-            }
-
-            $result = null;
-        } elseif (!is_resource($this->resource)) {
-            throw new EppNotConnectedException();
-        } else {
-            array_unshift($args, $this->resource);
-            try {
-                $result = call_user_func_array($func, $args);
-            } catch (\ErrorException $e) {
-                throw new EppException($e->getMessage());
-            }
-        }
-
-        return $result;
     }
 
     /**
@@ -278,38 +205,6 @@ class PlEpp implements EppRegistryInterface
         }
 
         return $return;
-    }
-
-    /**
-     * hello
-     */
-    public function hello()
-    {
-        if (!$this->isLoggedIn) {
-            return array(
-                'code' => 2002,
-                'msg' => 'Command use error'
-            );
-        }
-
-        $return = array();
-        try {
-            $from = $to = array();
-            $from[] = '/{{ clTRID }}/';
-            $microtime = str_replace('.', '', round(microtime(1), 3));
-            $to[] = htmlspecialchars($this->prefix . '-hello-' . $microtime);
-            $xml = preg_replace($from, $to, '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
-   <hello/>
-</epp>');
-            $r = $this->writeRequest($xml);
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $r->asXML();
     }
 
     /**
@@ -2511,38 +2406,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
             $return = array(
                 'code' => $code,
                 'msg' => $msg
-            );
-        } catch (\Exception $e) {
-            $return = array(
-                'error' => $e->getMessage()
-            );
-        }
-
-        return $return;
-    }
-
-    /**
-     * rawXml
-     */
-    public function rawXml($params = array())
-    {
-        if (!$this->isLoggedIn) {
-            return array(
-                'code' => 2002,
-                'msg' => 'Command use error'
-            );
-        }
-
-        $return = array();
-        try {
-            $r = $this->writeRequest($params['xml']);
-            $code = (int)$r->response->result->attributes()->code;
-            $msg = (string)$r->response->result->msg;
-
-            $return = array(
-                'code' => $code,
-                'msg' => $msg,
-                'xml' => $r->asXML()
             );
         } catch (\Exception $e) {
             $return = array(
