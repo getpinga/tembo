@@ -2,14 +2,13 @@
 /**
  * Tembo EPP client test file
  *
- * Written in 2023 by Taras Kondratyuk (https://getpinga.com)
+ * Written in 2023-2025 by Taras Kondratyuk (https://namingo.org)
  * Based on xpanel/epp-bundle written in 2019 by Lilian Rudenco (info@xpanel.com)
  *
  * @license MIT
  */
- 
- // Include the Composer autoloader
-require_once '../vendor/autoload.php';
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Pinga\Tembo\EppRegistryFactory;
 
