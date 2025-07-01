@@ -8,9 +8,9 @@
  * @license MIT
  */
 
-require_once '../vendor/autoload.php';
-require_once 'Connection.php';
-require_once 'Helpers.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/Connection.php';
+require_once __DIR__ . '/Helpers.php';
 
 try {
     // Start timing
